@@ -1,9 +1,8 @@
 # Course Quest
 
 * **Date Created**: 27 JAN 2025
-* **Last Modification Date**: 05 MAR 2025
+* **Last Modification Date**: 15 MAR 2025
 * **GitHub URL**: <https://github.com/jaylonaucoin/course-quest>
-* **GitLab URL**: <https://git.cs.dal.ca/courses/2025-winter/csci-4176_5708/project-milestone-2/jaucoin>
 
 ## Author(s)
 
@@ -14,6 +13,41 @@
 **CourseQuest** is a mobile app to visually track all the golf courses one has played. It aims to create a modern, visually 
 appealing, and functional app for golfers to map and document their experiences. A mobile-first approach makes the most 
 sense, with potential future expansion to web and desktop.
+
+## Getting Started
+
+To get a local copy up and running follow these simple steps.
+
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/jaylonaucoin/course-quest.git
+   ```
+2. Install NPM packages
+   ```sh
+    npm install
+    ```
+3. Start the Expo server
+   ```sh
+    npx expo start
+    ```
+4. Open the Expo Go app on your mobile device and scan the QR code to run the app on your device.
+
+### Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+```dotenv
+FIREBASE_API_KEY=<your_firebase_api_key>
+FIREBASE_AUTH_DOMAIN=<your_firebase_auth_domain>
+FIREBASE_PROJECT_ID=<your_firebase_project_id>
+FIREBASE_STORAGE_BUCKET=<your_firebase_storage_bucket>
+FIREBASE_MESSAGING_SENDER_ID=<your_firebase_messaging_sender_id>
+FIREBASE_APP_ID=<your_firebase_app_id>
+FIREBASE_MEASUREMENT_ID=<your_firebase_measurement_id>
+OPEN_METEO_API_KEY=<your_open_meteo_api_key>
+```
 
 ## Built With
 

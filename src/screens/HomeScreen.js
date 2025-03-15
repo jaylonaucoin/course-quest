@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {FlatList, Pressable, RefreshControl, View} from 'react-native';
-import {Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button, Surface} from 'react-native-paper';
+import {Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button} from 'react-native-paper';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { deleteRound, getRounds } from "../utils/DataController";
 import {useScrollToTop} from "@react-navigation/native";

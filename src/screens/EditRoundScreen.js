@@ -1,16 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {View, Pressable} from 'react-native';
-import {useTheme, Text, Button, Menu, IconButton, Portal, Modal, ActivityIndicator} from 'react-native-paper';
+import {useTheme, Text, Button, IconButton, Portal, Modal, ActivityIndicator} from 'react-native-paper';
 import Input from "../components/Input";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import img from "../../assets/img.jpg";
 import {
-    addRound,
     deleteRoundImages,
     getRound,
     pickImage,
     updateRound,
-    uploadImage,
     uploadImages
 } from "../utils/DataController";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";

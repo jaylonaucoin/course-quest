@@ -1,6 +1,6 @@
 import React from 'react';
 import {View} from 'react-native';
-import { auth, db } from "../../firebaseConfig";
+import { auth } from "../../firebaseConfig";
 import { signOut } from "firebase/auth";
 import {ToggleButton, Button, Text, useTheme} from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';

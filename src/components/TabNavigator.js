@@ -1,8 +1,8 @@
 import React from 'react';
-import { CommonActions } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import {BottomNavigation, Appbar, useTheme} from 'react-native-paper';
+import {CommonActions} from '@react-navigation/native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createStackNavigator} from '@react-navigation/stack';
+import {BottomNavigation} from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SettingsScreen from '../screens/SettingsScreen.js';
 import MapScreen from '../screens/MapScreen.js';
@@ -18,8 +18,7 @@ import EditAccountScreen from "../screens/EditAccountScreen";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-export default function TabNavigator({ navigation }) {
-    const theme = useTheme();
+export default function TabNavigator() {
     return (
         <Tab.Navigator
             initialRouteName="Home"
@@ -61,14 +60,11 @@ export default function TabNavigator({ navigation }) {
                     }}
                     getLabelText={({ route }) => {
                         const { options } = descriptors[route.key];
-                        const label =
-                            options.tabBarLabel !== undefined
-                                ? options.tabBarLabel
-                                : options.title !== undefined
-                                    ? options.title
-                                    : route.title;
-
-                        return label;
+                        return options.tabBarLabel !== undefined
+                            ? options.tabBarLabel
+                            : options.title !== undefined
+                                ? options.title
+                                : route.title;
                     }}
                 />
             )}

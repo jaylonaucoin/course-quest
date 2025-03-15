@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {FlatList, Image, View, RefreshControl} from 'react-native';
+import {FlatList, View, RefreshControl} from 'react-native';
 import {Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button, RadioButton} from 'react-native-paper';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import {deleteRound, getRounds} from "../utils/DataController";
-import {useRoute, useScrollToTop} from "@react-navigation/native";
+import {useScrollToTop} from "@react-navigation/native";
 
 export default function RoundScreen({ navigation }) {
-    const route = useRoute();
     const theme = useTheme();
     const [refreshing, setRefreshing] = useState(false);
     const [rounds, setRounds] = useState([]);

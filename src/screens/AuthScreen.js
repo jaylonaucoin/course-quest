@@ -1,13 +1,13 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { View} from "react-native";
-import {useEffect, useRef, useState} from "react";
+import {useRef, useState} from "react";
 import { auth, db } from "../../firebaseConfig";
 import Input from "../components/Input";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import {SegmentedButtons, Button, HelperText, useTheme, Text, Searchbar} from "react-native-paper";
+import {SegmentedButtons, Button, HelperText, useTheme, Text} from "react-native-paper";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {setAsyncUserAndRounds, setUser} from "../utils/DataController";
+import {setUser} from "../utils/DataController";
 
 export default function AuthScreen({ navigation }) {
     const theme = useTheme();
