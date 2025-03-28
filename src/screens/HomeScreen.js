@@ -15,7 +15,6 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { deleteRound, getRounds } from '../utils/DataController';
 import { useScrollToTop } from '@react-navigation/native';
 import { Image } from 'expo-image';
-import ImageView from 'react-native-image-viewing';
 import Carousel from 'react-native-reanimated-carousel';
 
 export default function HomeScreen({ navigation }) {
