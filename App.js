@@ -4,12 +4,12 @@ import * as Location from "expo-location";
 import { Camera } from "expo-camera";
 import { Audio } from "expo-av";
 import AuthScreen from "./src/screens/AuthScreen";
-import TabNavigator from "./src/components/TabNavigator";
+import TabNavigator from "./src/utils/TabNavigator";
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { AppRegistry } from "react-native";
 import appConfig from "./app.json";
-import { ThemeProvider } from "./src/components/ThemeProvider";
+import { ThemeProvider } from "./src/utils/ThemeProvider";
 
 const appName = appConfig.expo.name;
 

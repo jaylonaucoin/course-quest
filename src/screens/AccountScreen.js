@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
-import {
-	Avatar,
-	Button,
-	Card,
-	Divider,
-	useTheme,
-	Text,
-	Icon,
-	Menu,
-	RadioButton,
-} from "react-native-paper";
+import { Avatar, Button, Card, Divider, useTheme, Text, Icon, Menu, RadioButton } from "react-native-paper";
 import { getUser, getRounds } from "../utils/DataController";
 
 export default function AccountScreen({ navigation }) {
@@ -49,10 +39,7 @@ export default function AccountScreen({ navigation }) {
 					}}>
 					<View style={{ borderRadius: 100, marginRight: 5 }}>
 						{user.profilePicture ? (
-							<Avatar.Image
-								size={60}
-								source={{ uri: user.profilePicture }}
-							/>
+							<Avatar.Image size={60} source={{ uri: user.profilePicture }} />
 						) : (
 							<Avatar.Image
 								size={60}
@@ -63,24 +50,17 @@ export default function AccountScreen({ navigation }) {
 									alignItems: "center",
 								}}
 								source={() => (
-									<Icon
-										source="account"
-										color={theme.colors.onPrimary}
-										size={45}
-									/>
+									<Icon source="account" color={theme.colors.onPrimary} size={45} />
 								)}
 							/>
 						)}
 					</View>
-					<Text variant="headlineMedium">
-						{user.firstName + " " + user.lastName}
-					</Text>
+					<Text variant="headlineMedium">{user.firstName + " " + user.lastName}</Text>
 				</View>
 				<Card>
 					<Card.Content>
 						<Text variant="titleMedium">
-							Home Course:{" "}
-							<Text variant="titleMedium">{user.homeCourse}</Text>
+							Home Course: <Text variant="titleMedium">{user.homeCourse}</Text>
 						</Text>
 						<Text variant="titleSmall">Location: Nova Scotia, Canada</Text>
 						<Divider style={{ marginVertical: 10 }} bold={true} />
@@ -91,9 +71,7 @@ export default function AccountScreen({ navigation }) {
 								flexDirection: "row",
 								justifyContent: "flex-end",
 							}}>
-							<Button onPress={() => navigation.navigate("EditAccount")}>
-								Edit Profile
-							</Button>
+							<Button onPress={() => navigation.navigate("EditAccount")}>Edit Profile</Button>
 						</View>
 					</Card.Content>
 				</Card>
@@ -118,9 +96,7 @@ export default function AccountScreen({ navigation }) {
 						}
 						onDismiss={() => setSortMenuVisible(false)}
 						style={{ marginTop: 45, marginRight: 50 }}>
-						<RadioButton.Group
-							onValueChange={(value) => changeSort(value)}
-							value={sort}>
+						<RadioButton.Group onValueChange={(value) => changeSort(value)} value={sort}>
 							<RadioButton.Item label="Date (desc)" value="date-desc" />
 							<RadioButton.Item label="Date (asc)" value="date-asc" />
 							<RadioButton.Item label="Score (desc)" value="score-desc" />

@@ -1,12 +1,15 @@
 import {
 	createUserWithEmailAndPassword,
 	signInWithEmailAndPassword,
+	sendPasswordResetEmail,
+	sendEmailVerification,
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { View } from "react-native";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { auth, db } from "../../firebaseConfig";
 import Input from "../components/Input";
+import Modal from "../components/Modal";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SegmentedButtons, Button, HelperText, useTheme, Text } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -24,6 +27,8 @@ export default function AuthScreen({ navigation }) {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [passwordMismatch, setPasswordMismatch] = useState(false);
 	const [error, setError] = useState("");
+	const [resetPassword, setResetPassword] = useState(false);
+	const [resetPasswordEmail, setResetPasswordEmail] = useState("");
 
 	const firstNameRef = useRef(null);
 	const lastNameRef = useRef(null);
@@ -41,37 +46,53 @@ export default function AuthScreen({ navigation }) {
 		}
 	};
 
+	const sendResetPassword = async () => {
+		try {
+			await sendPasswordResetEmail(auth, resetPasswordEmail);
+			alert("Password reset email sent!");
+			setResetPassword(false);
+		} catch (error) {
+			setError("Error sending password reset email: " + error.message);
+		}
+	};
+
 	const signUpUser = async () => {
 		if (password !== confirmPassword) {
 			confirmPasswordRef.current.focus();
 			return;
 		}
 		try {
-			const userCredential = await createUserWithEmailAndPassword(
-				auth,
-				email,
-				password,
-			);
-			await setUser(
-				userCredential.user.uid,
-				email,
-				registerFirstName,
-				registerLastName,
-				homeCourse,
-			);
+			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+			await sendEmailVerification(userCredential.user);
+			await setUser(userCredential.user.uid, email, registerFirstName, registerLastName, homeCourse);
 			await login(email, password, navigation);
 		} catch (error) {
-			setError("Error signing up: " + error.message);
+			if (error.code === "auth/email-already-in-use") {
+				setError("Email already in use! Please try another.");
+			} else if (error.code === "auth/invalid-email") {
+				setError("Invalid email address! Please try again.");
+			} else if (error.code === "auth/weak-password") {
+				setError("Weak password! Please try again.");
+			} else if (error.code === "auth/password-does-not-meet-requirements") {
+				const regex = /\[(.*?)]/;
+				const matches = error.message.match(regex);
+				const criteriaString = matches ? matches[1] : "";
+
+				// Split the criteria into an array
+				const criteriaArray = criteriaString.split(", ");
+
+				// Join the criteria with newline characters
+				const formattedCriteria = criteriaArray.join("\n");
+				setError(formattedCriteria);
+			} else {
+				setError(error + "Error signing up! Please try again.");
+			}
 		}
 	};
 
 	const login = async () => {
 		try {
-			const userCredential = await signInWithEmailAndPassword(
-				auth,
-				email,
-				password,
-			);
+			const userCredential = await signInWithEmailAndPassword(auth, email, password);
 			const user = userCredential.user;
 
 			const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -111,6 +132,41 @@ export default function AuthScreen({ navigation }) {
 			extraScrollHeight={25}
 			enableOnAndroid={true}
 			keyboardShouldPersistTaps="handled">
+			<Modal visible={resetPassword} onDismiss={() => setResetPassword(false)} title="Reset Password">
+				<Input
+					type="email"
+					onChange={setResetPasswordEmail}
+					value={resetPasswordEmail}
+					autofill="email">
+					Email
+				</Input>
+				<View
+					style={{
+						justifyContent: "space-between",
+						gap: 20,
+						width: "100%",
+					}}>
+					<Button
+						contentStyle={{ padding: 4 }}
+						labelStyle={{ fontSize: 16, fontWeight: 600 }}
+						onPress={sendResetPassword}
+						mode={"contained"}>
+						Reset Password
+					</Button>
+					<Button
+						buttonColor={theme.colors.secondary}
+						contentStyle={{ padding: 4 }}
+						labelStyle={{
+							fontSize: 16,
+							fontWeight: 600,
+							color: theme.colors.onSecondary,
+						}}
+						onPress={() => setResetPassword(false)}
+						mode={"contained"}>
+						Cancel
+					</Button>
+				</View>
+			</Modal>
 			<View className="flex-1 justify-center items-center p-4">
 				<Text variant="displaySmall" style={{ fontWeight: "bold" }}>
 					{activeView === "login" ? "Sign In" : "Register"}
@@ -172,7 +228,11 @@ export default function AuthScreen({ navigation }) {
 							submitForm={() => login(email, password, navigation)}>
 							Password
 						</Input>
-						<Button labelStyle={{ textDecorationLine: "underline" }}>
+						<Button
+							mode="text"
+							rippleColor={theme.colors.elevation.level0}
+							labelStyle={{ textDecorationLine: "underline" }}
+							onPress={() => setResetPassword(true)}>
 							Forgot your password?
 						</Button>
 					</View>
@@ -246,9 +306,7 @@ export default function AuthScreen({ navigation }) {
 					<Button
 						contentStyle={{ padding: 4 }}
 						labelStyle={{ fontSize: 16, fontWeight: 600 }}
-						onPress={
-							activeView === "login" ? () => login() : () => signUpUser()
-						}
+						onPress={activeView === "login" ? () => login() : () => signUpUser()}
 						mode={"contained"}>
 						{activeView === "login" ? "Sign In" : "Register"}
 					</Button>

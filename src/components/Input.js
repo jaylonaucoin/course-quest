@@ -22,6 +22,7 @@ const Input = ({
 		borderColor: theme.colors.onSurfaceVariant,
 		backgroundColor: theme.colors.surfaceVariant,
 		placeholderTextColor: theme.colors.onSurfaceVariant,
+		width: "100%",
 	};
 
 	const handleSubmitEditing = () => {
@@ -53,7 +54,7 @@ const Input = ({
 	};
 
 	return (
-		<View className={"max-w-96 self-center grow shrink w-full p-2 basis-" + size}>
+		<View className={"max-w-96 self-center shrink w-full p-2"}>
 			{type === "password" ? (
 				<TextInput
 					ref={inputRef}

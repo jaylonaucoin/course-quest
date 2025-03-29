@@ -9,7 +9,7 @@ import MapScreen from "../screens/MapScreen.js";
 import RoundScreen from "../screens/RoundScreen.js";
 import HomeScreen from "../screens/HomeScreen.js";
 
-import Header from "./Header";
+import Header from "../components/Header";
 import AddRoundScreen from "../screens/AddRoundScreen";
 import AccountScreen from "../screens/AccountScreen";
 import EditRoundScreen from "../screens/EditRoundScreen";

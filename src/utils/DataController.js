@@ -1,12 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { auth, db, storage } from "../../firebaseConfig";
-import {
-	getDownloadURL,
-	ref,
-	uploadBytes,
-	deleteObject,
-	listAll,
-} from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes, deleteObject, listAll } from "firebase/storage";
 import {
 	collection,
 	doc,
@@ -20,6 +14,7 @@ import {
 	setDoc,
 } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { EmailAuthProvider } from "firebase/auth";
 
 // Function to pick an image, with optional auto-upload
 export async function pickImage(upload = false) {
@@ -154,10 +149,7 @@ export async function getRounds(q = "date-desc") {
 	const direction = q.split("-")[1];
 	try {
 		const snapshot = await getDocs(
-			query(
-				collection(db, "users", auth.currentUser.uid, "rounds"),
-				orderBy(field, direction),
-			),
+			query(collection(db, "users", auth.currentUser.uid, "rounds"), orderBy(field, direction)),
 		);
 		return Object.values(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
 	} catch (error) {
@@ -189,32 +181,19 @@ export async function setAsyncUserAndRounds() {
 	}
 }
 
-export async function addRound(
-	course,
-	date,
-	score,
-	temp,
-	rain,
-	wind,
-	notes,
-	images,
-	tees,
-) {
+export async function addRound(course, date, score, temp, rain, wind, notes, images, tees) {
 	try {
-		const roundRef = await addDoc(
-			collection(db, "users", auth.currentUser.uid, "rounds"),
-			{
-				course: course,
-				date: date,
-				score: Number(score),
-				temp: Number(temp),
-				rain: Number(rain),
-				wind: Number(wind),
-				notes: notes,
-				images: [images],
-				tees: tees,
-			},
-		);
+		const roundRef = await addDoc(collection(db, "users", auth.currentUser.uid, "rounds"), {
+			course: course,
+			date: date,
+			score: Number(score),
+			temp: Number(temp),
+			rain: Number(rain),
+			wind: Number(wind),
+			notes: notes,
+			images: [images],
+			tees: tees,
+		});
 		await setAsyncUserAndRounds();
 		return roundRef.id;
 	} catch (error) {
@@ -252,18 +231,7 @@ export async function deleteRoundImages(id) {
 	}
 }
 
-export async function updateRound(
-	id,
-	course,
-	date,
-	score,
-	temp,
-	rain,
-	wind,
-	notes,
-	image,
-	tees,
-) {
+export async function updateRound(id, course, date, score, temp, rain, wind, notes, image, tees) {
 	try {
 		console.log("Updating round:", id);
 		await updateDoc(doc(db, "users", auth.currentUser.uid, "rounds", id), {
@@ -287,11 +255,20 @@ export async function updateRound(
 
 export async function getRound(id) {
 	try {
-		const roundDoc = await getDoc(
-			doc(db, "users", auth.currentUser.uid, "rounds", id),
-		);
+		const roundDoc = await getDoc(doc(db, "users", auth.currentUser.uid, "rounds", id));
 		return roundDoc.exists() ? { id: roundDoc.id, ...roundDoc.data() } : null;
 	} catch (error) {
 		console.error("Error fetching round:", error);
+	}
+}
+
+export async function reauthenticate(currentPassword) {
+	const user = auth.currentUser;
+	const credential = EmailAuthProvider.credential(user.email, currentPassword);
+	try {
+		await user.reauthenticateWithCredential(credential);
+		return true;
+	} catch (error) {
+		return false;
 	}
 }
