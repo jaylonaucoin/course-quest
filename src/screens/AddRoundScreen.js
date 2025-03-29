@@ -1,15 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Pressable, View } from "react-native";
 import Input from "../components/Input";
-import {
-	Text,
-	Button,
-	useTheme,
-	IconButton,
-	Portal,
-	Modal,
-	ActivityIndicator,
-} from "react-native-paper";
+import { Text, Button, useTheme, IconButton, Portal, Modal, ActivityIndicator } from "react-native-paper";
 import { pickImage, addRound, updateRound, uploadImages } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import img from "../../assets/img.jpg";
@@ -79,31 +71,10 @@ export default function AddRoundScreen({ navigation }) {
 				return;
 			}
 			setLoading(true);
-			const roundId = await addRound(
-				course,
-				date,
-				score,
-				temp,
-				rain,
-				wind,
-				notes,
-				null,
-				tees,
-			);
+			const roundId = await addRound(course, date, score, temp, rain, wind, notes, null, tees);
 			if (images) {
 				const urls = await uploadImages(images, "rounds", roundId);
-				await updateRound(
-					roundId,
-					course,
-					date,
-					score,
-					temp,
-					rain,
-					wind,
-					notes,
-					urls,
-					tees,
-				);
+				await updateRound(roundId, course, date, score, temp, rain, wind, notes, urls, tees);
 			}
 			setLoading(false);
 			navigation.navigate("Home");
@@ -178,43 +149,19 @@ export default function AddRoundScreen({ navigation }) {
 					nextRef={scoreRef}>
 					Date
 				</Input>
-				<Input
-					onChange={setScore}
-					type="number"
-					value={score}
-					inputRef={scoreRef}
-					nextRef={tempRef}>
+				<Input onChange={setScore} type="number" value={score} inputRef={scoreRef} nextRef={tempRef}>
 					Score
 				</Input>
-				<Input
-					onChange={setTemp}
-					type="number"
-					value={temp}
-					inputRef={tempRef}
-					nextRef={rainRef}>
+				<Input onChange={setTemp} type="number" value={temp} inputRef={tempRef} nextRef={rainRef}>
 					Temperature
 				</Input>
-				<Input
-					onChange={setRain}
-					type="number"
-					value={rain}
-					inputRef={rainRef}
-					nextRef={windRef}>
+				<Input onChange={setRain} type="number" value={rain} inputRef={rainRef} nextRef={windRef}>
 					Rain
 				</Input>
-				<Input
-					onChange={setWind}
-					type="number"
-					value={wind}
-					inputRef={windRef}
-					nextRef={notesRef}>
+				<Input onChange={setWind} type="number" value={wind} inputRef={windRef} nextRef={notesRef}>
 					Wind
 				</Input>
-				<Input
-					onChange={setNotes}
-					value={notes}
-					inputRef={notesRef}
-					nextRef={teesRef}>
+				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>
 					Notes
 				</Input>
 				<Input onChange={setTees} value={tees} inputRef={teesRef}>

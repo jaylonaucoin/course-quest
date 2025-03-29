@@ -30,10 +30,7 @@ export default function TabNavigator() {
 					return (
 						<Header
 							navigation={navigation}
-							title={
-								navigation.getState().routes[navigation.getState().index]
-									.name
-							}
+							title={navigation.getState().routes[navigation.getState().index].name}
 						/>
 					);
 				},
@@ -149,9 +146,7 @@ const RoundStackNavigator = () => {
 				component={RoundScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Rounds" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Rounds" />,
 				}}
 			/>
 			<Stack.Screen
@@ -159,9 +154,7 @@ const RoundStackNavigator = () => {
 				component={AddRoundScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Add Round" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Add Round" />,
 				}}
 			/>
 			<Stack.Screen
@@ -169,9 +162,7 @@ const RoundStackNavigator = () => {
 				component={EditRoundScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Edit Round" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Edit Round" />,
 				}}
 			/>
 		</Stack.Navigator>
@@ -192,9 +183,7 @@ const SettingsStackNavigator = () => {
 				component={SettingsScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Settings" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Settings" />,
 				}}
 			/>
 			<Stack.Screen
@@ -202,9 +191,7 @@ const SettingsStackNavigator = () => {
 				component={AccountScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Account" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Account" />,
 				}}
 			/>
 			<Stack.Screen
@@ -212,9 +199,7 @@ const SettingsStackNavigator = () => {
 				component={EditAccountScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Edit Account" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Edit Account" />,
 				}}
 			/>
 		</Stack.Navigator>

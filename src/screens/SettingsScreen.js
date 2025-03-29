@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { SafeAreaView, ScrollView, View } from "react-native";
-import { signOut, getAuth, sendEmailVerification, verifyBeforeUpdateEmail, updateEmail, updatePassword } from "firebase/auth";
+import {
+	signOut,
+	getAuth,
+	sendEmailVerification,
+	verifyBeforeUpdateEmail,
+	updatePassword,
+	deleteUser,
+} from "firebase/auth";
 import { ToggleButton, Button, Text, useTheme } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -79,6 +86,20 @@ export default function SettingsScreen({ navigation }) {
 		}
 	};
 
+	const handleDeleteAccount = async () => {
+		try {
+			await openReauth(); // Wait for successful reauthentication
+			await deleteUser(auth.currentUser);
+			alert("Account deleted successfully!");
+			navigation.reset({
+				index: 0,
+				routes: [{ name: "Auth" }],
+			});
+		} catch (error) {
+			alert("Failed to delete account: " + error.message);
+		}
+	};
+
 	const hideModal = () => {
 		setVisible(false);
 		setEmail("");
@@ -94,20 +115,23 @@ export default function SettingsScreen({ navigation }) {
 			<Modal
 				visible={visible}
 				onDismiss={() => hideModal()}
-				title={modalType === "email" ? "Change Email" : "Change Password"}>
+				title={
+					modalType === "email"
+						? "Change Email"
+						: modalType === "password"
+							? "Change Password"
+							: "Delete Account"
+				}>
 				<View style={{ width: "100%", alignItems: "center", gap: 10 }}>
-					<Text variant="bodyLarge">
-						Enter your new {modalType === "email" ? "email" : "password"}.
-					</Text>
-					<Input
-						value={modalType === "email" ? email : password}
-						type={modalType === "email" ? "email" : "password"}
-						autofill={modalType === "email" ? "email" : "password"}
-						onChange={
-							modalType === "email" ? (text) => setEmail(text) : (text) => setPassword(text)
-						}>
-						{modalType === "email" ? "Email" : "Password"}
-					</Input>
+					{modalType === "email" || modalType === "password" ? (
+						<Text variant="bodyLarge">
+							Enter your new {modalType === "email" ? "email" : "password"}.
+						</Text>
+					) : (
+						<Text variant="bodyLarge" style={{ textAlign: "center" }}>
+							You are about to delete your account. This action cannot be undone.
+						</Text>
+					)}
 					{modalType === "password" && (
 						<Input
 							value={confirmPassword}
@@ -132,8 +156,18 @@ export default function SettingsScreen({ navigation }) {
 					)}
 					<Button
 						mode="contained"
-						onPress={modalType === "email" ? handleUpdateEmail : handlePasswordUpdate}>
-						Save
+						labelStyle={{
+							color: modalType === "delete" ? theme.colors.onError : theme.colors.onPrimary,
+						}}
+						buttonColor={modalType === "delete" ? theme.colors.error : theme.colors.primary}
+						onPress={
+							modalType === "email"
+								? handleUpdateEmail
+								: modalType === "password"
+									? handlePasswordUpdate
+									: handleDeleteAccount
+						}>
+						{modalType === "delete" ? "Delete Account" : "Update"}
 					</Button>
 				</View>
 			</Modal>
@@ -258,14 +292,10 @@ export default function SettingsScreen({ navigation }) {
 					</Text>
 					<Button
 						contentStyle={{
-							backgroundColor: auth.currentUser?.emailVerified
-								? theme.colors.secondary
-								: theme.colors.error,
+							backgroundColor: theme.colors.secondary,
 						}}
 						labelStyle={{
-							color: auth.currentUser?.emailVerified
-								? theme.colors.onSecondary
-								: theme.colors.onError,
+							color: theme.colors.onSecondary,
 						}}
 						onPress={() => {
 							sendEmailVerification(auth.currentUser)
@@ -308,14 +338,14 @@ export default function SettingsScreen({ navigation }) {
 						marginTop: 20,
 					}}>
 					<Text variant="bodyLarge" style={{ fontWeight: "bold" }}>
-						Password
+						Delete Account
 					</Text>
 					<Button
-						contentStyle={{ backgroundColor: theme.colors.secondary }}
-						labelStyle={{ color: theme.colors.onSecondary }}
-						onPress={() => setModalVisible("password")}
-						mode={"contained"}>
-						Change Password
+						labelStyle={{ color: theme.colors.onError }}
+						onPress={() => setModalVisible("delete")}
+						mode={"contained"}
+						buttonColor={theme.colors.error}>
+						Delete Account
 					</Button>
 				</View>
 				<View style={{ width: "40%", alignSelf: "center", marginTop: 50 }}>

@@ -54,9 +54,7 @@ export default function EditAccountScreen() {
 					alignItems: "center",
 					justifyContent: "center",
 				}}>
-				<Pressable
-					style={{ marginBottom: 10, width: 125, height: 100 }}
-					onPress={setPicture}>
+				<Pressable style={{ marginBottom: 10, width: 125, height: 100 }} onPress={setPicture}>
 					{profilePicture ? (
 						<Avatar.Image size={100} source={{ uri: profilePicture }} />
 					) : (
@@ -68,13 +66,7 @@ export default function EditAccountScreen() {
 								alignContent: "center",
 								alignItems: "center",
 							}}
-							source={() => (
-								<Icon
-									source="account"
-									color={theme.colors.onPrimary}
-									size={80}
-								/>
-							)}
+							source={() => <Icon source="account" color={theme.colors.onPrimary} size={80} />}
 						/>
 					)}
 					<IconButton
@@ -115,11 +107,7 @@ export default function EditAccountScreen() {
 					search>
 					Home Course
 				</Input>
-				<Input
-					onChange={setBio}
-					value={bio}
-					autofill="organization-title"
-					inputRef={bioRef}>
+				<Input onChange={setBio} value={bio} autofill="organization-title" inputRef={bioRef}>
 					Bio
 				</Input>
 				<Button

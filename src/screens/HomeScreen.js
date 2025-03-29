@@ -1,16 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Pressable, RefreshControl, View } from "react-native";
-import {
-	Card,
-	Text,
-	Avatar,
-	IconButton,
-	useTheme,
-	Menu,
-	Divider,
-	Icon,
-	Button,
-} from "react-native-paper";
+import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { deleteRound, getRounds } from "../utils/DataController";
 import { useScrollToTop } from "@react-navigation/native";
@@ -22,7 +12,9 @@ export default function HomeScreen({ navigation }) {
 	const theme = useTheme();
 	const [rounds, setRounds] = useState([]);
 	const [menuStates, setMenuStates] = useState({});
+	// eslint-disable-next-line no-unused-vars
 	const [imageViewVisible, setImageViewVisible] = useState(false);
+	// eslint-disable-next-line no-unused-vars
 	const [imageIndex, setImageIndex] = useState(0);
 
 	const scrollRef = useRef(null);
@@ -88,17 +80,11 @@ export default function HomeScreen({ navigation }) {
 					<Text variant="titleLarge" style={{ marginHorizontal: 10 }}>
 						Time to go tee it up and add some rounds to show here!
 					</Text>
-					<Icon
-						source="golf"
-						size={100}
-						color={theme.colors.onSurfaceVariant}
-					/>
+					<Icon source="golf" size={100} color={theme.colors.onSurfaceVariant} />
 					<Button
 						mode="contained"
 						style={{ marginTop: 20 }}
-						onPress={() =>
-							navigation.navigate("RoundStack", { screen: "AddRound" })
-						}>
+						onPress={() => navigation.navigate("RoundStack", { screen: "AddRound" })}>
 						Add Round
 					</Button>
 				</View>
@@ -125,13 +111,11 @@ export default function HomeScreen({ navigation }) {
 							}}>
 							<Card.Title
 								title={item.course}
-								subtitle={item.date
-									.toDate()
-									.toLocaleDateString(undefined, {
-										year: "numeric",
-										month: "long",
-										day: "numeric",
-									})}
+								subtitle={item.date.toDate().toLocaleDateString(undefined, {
+									year: "numeric",
+									month: "long",
+									day: "numeric",
+								})}
 								left={() => (
 									<Avatar.Text
 										labelStyle={{
@@ -153,17 +137,11 @@ export default function HomeScreen({ navigation }) {
 										anchor={
 											<IconButton
 												icon="dots-vertical"
-												mode={
-													menuStates[item.id] &&
-													"contained-tonal"
-												}
+												mode={menuStates[item.id] && "contained-tonal"}
 												onPress={() => toggleMenu(item.id)}
 											/>
 										}>
-										<Menu.Item
-											onPress={() => goToEditRoundScreen(item)}
-											title="Edit"
-										/>
+										<Menu.Item onPress={() => goToEditRoundScreen(item)} title="Edit" />
 										<Divider />
 										<Menu.Item
 											onPress={() => deleteDBRound(item.id)}
@@ -189,10 +167,7 @@ export default function HomeScreen({ navigation }) {
 										scrollAnimationDuration={250}
 										data={item.images}
 										renderItem={({ item }) => (
-											<Pressable
-												onPress={() =>
-													renderImageViewer(item.id)
-												}>
+											<Pressable onPress={() => renderImageViewer(item.id)}>
 												<Image
 													style={{ height: "100%" }}
 													source={item}

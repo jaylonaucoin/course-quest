@@ -36,16 +36,8 @@ export default function App() {
 	return (
 		<ThemeProvider>
 			<Stack.Navigator id="stack-navigator">
-				<Stack.Screen
-					name="Auth"
-					component={AuthScreen}
-					options={{ headerShown: false }}
-				/>
-				<Stack.Screen
-					name="Main"
-					component={TabNavigator}
-					options={{ headerShown: false }}
-				/>
+				<Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
+				<Stack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
 			</Stack.Navigator>
 		</ThemeProvider>
 	);

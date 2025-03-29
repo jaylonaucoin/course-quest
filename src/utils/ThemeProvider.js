@@ -124,9 +124,7 @@ export const ThemeProvider = ({ children }) => {
 		<ThemeContext.Provider value={{ themeMode, toggleTheme }}>
 			<PaperProvider theme={theme}>
 				<NavigationContainer>
-					<StatusBar
-						barStyle={themeMode === "dark" ? "light-content" : "dark-content"}
-					/>
+					<StatusBar barStyle={themeMode === "dark" ? "light-content" : "dark-content"} />
 					{children}
 				</NavigationContainer>
 			</PaperProvider>

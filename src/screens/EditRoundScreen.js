@@ -1,23 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Pressable } from "react-native";
-import {
-	useTheme,
-	Text,
-	Button,
-	IconButton,
-	Portal,
-	Modal,
-	ActivityIndicator,
-} from "react-native-paper";
+import { useTheme, Text, Button, IconButton, Portal, Modal, ActivityIndicator } from "react-native-paper";
 import Input from "../components/Input";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import {
-	deleteRoundImages,
-	getRound,
-	pickImage,
-	updateRound,
-	uploadImages,
-} from "../utils/DataController";
+import { deleteRoundImages, getRound, pickImage, updateRound, uploadImages } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
 import { Image } from "expo-image";
@@ -109,31 +95,9 @@ export default function EditRoundScreen({ route }) {
 			if (imageChanged) {
 				await deleteRoundImages(id);
 				const urls = await uploadImages(images, "rounds", id);
-				await updateRound(
-					id,
-					course,
-					date,
-					score,
-					temp,
-					rain,
-					wind,
-					notes,
-					urls,
-					tees,
-				);
+				await updateRound(id, course, date, score, temp, rain, wind, notes, urls, tees);
 			} else {
-				await updateRound(
-					id,
-					course,
-					date,
-					score,
-					temp,
-					rain,
-					wind,
-					notes,
-					images,
-					tees,
-				);
+				await updateRound(id, course, date, score, temp, rain, wind, notes, images, tees);
 			}
 			setLoading(false);
 			navigation.navigate("Home");
@@ -200,8 +164,7 @@ export default function EditRoundScreen({ route }) {
 					nextRef={dateRef}>
 					Course
 				</Input>
-				<View
-					className={"max-w-96 self-center grow shrink w-full p-2 basis-full"}>
+				<View className={"max-w-96 self-center grow shrink w-full p-2 basis-full"}>
 					<View
 						style={{
 							borderRadius: 15,
@@ -225,43 +188,19 @@ export default function EditRoundScreen({ route }) {
 						/>
 					</View>
 				</View>
-				<Input
-					onChange={setScore}
-					type="number"
-					value={score}
-					inputRef={scoreRef}
-					nextRef={tempRef}>
+				<Input onChange={setScore} type="number" value={score} inputRef={scoreRef} nextRef={tempRef}>
 					Score
 				</Input>
-				<Input
-					onChange={setTemp}
-					type="number"
-					value={temp}
-					inputRef={tempRef}
-					nextRef={rainRef}>
+				<Input onChange={setTemp} type="number" value={temp} inputRef={tempRef} nextRef={rainRef}>
 					Temperature
 				</Input>
-				<Input
-					onChange={setRain}
-					type="number"
-					value={rain}
-					inputRef={rainRef}
-					nextRef={windRef}>
+				<Input onChange={setRain} type="number" value={rain} inputRef={rainRef} nextRef={windRef}>
 					Rain
 				</Input>
-				<Input
-					onChange={setWind}
-					type="number"
-					value={wind}
-					inputRef={windRef}
-					nextRef={notesRef}>
+				<Input onChange={setWind} type="number" value={wind} inputRef={windRef} nextRef={notesRef}>
 					Wind
 				</Input>
-				<Input
-					onChange={setNotes}
-					value={notes}
-					inputRef={notesRef}
-					nextRef={teesRef}>
+				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>
 					Notes
 				</Input>
 				<Input onChange={setTees} value={tees} inputRef={teesRef}>
@@ -311,10 +250,7 @@ export default function EditRoundScreen({ route }) {
 						}}
 					/>
 				</View>
-				<Button
-					mode="contained"
-					style={{ marginTop: 15 }}
-					onPress={updateDBRound}>
+				<Button mode="contained" style={{ marginTop: 15 }} onPress={updateDBRound}>
 					Update Round
 				</Button>
 			</View>

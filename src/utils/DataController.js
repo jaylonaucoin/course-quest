@@ -268,7 +268,7 @@ export async function reauthenticate(currentPassword) {
 	try {
 		await user.reauthenticateWithCredential(credential);
 		return true;
-	} catch (error) {
+	} catch {
 		return false;
 	}
 }

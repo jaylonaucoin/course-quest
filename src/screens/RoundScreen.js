@@ -86,11 +86,7 @@ export default function RoundScreen({ navigation }) {
 					<Text variant="titleLarge" style={{ marginHorizontal: 10 }}>
 						Time to go tee it up and add some rounds to show here!
 					</Text>
-					<Icon
-						source="golf"
-						size={100}
-						color={theme.colors.onSurfaceVariant}
-					/>
+					<Icon source="golf" size={100} color={theme.colors.onSurfaceVariant} />
 					<Button
 						mode="contained"
 						style={{ marginTop: 20 }}
@@ -133,25 +129,11 @@ export default function RoundScreen({ navigation }) {
 								}
 								onDismiss={() => setSortMenuVisible(false)}
 								style={{ marginTop: 45, marginRight: 50 }}>
-								<RadioButton.Group
-									onValueChange={(value) => changeSort(value)}
-									value={sort}>
-									<RadioButton.Item
-										label="Date (desc)"
-										value="date-desc"
-									/>
-									<RadioButton.Item
-										label="Date (asc)"
-										value="date-asc"
-									/>
-									<RadioButton.Item
-										label="Score (desc)"
-										value="score-desc"
-									/>
-									<RadioButton.Item
-										label="Score (asc)"
-										value="score-asc"
-									/>
+								<RadioButton.Group onValueChange={(value) => changeSort(value)} value={sort}>
+									<RadioButton.Item label="Date (desc)" value="date-desc" />
+									<RadioButton.Item label="Date (asc)" value="date-asc" />
+									<RadioButton.Item label="Score (desc)" value="score-desc" />
+									<RadioButton.Item label="Score (asc)" value="score-asc" />
 								</RadioButton.Group>
 							</Menu>
 						</View>
@@ -165,13 +147,11 @@ export default function RoundScreen({ navigation }) {
 							}}>
 							<Card.Title
 								title={item.course}
-								subtitle={item.date
-									.toDate()
-									.toLocaleDateString(undefined, {
-										year: "numeric",
-										month: "long",
-										day: "numeric",
-									})}
+								subtitle={item.date.toDate().toLocaleDateString(undefined, {
+									year: "numeric",
+									month: "long",
+									day: "numeric",
+								})}
 								left={() => (
 									<Avatar.Text
 										labelStyle={{
@@ -193,17 +173,11 @@ export default function RoundScreen({ navigation }) {
 										anchor={
 											<IconButton
 												icon="dots-vertical"
-												mode={
-													menuStates[item.id] &&
-													"contained-tonal"
-												}
+												mode={menuStates[item.id] && "contained-tonal"}
 												onPress={() => toggleMenu(item.id)}
 											/>
 										}>
-										<Menu.Item
-											onPress={() => goToEditRoundScreen(item)}
-											title="Edit"
-										/>
+										<Menu.Item onPress={() => goToEditRoundScreen(item)} title="Edit" />
 										<Divider />
 										<Menu.Item
 											onPress={() => deleteDBRound(item.id)}
