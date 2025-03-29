@@ -122,54 +122,78 @@ export default function SettingsScreen({ navigation }) {
 							? "Change Password"
 							: "Delete Account"
 				}>
-				<View style={{ width: "100%", alignItems: "center", gap: 10 }}>
-					{modalType === "email" || modalType === "password" ? (
-						<Text variant="bodyLarge">
-							Enter your new {modalType === "email" ? "email" : "password"}.
-						</Text>
-					) : (
-						<Text variant="bodyLarge" style={{ textAlign: "center" }}>
-							You are about to delete your account. This action cannot be undone.
-						</Text>
-					)}
-					{modalType === "password" && (
-						<Input
-							value={confirmPassword}
-							type="password"
-							onChange={(text) => {
-								setConfirmPassword(text);
-								setPasswordMismatch(text !== password);
-							}}
-							error={passwordMismatch}>
-							Confirm Password
-						</Input>
-					)}
-					{error && (
-						<Text
-							style={{
-								color: theme.colors.error,
-								fontSize: 14,
-								textAlign: "center",
-							}}>
-							{error}
-						</Text>
-					)}
-					<Button
-						mode="contained"
-						labelStyle={{
-							color: modalType === "delete" ? theme.colors.onError : theme.colors.onPrimary,
+				{modalType === "email" || modalType === "password" ? (
+					<Text variant="bodyLarge">
+						Enter your new {modalType === "email" ? "email" : "password"}.
+					</Text>
+				) : (
+					<Text variant="bodyLarge" style={{ textAlign: "center" }}>
+						You are about to delete your account. This action cannot be undone.
+					</Text>
+				)}
+				{modalType !== "delete" && (
+					<Input
+						value={modalType === "email" ? email : password}
+						type={modalType === "email" ? "email" : "password"}
+						onChange={(text) => {
+							if (modalType === "email") {
+								setEmail(text);
+							} else {
+								setPassword(text);
+							}
 						}}
-						buttonColor={modalType === "delete" ? theme.colors.error : theme.colors.primary}
-						onPress={
-							modalType === "email"
-								? handleUpdateEmail
-								: modalType === "password"
-									? handlePasswordUpdate
-									: handleDeleteAccount
-						}>
-						{modalType === "delete" ? "Delete Account" : "Update"}
+						error={error}>
+						{modalType === "email" ? "New Email" : "New Password"}
+					</Input>
+				)}
+				{modalType === "password" && (
+					<Input
+						value={confirmPassword}
+						type="password"
+						onChange={(text) => {
+							setConfirmPassword(text);
+							setPasswordMismatch(text !== password);
+						}}
+						error={passwordMismatch}>
+						Confirm Password
+					</Input>
+				)}
+				{error && (
+					<Text
+						style={{
+							color: theme.colors.error,
+							fontSize: 14,
+							textAlign: "center",
+						}}>
+						{error}
+					</Text>
+				)}
+				<Button
+					mode="contained"
+					labelStyle={{
+						color: modalType === "delete" ? theme.colors.onError : theme.colors.onPrimary,
+					}}
+					buttonColor={modalType === "delete" ? theme.colors.error : theme.colors.primary}
+					onPress={
+						modalType === "email"
+							? handleUpdateEmail
+							: modalType === "password"
+								? handlePasswordUpdate
+								: handleDeleteAccount
+					}>
+					{modalType === "delete" ? "Delete Account" : "Update"}
+				</Button>
+				{modalType === "delete" && (
+					<Button
+						buttonColor={theme.colors.secondary}
+						labelStyle={{
+							color: theme.colors.onSecondary,
+						}}
+						mode={"contained"}
+						onPress={() => hideModal()}>
+						Cancel
 					</Button>
-				</View>
+				)}
 			</Modal>
 			<ScrollView
 				contentContainerStyle={{

@@ -29,7 +29,7 @@ export default function CustomModal({ visible, onDismiss, title, children, dismi
 						style={{
 							alignSelf: "center",
 							alignItems: "center",
-							justifyContent: "center",
+							justifyContent: "space-between",
 							width: "100%",
 							height: "100%",
 						}}>
@@ -43,7 +43,15 @@ export default function CustomModal({ visible, onDismiss, title, children, dismi
 							}}>
 							{title}
 						</Text>
-						{children}
+						<View
+							style={{
+								flexGrow: 1,
+								alignItems: "center",
+								justifyContent: "space-around",
+								width: "100%",
+							}}>
+							{children}
+						</View>
 					</View>
 				</TouchableWithoutFeedback>
 			</Modal>
