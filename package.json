@@ -4,11 +4,10 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start -c",
+    "lint": "eslint . --fix",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "web": "expo start --web"
   },
   "dependencies": {
     "@expo/metro-runtime": "~4.0.1",
@@ -31,6 +30,8 @@
     "react-native": "0.76.7",
     "react-native-geocoding": "^0.5.0",
     "react-native-gesture-handler": "~2.20.2",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-maps": "1.18.0",
     "react-native-paper": "^5.13.1",

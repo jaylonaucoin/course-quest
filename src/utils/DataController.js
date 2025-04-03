@@ -181,7 +181,7 @@ export async function setAsyncUserAndRounds() {
 	}
 }
 
-export async function addRound(course, date, score, temp, rain, wind, notes, images, tees) {
+export async function addRound(course, date, score, temp, rain, wind, notes, images, tees, lat, lon) {
 	try {
 		const roundRef = await addDoc(collection(db, "users", auth.currentUser.uid, "rounds"), {
 			course: course,
@@ -193,6 +193,8 @@ export async function addRound(course, date, score, temp, rain, wind, notes, ima
 			notes: notes,
 			images: [images],
 			tees: tees,
+			lat: Number(lat),
+			lon: Number(lon),
 		});
 		await setAsyncUserAndRounds();
 		return roundRef.id;
@@ -231,7 +233,7 @@ export async function deleteRoundImages(id) {
 	}
 }
 
-export async function updateRound(id, course, date, score, temp, rain, wind, notes, image, tees) {
+export async function updateRound(id, course, date, score, temp, rain, wind, notes, image, tees, lat, lon) {
 	try {
 		console.log("Updating round:", id);
 		await updateDoc(doc(db, "users", auth.currentUser.uid, "rounds", id), {
@@ -244,6 +246,8 @@ export async function updateRound(id, course, date, score, temp, rain, wind, not
 			notes: notes,
 			images: image,
 			tees: tees,
+			lat: lat,
+			lon: lon,
 		});
 		console.log("Round updated:", id);
 		await setAsyncUserAndRounds();

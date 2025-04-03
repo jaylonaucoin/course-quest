@@ -1,3 +1,4 @@
+import "react-native-get-random-values";
 import "./global.css";
 import { useEffect } from "react";
 import * as Location from "expo-location";
