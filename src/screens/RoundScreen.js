@@ -1,20 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, View, RefreshControl } from "react-native";
-import {
-	Card,
-	Text,
-	Avatar,
-	IconButton,
-	useTheme,
-	Menu,
-	Divider,
-	Icon,
-	Button,
-	RadioButton,
-} from "react-native-paper";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button, RadioButton } from "react-native-paper";
 import { deleteRound, getRounds } from "../utils/DataController";
 import { useScrollToTop } from "@react-navigation/native";
+import WeatherIcon from "../components/WeatherIcon";
 
 export default function RoundScreen({ navigation }) {
 	const theme = useTheme();
@@ -87,10 +76,7 @@ export default function RoundScreen({ navigation }) {
 						Time to go tee it up and add some rounds to show here!
 					</Text>
 					<Icon source="golf" size={100} color={theme.colors.onSurfaceVariant} />
-					<Button
-						mode="contained"
-						style={{ marginTop: 20 }}
-						onPress={() => navigation.navigate("AddRound")}>
+					<Button mode="contained" style={{ marginTop: 20 }} onPress={() => navigation.navigate("AddRound")}>
 						Add Round
 					</Button>
 				</View>
@@ -196,48 +182,9 @@ export default function RoundScreen({ navigation }) {
 									justifyContent: "space-around",
 									paddingRight: 10,
 								}}>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="temperature-high"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.temp}&deg;C</Text>
-								</View>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="wind"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.wind}km/h</Text>
-								</View>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="cloud-rain"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.rain}mm</Text>
-								</View>
+								<WeatherIcon type="temperature" weatherCode={item.weatherCode} value={item.temp} />
+								<WeatherIcon type="wind" weatherCode={item.weatherCode} value={item.wind} />
+								<WeatherIcon type="rain" weatherCode={item.weatherCode} value={item.rain} />
 							</View>
 						</Card>
 					)}

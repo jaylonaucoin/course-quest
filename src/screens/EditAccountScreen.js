@@ -4,6 +4,7 @@ import { useTheme, Button, Avatar, Icon, IconButton } from "react-native-paper";
 import Input from "../components/Input";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { getUser, pickImage, setProfileInfo } from "../utils/DataController";
+import { searchGolfCourses } from "../utils/APIController";
 
 export default function EditAccountScreen() {
 	const theme = useTheme();
@@ -12,6 +13,10 @@ export default function EditAccountScreen() {
 	const [homeCourse, setHomeCourse] = useState();
 	const [bio, setBio] = useState();
 	const [profilePicture, setProfilePicture] = useState();
+	const [courseResults, setCourseResults] = useState([]);
+	const [showCourseOptions, setShowCourseOptions] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [saved, setSaved] = useState(false);
 
 	const firstNameRef = useRef(null);
 	const lastNameRef = useRef(null);
@@ -28,10 +33,38 @@ export default function EditAccountScreen() {
 		});
 	}, []);
 
+	const handleFirstNameChange = (text) => {
+		setFirstName(text);
+		setSaved(false);
+	};
+
+	const handleLastNameChange = (text) => {
+		setLastName(text);
+		setSaved(false);
+	};
+
+	const handleBioChange = (text) => {
+		setBio(text);
+		setSaved(false);
+	};
+
+	const handleCourseChange = (text) => {
+		setHomeCourse(text);
+		setSaved(false);
+		searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+	};
+
+	const selectCourse = (courseData) => {
+		setHomeCourse(courseData.text.text.split(",")[0]);
+		setSaved(false);
+		setShowCourseOptions(false);
+	};
+
 	const setPicture = async () => {
 		try {
 			const url = await pickImage(true);
 			setProfilePicture(url);
+			setSaved(false);
 		} catch (error) {
 			console.error("Error setting profile picture:", error);
 		}
@@ -83,7 +116,7 @@ export default function EditAccountScreen() {
 					/>
 				</Pressable>
 				<Input
-					onChange={setFirstName}
+					onChange={handleFirstNameChange}
 					value={firstName}
 					autofill="given-name"
 					inputRef={firstNameRef}
@@ -91,7 +124,7 @@ export default function EditAccountScreen() {
 					First Name
 				</Input>
 				<Input
-					onChange={setLastName}
+					onChange={handleLastNameChange}
 					value={lastName}
 					autofill="family-name"
 					inputRef={lastNameRef}
@@ -99,21 +132,31 @@ export default function EditAccountScreen() {
 					Last Name
 				</Input>
 				<Input
-					onChange={setHomeCourse}
+					onChange={handleCourseChange}
+					type="search"
 					value={homeCourse}
-					autofill="organization-title"
 					inputRef={homeCourseRef}
 					nextRef={bioRef}
-					search>
+					searchType="course"
+					searchResults={courseResults}
+					showSearchResults={showCourseOptions}
+					onSearchResultSelect={selectCourse}>
 					Home Course
 				</Input>
-				<Input onChange={setBio} value={bio} autofill="organization-title" inputRef={bioRef}>
+				<Input onChange={handleBioChange} value={bio} autofill="organization-title" inputRef={bioRef}>
 					Bio
 				</Input>
 				<Button
 					mode="contained"
+					icon={saved ? "content-save" : "content-save-outline"}
 					style={{ marginTop: 20 }}
-					onPress={() => setProfileInfo(firstName, lastName, homeCourse, bio)}>
+					onPress={async () => {
+						setLoading(true);
+						await setProfileInfo(firstName, lastName, homeCourse, bio);
+						setLoading(false);
+						setSaved(true);
+					}}
+					loading={loading}>
 					Save Changes
 				</Button>
 			</View>

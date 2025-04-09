@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import MapView, { Marker, Callout } from "react-native-maps";
+import MapView from "react-native-map-clustering";
+import { Marker, Callout } from "react-native-maps";
 import { useTheme, Surface, Tooltip } from "react-native-paper";
 import { getRounds } from "../utils/DataController";
 import { useState, useEffect } from "react";
@@ -10,13 +11,68 @@ export default function MapScreen() {
 	const theme = useTheme();
 	const themeStyle = theme.dark ? "dark" : "light";
 	const [markers, setMarkers] = useState([]);
+	const [initialRegion, setInitialRegion] = useState({
+		latitude: 25,
+		longitude: -100,
+		latitudeDelta: 100,
+		longitudeDelta: 100,
+	});
+
+	const getCenter = (markers) => {
+		if (!markers || markers.length === 0) {
+			return {
+				latitude: 25,
+				longitude: -100,
+				latitudeDelta: 100,
+				longitudeDelta: 100,
+			};
+		}
+
+		// Calculate center
+		const sum = markers.reduce(
+			(acc, marker) => ({
+				latitude: acc.latitude + marker.latitude,
+				longitude: acc.longitude + marker.longitude,
+			}),
+			{ latitude: 0, longitude: 0 },
+		);
+		const center = {
+			latitude: sum.latitude / markers.length,
+			longitude: sum.longitude / markers.length,
+		};
+
+		// Calculate spread
+		const latitudes = markers.map((m) => m.latitude);
+		const longitudes = markers.map((m) => m.longitude);
+		const latSpread = Math.max(...latitudes) - Math.min(...latitudes);
+		const lonSpread = Math.max(...longitudes) - Math.min(...longitudes);
+
+		// Add padding to the spread
+		const padding = 0.2; // 20% padding
+		const latDelta = Math.max(latSpread * (1 + padding), 1);
+		const lonDelta = Math.max(lonSpread * (1 + padding), 1);
+
+		return {
+			...center,
+			latitudeDelta: latDelta,
+			longitudeDelta: lonDelta,
+		};
+	};
 
 	useEffect(() => {
-		getRounds().then((rounds) => {
-			setMarkers(
-				rounds.map((round) => ({
-					latitude: round.lat,
-					longitude: round.lon,
+		const loadRounds = async () => {
+			try {
+				const rounds = await getRounds();
+				console.log("Loaded rounds:", rounds);
+
+				if (!rounds || rounds.length === 0) {
+					console.log("No rounds found");
+					return;
+				}
+
+				const newMarkers = rounds.map((round) => ({
+					latitude: Number(round.lat),
+					longitude: Number(round.lon),
 					title: round.course,
 					description: round.score.toString(),
 					date: round.date ? round.date.toDate().toLocaleDateString() : "No date",
@@ -25,11 +81,22 @@ export default function MapScreen() {
 					wind: round.wind,
 					rain: round.rain,
 					image: round.images && round.images.length > 0 ? round.images[0] : null,
-				})),
-			);
-		});
-	}, []);
+				}));
 
+				console.log("Created markers:", newMarkers);
+				setMarkers(newMarkers);
+
+				const region = getCenter(newMarkers);
+				console.log("Calculated region:", region);
+
+				setInitialRegion(region);
+			} catch (error) {
+				console.error("Error loading rounds:", error);
+			}
+		};
+
+		loadRounds();
+	}, []);
 	const styles = StyleSheet.create({
 		tooltipWrapper: {
 			alignItems: "center",
@@ -86,7 +153,8 @@ export default function MapScreen() {
 			<MapView
 				style={{ width: "100%", height: "100%" }}
 				userInterfaceStyle={themeStyle}
-				showsCompass={true}>
+				showsCompass={true}
+				region={initialRegion}>
 				{markers.map((marker, index) => (
 					<Marker
 						key={index}
@@ -100,43 +168,33 @@ export default function MapScreen() {
 									<Surface elevation={4} style={styles.tooltipContainer}>
 										<Text style={styles.title}>{marker.title}</Text>
 										<View style={styles.infoRow}>
-											<FontAwesome5
-												name="calendar-day"
-												size={12}
-												color={theme.colors.primary}
-											/>
-											<Text style={styles.infoText}>{marker.date}</Text>
+											<FontAwesome5 name="calendar-day" size={12} color={theme.colors.primary} />
+											<Text style={styles.infoText}>
+												{new Date(marker.date).toLocaleDateString("en-US", {
+													month: "short",
+													day: "numeric",
+													year: "numeric",
+												})}
+											</Text>
 										</View>
 										<View style={styles.infoRow}>
-											<FontAwesome5
-												name="trophy"
-												size={12}
-												color={theme.colors.primary}
-											/>
+											<FontAwesome5 name="medal" size={12} color={theme.colors.primary} />
 											<Text style={styles.infoText}>{marker.score}</Text>
 										</View>
 										<View style={styles.infoRow}>
 											<FontAwesome5
-												name="temperature-low"
+												name="temperature-high"
 												size={12}
 												color={theme.colors.primary}
 											/>
-											<Text style={styles.infoText}>{marker.temp}°C</Text>
+											<Text style={styles.infoText}>{marker.temp} °C</Text>
 										</View>
 										<View style={styles.infoRow}>
-											<FontAwesome5
-												name="wind"
-												size={12}
-												color={theme.colors.primary}
-											/>
+											<FontAwesome5 name="wind" size={12} color={theme.colors.primary} />
 											<Text style={styles.infoText}>{marker.wind} km/h</Text>
 										</View>
 										<View style={styles.infoRow}>
-											<FontAwesome5
-												name="tint"
-												size={12}
-												color={theme.colors.primary}
-											/>
+											<FontAwesome5 name="tint" size={12} color={theme.colors.primary} />
 											<Text style={styles.infoText}>{marker.rain} mm</Text>
 										</View>
 									</Surface>

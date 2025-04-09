@@ -14,6 +14,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { SegmentedButtons, Button, HelperText, useTheme, Text } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setUser } from "../utils/DataController";
+import { searchGolfCourses } from "../utils/APIController";
 
 export default function AuthScreen({ navigation }) {
 	const theme = useTheme();
@@ -29,6 +30,8 @@ export default function AuthScreen({ navigation }) {
 	const [error, setError] = useState("");
 	const [resetPassword, setResetPassword] = useState(false);
 	const [resetPasswordEmail, setResetPasswordEmail] = useState("");
+	const [courseResults, setCourseResults] = useState([]);
+	const [showCourseOptions, setShowCourseOptions] = useState(false);
 
 	const firstNameRef = useRef(null);
 	const lastNameRef = useRef(null);
@@ -36,6 +39,16 @@ export default function AuthScreen({ navigation }) {
 	const passwordRef = useRef(null);
 	const confirmPasswordRef = useRef(null);
 	const homeCourseRef = useRef(null);
+
+	const handleCourseChange = (text) => {
+		setHomeCourse(text);
+		searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+	};
+
+	const selectCourse = (courseData) => {
+		setHomeCourse(courseData.text.text.split(",")[0]);
+		setShowCourseOptions(false);
+	};
 
 	const checkPassword = (newConfirmPassword) => {
 		setConfirmPassword(newConfirmPassword);
@@ -167,11 +180,11 @@ export default function AuthScreen({ navigation }) {
 					</Button>
 				</View>
 			</Modal>
-			<View className="flex-1 justify-center items-center p-4">
+			<View className="items-center justify-center flex-1 p-4">
 				<Text variant="displaySmall" style={{ fontWeight: "bold" }}>
 					{activeView === "login" ? "Sign In" : "Register"}
 				</Text>
-				<View className="flex-row max-w-96 justify-center align-middle m-6">
+				<View className="flex-row justify-center m-6 align-middle max-w-96">
 					<SegmentedButtons
 						style={{ flex: 1, alignItems: "center" }}
 						theme={{ colors: { secondaryContainer: theme.colors.primary } }}
@@ -293,11 +306,14 @@ export default function AuthScreen({ navigation }) {
 							</HelperText>
 						)}
 						<Input
+							onChange={handleCourseChange}
 							type="search"
-							placeholder="Home Course"
-							onChange={setHomeCourse}
 							value={homeCourse}
-							inputRef={homeCourseRef}>
+							inputRef={homeCourseRef}
+							searchType="course"
+							searchResults={courseResults}
+							showSearchResults={showCourseOptions}
+							onSearchResultSelect={selectCourse}>
 							Home Course
 						</Input>
 					</View>

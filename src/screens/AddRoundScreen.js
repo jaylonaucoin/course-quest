@@ -1,24 +1,14 @@
-import React, { useRef, useState } from "react";
+import * as React from "react";
+import { useRef, useState } from "react";
 import { Pressable, View } from "react-native";
 import Input from "../components/Input";
-import {
-	Text,
-	Button,
-	useTheme,
-	IconButton,
-	Portal,
-	Modal,
-	ActivityIndicator,
-	List,
-} from "react-native-paper";
+import { Text, Button, useTheme, IconButton, Portal, Modal, ActivityIndicator } from "react-native-paper";
 import { pickImage, addRound, updateRound, uploadImages } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import img from "../../assets/img.jpg";
 import { Image } from "expo-image";
 import Carousel from "react-native-reanimated-carousel";
-
-// Use direct string instead of @env since module resolver might not be configured
-const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+import { getCourseDetails, getWeatherData, searchGolfCourses } from "../utils/APIController";
 
 export default function AddRoundScreen({ navigation }) {
 	const theme = useTheme();
@@ -29,9 +19,10 @@ export default function AddRoundScreen({ navigation }) {
 	const [temp, setTemp] = useState(0);
 	const [rain, setRain] = useState(0);
 	const [wind, setWind] = useState(0);
-	const [notes, setNotes] = useState(null);
-	const [images, setImages] = useState([img]);
-	const [tees, setTees] = useState(null);
+	const [weatherCode, setWeatherCode] = useState(0);
+	const [notes, setNotes] = useState("");
+	const [images, setImages] = useState([]);
+	const [tees, setTees] = useState("");
 	const [lat, setLat] = useState(0);
 	const [lon, setLon] = useState(0);
 	const [loading, setLoading] = useState(false);
@@ -45,100 +36,33 @@ export default function AddRoundScreen({ navigation }) {
 	const notesRef = useRef(null);
 	const teesRef = useRef(null);
 
-	// Function to get course details from Google Places API
-	const getCourseDetails = async (placeId) => {
-		try {
-			const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-					"X-Goog-FieldMask": "displayName,location",
-				},
-			});
-			const data = await response.json();
-			console.log(data);
-			console.log(data.location);
-			console.log(data.location.latitude);
-			console.log(data.location.longitude);
-			console.log(data.displayName.text);
-			setLat(data.location.latitude);
-			setLon(data.location.longitude);
-			return {
-				latitude: data.location.latitude,
-				longitude: data.location.longitude,
-				name: data.displayName.text,
-			};
-		} catch (error) {
-			console.error("Error fetching course details:", error);
-			return null;
-		}
-	};
-
-	// Function to get weather data from OpenMeteo API's archive endpoint
-	const getWeatherData = async (latitude, longitude, date) => {
-		try {
-			const response = await fetch(
-				`https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${date}&end_date=${date}&daily=temperature_2m_max,rain_sum,wind_speed_10m_max&timezone=auto`,
-			);
-			const data = await response.json();
-			console.log(data);
-			return {
-				temperature: data.daily.temperature_2m_max[0],
-				rain: data.daily.rain_sum[0],
-				wind: data.daily.wind_speed_10m_max[0],
-			};
-		} catch (error) {
-			console.error("Error fetching weather data:", error);
-			return { temperature: 0, rain: 0, wind: 0 };
-		}
-	};
-
 	const setPictures = async () => {
 		try {
-			const urls = await pickImage();
-			setImages(urls);
+			const result = await pickImage();
+			console.log("Image picker result:", result);
+			if (result && result.length > 0) {
+				setImages(result);
+			} else {
+				console.log("No images selected or picker was cancelled");
+			}
 		} catch (error) {
 			console.error("Error setting round pictures:", error);
 		}
 	};
 
-	const searchGolfCourses = async (query) => {
-		if (query.length < 3) {
-			setCourseResults([]);
-			setShowCourseOptions(false);
-			return;
-		}
-
-		try {
-			await fetch("https://places.googleapis.com/v1/places:autocomplete", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-				},
-				body: JSON.stringify({
-					input: query,
-					includedPrimaryTypes: ["golf_course"],
-				}),
-			})
-				.then((response) => response.json())
-				.then((data) => {
-					setCourseResults(data.suggestions.map((suggestion) => suggestion.placePrediction));
-					setShowCourseOptions(true);
-				})
-				.catch((error) => console.error("Error:", error));
-		} catch (error) {
-			console.error("Error searching for golf courses:", error);
-		}
-	};
-
 	const handleCourseChange = (text) => {
 		setCourse(text);
-		searchGolfCourses(text);
+		console.log("Course search query:", text);
+		if (text.length >= 3) {
+			searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+		} else {
+			setCourseResults([]);
+			setShowCourseOptions(false);
+		}
 	};
 
 	const selectCourse = async (courseData) => {
+		console.log("Selected course data:", courseData);
 		setCourse(courseData.text.text.split(",")[0]);
 		setShowCourseOptions(false);
 		// Store course data for later use when saving
@@ -153,25 +77,38 @@ export default function AddRoundScreen({ navigation }) {
 		try {
 			// Check for required fields and show error messages if missing as well as focus on the missing field
 			if (!course) {
+				alert("Please enter a course name");
 				courseRef.current.focus();
 				return;
 			}
 			if (!date) {
+				alert("Please select a date");
 				dateRef.current.focus();
 				return;
 			}
 			if (!score) {
+				alert("Please enter your score");
 				scoreRef.current.focus();
 				return;
 			}
 			if (!tees) {
+				alert("Please specify which tees you played from");
 				teesRef.current.focus();
 				return;
 			}
 			setLoading(true);
 
 			// Get course details from Google Places API
+			if (!courseData || !courseData.placeId) {
+				console.error("Missing course data or place ID");
+				alert("Error: Could not get course details. Please try selecting a course again.");
+				setLoading(false);
+				return;
+			}
+
+			console.log("Getting course details for placeId:", courseData.placeId);
 			const details = await getCourseDetails(courseData.placeId);
+			console.log("Course details result:", details);
 
 			if (details) {
 				// Format date as YYYY-MM-DD for weather API
@@ -182,23 +119,34 @@ export default function AddRoundScreen({ navigation }) {
 				setLon(details.longitude);
 
 				// Get weather data for the selected course and date
+				console.log("Getting weather data for location:", details.latitude, details.longitude, formattedDate);
 				const weather = await getWeatherData(details.latitude, details.longitude, formattedDate);
+				console.log("Weather data result:", weather);
 
 				// Set state for display purposes
 				setTemp(weather.temperature);
 				setRain(weather.rain);
 				setWind(weather.wind);
-
-				console.log("Saving data with:");
-				console.log("Lat:", details.latitude);
-				console.log("Lon:", details.longitude);
-				console.log("Temp:", weather.temperature);
-				console.log("Rain:", weather.rain);
-				console.log("Wind:", weather.wind);
+				setWeatherCode(weather.weatherCode);
 
 				// Use direct values from details object rather than state which might not be updated yet
 				const latToUse = details.latitude;
 				const lonToUse = details.longitude;
+
+				console.log("Adding round with data:", {
+					course,
+					date,
+					score,
+					temp: weather.temperature,
+					rain: weather.rain,
+					wind: weather.wind,
+					weatherCode: weather.weatherCode,
+					notes,
+					images: null,
+					tees,
+					lat: latToUse,
+					lon: lonToUse,
+				});
 
 				const roundId = await addRound(
 					course,
@@ -207,48 +155,43 @@ export default function AddRoundScreen({ navigation }) {
 					weather.temperature,
 					weather.rain,
 					weather.wind,
+					weather.weatherCode,
 					notes,
-					null,
+					null, // Pass null initially for images
 					tees,
 					latToUse,
 					lonToUse,
 				);
 
 				if (images && images.length > 0) {
+					console.log("Uploading images:", images);
 					const urls = await uploadImages(images, "rounds", roundId);
-					await updateRound(
-						roundId,
-						course,
-						date,
-						score,
-						weather.temperature,
-						weather.rain,
-						weather.wind,
-						notes,
-						urls,
-						tees,
-						latToUse,
-						lonToUse,
-					);
+					console.log("Uploaded image URLs:", urls);
+
+					if (urls && urls.length > 0) {
+						await updateRound(
+							roundId,
+							course,
+							date,
+							score,
+							weather.temperature,
+							weather.rain,
+							weather.wind,
+							weather.weatherCode,
+							notes,
+							urls, // Pass the array of URLs here
+							tees,
+							latToUse,
+							lonToUse,
+						);
+					}
 				}
-
-				console.log("Round added");
-				console.log(roundId);
-				console.log(course);
-				console.log(date);
-				console.log(score);
-				console.log(weather.temperature);
-				console.log(weather.rain);
-				console.log(weather.wind);
-				console.log(notes);
-				console.log(latToUse);
-				console.log(lonToUse);
-
 				setLoading(false);
 				navigation.navigate("Home");
 			} else {
 				// Fallback if no details available
-				console.log("Saving data with default values - no course details available");
+				console.log("No course details available. Using fallback values.");
+				alert("Could not fetch course details. Using default values.");
 
 				const roundId = await addRound(
 					course,
@@ -257,48 +200,43 @@ export default function AddRoundScreen({ navigation }) {
 					temp,
 					rain,
 					wind,
+					weatherCode,
 					notes,
-					null,
+					null, // Pass null initially for images
 					tees,
 					lat,
 					lon,
 				);
 
 				if (images && images.length > 0) {
+					console.log("Uploading images with fallback:", images);
 					const urls = await uploadImages(images, "rounds", roundId);
-					await updateRound(
-						roundId,
-						course,
-						date,
-						score,
-						temp,
-						rain,
-						wind,
-						notes,
-						urls,
-						tees,
-						lat,
-						lon,
-					);
+					console.log("Uploaded image URLs with fallback:", urls);
+
+					if (urls && urls.length > 0) {
+						await updateRound(
+							roundId,
+							course,
+							date,
+							score,
+							temp,
+							rain,
+							wind,
+							weatherCode,
+							notes,
+							urls, // Pass the array of URLs here
+							tees,
+							lat,
+							lon,
+						);
+					}
 				}
-
-				console.log("Round added with default values");
-				console.log(roundId);
-				console.log(course);
-				console.log(date);
-				console.log(score);
-				console.log(temp);
-				console.log(rain);
-				console.log(wind);
-				console.log(notes);
-				console.log(lat);
-				console.log(lon);
-
 				setLoading(false);
 				navigation.navigate("Home");
 			}
 		} catch (error) {
 			console.error("Error adding round:", error);
+			alert("Error adding round: " + error.message);
 			setLoading(false);
 		}
 	};
@@ -358,37 +296,13 @@ export default function AddRoundScreen({ navigation }) {
 					type="search"
 					value={course}
 					inputRef={courseRef}
-					nextRef={dateRef}>
+					nextRef={dateRef}
+					searchType="course"
+					searchResults={courseResults}
+					showSearchResults={showCourseOptions}
+					onSearchResultSelect={selectCourse}>
 					Course
 				</Input>
-				{showCourseOptions && courseResults.length > 0 && (
-					<View
-						style={{
-							width: "100%",
-							backgroundColor: theme.colors.surfaceVariant,
-							borderRadius: 15,
-							marginBottom: 10,
-							maxHeight: 200,
-						}}>
-						<List.Section>
-							{courseResults.map((result, index) => (
-								<List.Item
-									key={index}
-									title={result.text.text}
-									onPress={() => selectCourse(result)}
-									style={{
-										borderBottomWidth: index < courseResults.length - 1 ? 1 : 0,
-										borderBottomColor: theme.colors.outline,
-									}}
-									titleStyle={{ color: theme.colors.onSurfaceVariant }}
-									left={(props) => (
-										<List.Icon {...props} icon="golf" color={theme.colors.primary} />
-									)}
-								/>
-							))}
-						</List.Section>
-					</View>
-				)}
 				<Input
 					onChange={(event, selectedDate) => setDate(selectedDate)}
 					type="date"
@@ -426,15 +340,26 @@ export default function AddRoundScreen({ navigation }) {
 						snapEnabled={true}
 						pagingEnabled={true}
 						scrollAnimationDuration={250}
-						data={images}
+						data={images.length > 0 ? images : ["placeholder"]}
 						renderItem={({ item }) => (
 							<Pressable onPress={setPictures}>
-								<Image
-									placeholder={img}
-									style={{ height: "100%" }}
-									source={item}
-									contentFit="contain"
-								/>
+								{item === "placeholder" ? (
+									<View
+										style={{
+											height: "100%",
+											justifyContent: "center",
+											alignItems: "center",
+										}}>
+										<Text>Tap to add photos</Text>
+									</View>
+								) : (
+									<Image
+										placeholder={img}
+										style={{ height: "100%" }}
+										source={item}
+										contentFit="contain"
+									/>
+								)}
 							</Pressable>
 						)}
 					/>

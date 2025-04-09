@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { View, Pressable } from "react-native";
 import { useTheme, Text, Button, IconButton, Portal, Modal, ActivityIndicator } from "react-native-paper";
 import Input from "../components/Input";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { deleteRoundImages, getRound, pickImage, updateRound, uploadImages } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
 import { Image } from "expo-image";
 import Carousel from "react-native-reanimated-carousel";
+import { searchGolfCourses, getCourseDetails, getWeatherData } from "../utils/APIController";
 
 export default function EditRoundScreen({ route }) {
 	const theme = useTheme();
@@ -15,23 +15,26 @@ export default function EditRoundScreen({ route }) {
 
 	const [id, setId] = useState(route.params.roundData.id);
 	const [course, setCourse] = useState(route.params.roundData.course);
+	const [lon, setLon] = useState(route.params.roundData.lon);
+	const [lat, setLat] = useState(route.params.roundData.lat);
 	const [date, setDate] = useState(new Date(route.params.roundData.date.toDate()));
 	const [score, setScore] = useState(route.params.roundData.score);
 	const [temp, setTemp] = useState(route.params.roundData.temp);
 	const [rain, setRain] = useState(route.params.roundData.rain);
 	const [wind, setWind] = useState(route.params.roundData.wind);
+	const [weatherCode, setWeatherCode] = useState(route.params.roundData.weatherCode);
 	const [notes, setNotes] = useState(route.params.roundData.notes);
-	const [images, setImages] = useState(Array(route.params.roundData.images));
+	const [images, setImages] = useState(route.params.roundData.images || []);
 	const [tees, setTees] = useState(route.params.roundData.tees);
 	const [loading, setLoading] = useState(false);
 	const [imageChanged, setImageChanged] = useState(false);
+	const [courseResults, setCourseResults] = useState([]);
+	const [showCourseOptions, setShowCourseOptions] = useState(false);
+	const [courseData, setCourseData] = useState(null);
 
 	const courseRef = useRef(null);
 	const dateRef = useRef(null);
 	const scoreRef = useRef(null);
-	const tempRef = useRef(null);
-	const rainRef = useRef(null);
-	const windRef = useRef(null);
 	const notesRef = useRef(null);
 	const teesRef = useRef(null);
 
@@ -44,11 +47,14 @@ export default function EditRoundScreen({ route }) {
 			setTemp(round.temp);
 			setRain(round.rain);
 			setWind(round.wind);
+			setWeatherCode(round.weatherCode);
+			setLon(round.lon);
+			setLat(round.lat);
 			setNotes(round.notes);
 			setImages(round.images);
 			setTees(round.tees);
 		});
-	});
+	}, [route.params.roundData.id]);
 
 	const setPicture = async () => {
 		try {
@@ -57,6 +63,22 @@ export default function EditRoundScreen({ route }) {
 			setImageChanged(true);
 		} catch (error) {
 			console.error("Error setting profile picture:", error);
+		}
+	};
+
+	const handleCourseChange = (text) => {
+		setCourse(text);
+		searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+	};
+
+	const selectCourse = async (courseData) => {
+		setCourse(courseData.text.text.split(",")[0]);
+		setShowCourseOptions(false);
+		// Store course data for later use when saving
+		setCourseData(courseData);
+
+		if (dateRef.current) {
+			dateRef.current.focus();
 		}
 	};
 
@@ -75,34 +97,115 @@ export default function EditRoundScreen({ route }) {
 				scoreRef.current.focus();
 				return;
 			}
-			if (!temp) {
-				tempRef.current.focus();
-				return;
-			}
-			if (!rain) {
-				rainRef.current.focus();
-				return;
-			}
-			if (!wind) {
-				windRef.current.focus();
-				return;
-			}
 			if (!tees) {
 				teesRef.current.focus();
 				return;
 			}
 			setLoading(true);
+
+			let latToUse = lat;
+			let lonToUse = lon;
+			let tempToUse = temp;
+			let rainToUse = rain;
+			let windToUse = wind;
+			let weatherCodeToUse = weatherCode;
+
+			// Only fetch course details and weather if the course selection has changed
+			if (courseData) {
+				const details = await getCourseDetails(courseData.placeId);
+				if (details) {
+					// Format date as YYYY-MM-DD for weather API
+					const formattedDate = date.toISOString().split("T")[0];
+
+					// Save the lat/lon values from detailed course info
+					latToUse = details.latitude;
+					lonToUse = details.longitude;
+
+					// Get weather data for the selected course and date
+					const weather = await getWeatherData(details.latitude, details.longitude, formattedDate);
+
+					// Set state for display purposes
+					tempToUse = weather.temperature;
+					rainToUse = weather.rain;
+					windToUse = weather.wind;
+					weatherCodeToUse = weather.weatherCode;
+
+					// Update state values
+					setLat(latToUse);
+					setLon(lonToUse);
+					setTemp(tempToUse);
+					setRain(rainToUse);
+					setWind(windToUse);
+					setWeatherCode(weatherCodeToUse);
+				}
+				if (details) {
+					// Format date as YYYY-MM-DD for weather API
+					const formattedDate = date.toISOString().split("T")[0];
+
+					// Save the lat/lon values from detailed course info
+					latToUse = details.latitude;
+					lonToUse = details.longitude;
+
+					// Get weather data for the selected course and date
+					const weather = await getWeatherData(details.latitude, details.longitude, formattedDate);
+
+					// Set state for display purposes
+					tempToUse = weather.temperature;
+					rainToUse = weather.rain;
+					windToUse = weather.wind;
+					weatherCodeToUse = weather.weatherCode;
+
+					// Update state values
+					setLat(latToUse);
+					setLon(lonToUse);
+					setTemp(tempToUse);
+					setRain(rainToUse);
+					setWind(windToUse);
+					setWeatherCode(weatherCodeToUse);
+				}
+			}
+
 			if (imageChanged) {
 				await deleteRoundImages(id);
 				const urls = await uploadImages(images, "rounds", id);
-				await updateRound(id, course, date, score, temp, rain, wind, notes, urls, tees);
+				await updateRound(
+					id,
+					course,
+					date,
+					score,
+					tempToUse,
+					rainToUse,
+					windToUse,
+					weatherCodeToUse,
+					notes,
+					urls,
+					tees,
+					latToUse,
+					lonToUse,
+				);
 			} else {
-				await updateRound(id, course, date, score, temp, rain, wind, notes, images, tees);
+				await updateRound(
+					id,
+					course,
+					date,
+					score,
+					tempToUse,
+					rainToUse,
+					windToUse,
+					weatherCodeToUse,
+					notes,
+					images,
+					tees,
+					latToUse,
+					lonToUse,
+				);
 			}
+
 			setLoading(false);
 			navigation.navigate("Home");
 		} catch (error) {
 			console.error("Error adding round:", error);
+			setLoading(false);
 		}
 	};
 
@@ -157,48 +260,27 @@ export default function EditRoundScreen({ route }) {
 					<Text variant="headlineSmall">Edit Round</Text>
 				</View>
 				<Input
-					onChange={setCourse}
+					onChange={handleCourseChange}
 					type="search"
 					value={course}
 					inputRef={courseRef}
-					nextRef={dateRef}>
+					nextRef={dateRef}
+					searchType="course"
+					searchResults={courseResults}
+					showSearchResults={showCourseOptions}
+					onSearchResultSelect={selectCourse}>
 					Course
 				</Input>
-				<View className={"max-w-96 self-center grow shrink w-full p-2 basis-full"}>
-					<View
-						style={{
-							borderRadius: 15,
-							borderColor: theme.colors.onSurfaceVariant,
-							backgroundColor: theme.colors.elevation.level0,
-							width: "100%",
-							padding: 10,
-							display: "flex",
-							flexDirection: "row",
-							justifyContent: "space-between",
-							alignItems: "center",
-						}}>
-						<Text variant="bodyLarge">Date</Text>
-						<DateTimePicker
-							mode="date"
-							value={date}
-							onChange={(event, selectedDate) => setDate(selectedDate)}
-							maximumDate={new Date()}
-							minimumDate={new Date(1940, 1, 1)}
-							textColor={theme.colors.onSurface}
-						/>
-					</View>
-				</View>
-				<Input onChange={setScore} type="number" value={score} inputRef={scoreRef} nextRef={tempRef}>
+				<Input
+					onChange={(event, selectedDate) => setDate(selectedDate)}
+					type="date"
+					value={date}
+					inputRef={dateRef}
+					nextRef={scoreRef}>
+					Date
+				</Input>
+				<Input onChange={setScore} type="number" value={score} inputRef={scoreRef} nextRef={notesRef}>
 					Score
-				</Input>
-				<Input onChange={setTemp} type="number" value={temp} inputRef={tempRef} nextRef={rainRef}>
-					Temperature
-				</Input>
-				<Input onChange={setRain} type="number" value={rain} inputRef={rainRef} nextRef={windRef}>
-					Rain
-				</Input>
-				<Input onChange={setWind} type="number" value={wind} inputRef={windRef} nextRef={notesRef}>
-					Wind
 				</Input>
 				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>
 					Notes
@@ -229,11 +311,7 @@ export default function EditRoundScreen({ route }) {
 						data={images}
 						renderItem={({ item }) => (
 							<Pressable onPress={setPicture}>
-								<Image
-									style={{ width: "100%", height: "100%" }}
-									source={item}
-									contentFit="contain"
-								/>
+								<Image style={{ width: "100%", height: "100%" }} source={item} contentFit="contain" />
 							</Pressable>
 						)}
 					/>

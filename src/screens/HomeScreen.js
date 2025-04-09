@@ -1,21 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, Pressable, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { deleteRound, getRounds } from "../utils/DataController";
 import { useScrollToTop } from "@react-navigation/native";
-import { Image } from "expo-image";
-import Carousel from "react-native-reanimated-carousel";
-
+import { ImageGallery } from "@georstat/react-native-image-gallery";
+import ImageGrid from "../components/ImageGrid";
+import WeatherIcon from "../components/WeatherIcon";
 export default function HomeScreen({ navigation }) {
 	const [refreshing, setRefreshing] = useState(false);
 	const theme = useTheme();
 	const [rounds, setRounds] = useState([]);
 	const [menuStates, setMenuStates] = useState({});
-	// eslint-disable-next-line no-unused-vars
-	const [imageViewVisible, setImageViewVisible] = useState(false);
-	// eslint-disable-next-line no-unused-vars
+	const [imageGalleryVisible, setImageGalleryVisible] = useState(false);
 	const [imageIndex, setImageIndex] = useState(0);
+	const [currentImages, setCurrentImages] = useState([]);
 
 	const scrollRef = useRef(null);
 	useScrollToTop(scrollRef);
@@ -62,9 +60,16 @@ export default function HomeScreen({ navigation }) {
 		});
 	}, []);
 
-	const renderImageViewer = (index) => {
+	const renderImageViewer = (index, images) => {
+		// Convert image URLs to the format expected by ImageGallery
+		const galleryImages = images.map((url, i) => ({
+			id: i,
+			url: url,
+		}));
+
+		setCurrentImages(galleryImages);
 		setImageIndex(index);
-		setImageViewVisible(true);
+		setImageGalleryVisible(true);
 	};
 
 	return (
@@ -152,29 +157,17 @@ export default function HomeScreen({ navigation }) {
 								)}
 								titleVariant="titleMedium"
 							/>
-							{item.images && (
-								<View>
-									<Carousel
-										width={372}
-										height={250}
-										style={{
-											backgroundColor: theme.colors.background,
-											marginTop: 5,
-										}}
-										loop={false}
-										snapEnabled={true}
-										pagingEnabled={true}
-										scrollAnimationDuration={250}
-										data={item.images}
-										renderItem={({ item }) => (
-											<Pressable onPress={() => renderImageViewer(item.id)}>
-												<Image
-													style={{ height: "100%" }}
-													source={item}
-													contentFit="cover"
-												/>
-											</Pressable>
-										)}
+							{item.images && item.images[0] && (
+								<View style={{ height: 200 }}>
+									<ImageGrid
+										images={item.images}
+										onImagePress={(index) => renderImageViewer(index, item.images)}
+									/>
+									<ImageGallery
+										isOpen={imageGalleryVisible}
+										close={() => setImageGalleryVisible(false)}
+										images={currentImages}
+										initialIndex={imageIndex}
 									/>
 								</View>
 							)}
@@ -190,48 +183,9 @@ export default function HomeScreen({ navigation }) {
 									paddingBottom: 6,
 									paddingRight: 10,
 								}}>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="temperature-high"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.temp}&deg;C</Text>
-								</View>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="wind"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.wind}km/h</Text>
-								</View>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="cloud-rain"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.rain}mm</Text>
-								</View>
+								<WeatherIcon type="temperature" weatherCode={item.weatherCode} value={item.temp} />
+								<WeatherIcon type="wind" weatherCode={item.weatherCode} value={item.wind} />
+								<WeatherIcon type="rain" weatherCode={item.weatherCode} value={item.rain} />
 							</View>
 						</Card>
 					)}
