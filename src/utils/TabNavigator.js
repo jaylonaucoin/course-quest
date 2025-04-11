@@ -9,7 +9,7 @@ import MapScreen from "../screens/MapScreen.js";
 import RoundScreen from "../screens/RoundScreen.js";
 import HomeScreen from "../screens/HomeScreen.js";
 
-import Header from "./Header";
+import Header from "../components/Header";
 import AddRoundScreen from "../screens/AddRoundScreen";
 import AccountScreen from "../screens/AccountScreen";
 import EditRoundScreen from "../screens/EditRoundScreen";
@@ -30,10 +30,7 @@ export default function TabNavigator() {
 					return (
 						<Header
 							navigation={navigation}
-							title={
-								navigation.getState().routes[navigation.getState().index]
-									.name
-							}
+							title={navigation.getState().routes[navigation.getState().index].name}
 						/>
 					);
 				},
@@ -107,11 +104,19 @@ export default function TabNavigator() {
 				name="Map"
 				component={MapScreen}
 				options={{
+					unmountOnBlur: true,
 					tabBarLabel: "Map",
 					tabBarIcon: ({ color, size }) => {
 						return <Ionicons name="map" size={size} color={color} />;
 					},
 				}}
+				listeners={({ navigation }) => ({
+					tabPress: (e) => {
+						// Force navigation to refresh the screen
+						e.preventDefault();
+						navigation.navigate("Map");
+					},
+				})}
 			/>
 			<Tab.Screen
 				name="SettingsStack"
@@ -149,9 +154,7 @@ const RoundStackNavigator = () => {
 				component={RoundScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Rounds" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Rounds" />,
 				}}
 			/>
 			<Stack.Screen
@@ -159,9 +162,7 @@ const RoundStackNavigator = () => {
 				component={AddRoundScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Add Round" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Add Round" />,
 				}}
 			/>
 			<Stack.Screen
@@ -169,9 +170,7 @@ const RoundStackNavigator = () => {
 				component={EditRoundScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Edit Round" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Edit Round" />,
 				}}
 			/>
 		</Stack.Navigator>
@@ -192,9 +191,7 @@ const SettingsStackNavigator = () => {
 				component={SettingsScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Settings" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Settings" />,
 				}}
 			/>
 			<Stack.Screen
@@ -202,9 +199,7 @@ const SettingsStackNavigator = () => {
 				component={AccountScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Account" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Account" />,
 				}}
 			/>
 			<Stack.Screen
@@ -212,9 +207,7 @@ const SettingsStackNavigator = () => {
 				component={EditAccountScreen}
 				options={{
 					animation: "none",
-					header: ({ navigation }) => (
-						<Header navigation={navigation} title="Edit Account" />
-					),
+					header: ({ navigation }) => <Header navigation={navigation} title="Edit Account" />,
 				}}
 			/>
 		</Stack.Navigator>

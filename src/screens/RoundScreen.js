@@ -1,20 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, View, RefreshControl } from "react-native";
-import {
-	Card,
-	Text,
-	Avatar,
-	IconButton,
-	useTheme,
-	Menu,
-	Divider,
-	Icon,
-	Button,
-	RadioButton,
-} from "react-native-paper";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button, RadioButton } from "react-native-paper";
 import { deleteRound, getRounds } from "../utils/DataController";
-import { useScrollToTop } from "@react-navigation/native";
+import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
+import WeatherIcon from "../components/WeatherIcon";
 
 export default function RoundScreen({ navigation }) {
 	const theme = useTheme();
@@ -53,7 +42,7 @@ export default function RoundScreen({ navigation }) {
 	const fetchRounds = async () => {
 		setRefreshing(true);
 		try {
-			const data = await getRounds();
+			const data = await getRounds(sort);
 			setRounds(data);
 		} catch (error) {
 			console.error("Error fetching rounds:", error);
@@ -62,11 +51,20 @@ export default function RoundScreen({ navigation }) {
 		}
 	};
 
+	// Initial load on mount
 	useEffect(() => {
-		getRounds().then((rounds) => {
-			setRounds(rounds);
-		});
+		fetchRounds();
 	}, []);
+
+	// Add useFocusEffect to refresh data when the screen comes into focus
+	useFocusEffect(
+		React.useCallback(() => {
+			fetchRounds();
+			return () => {
+				// Cleanup if needed
+			};
+		}, [sort]),
+	);
 
 	const goToEditRoundScreen = (round) => {
 		toggleMenu(round.id);
@@ -86,15 +84,8 @@ export default function RoundScreen({ navigation }) {
 					<Text variant="titleLarge" style={{ marginHorizontal: 10 }}>
 						Time to go tee it up and add some rounds to show here!
 					</Text>
-					<Icon
-						source="golf"
-						size={100}
-						color={theme.colors.onSurfaceVariant}
-					/>
-					<Button
-						mode="contained"
-						style={{ marginTop: 20 }}
-						onPress={() => navigation.navigate("AddRound")}>
+					<Icon source="golf" size={100} color={theme.colors.onSurfaceVariant} />
+					<Button mode="contained" style={{ marginTop: 20 }} onPress={() => navigation.navigate("AddRound")}>
 						Add Round
 					</Button>
 				</View>
@@ -133,25 +124,11 @@ export default function RoundScreen({ navigation }) {
 								}
 								onDismiss={() => setSortMenuVisible(false)}
 								style={{ marginTop: 45, marginRight: 50 }}>
-								<RadioButton.Group
-									onValueChange={(value) => changeSort(value)}
-									value={sort}>
-									<RadioButton.Item
-										label="Date (desc)"
-										value="date-desc"
-									/>
-									<RadioButton.Item
-										label="Date (asc)"
-										value="date-asc"
-									/>
-									<RadioButton.Item
-										label="Score (desc)"
-										value="score-desc"
-									/>
-									<RadioButton.Item
-										label="Score (asc)"
-										value="score-asc"
-									/>
+								<RadioButton.Group onValueChange={(value) => changeSort(value)} value={sort}>
+									<RadioButton.Item label="Date (desc)" value="date-desc" />
+									<RadioButton.Item label="Date (asc)" value="date-asc" />
+									<RadioButton.Item label="Score (desc)" value="score-desc" />
+									<RadioButton.Item label="Score (asc)" value="score-asc" />
 								</RadioButton.Group>
 							</Menu>
 						</View>
@@ -165,13 +142,11 @@ export default function RoundScreen({ navigation }) {
 							}}>
 							<Card.Title
 								title={item.course}
-								subtitle={item.date
-									.toDate()
-									.toLocaleDateString(undefined, {
-										year: "numeric",
-										month: "long",
-										day: "numeric",
-									})}
+								subtitle={item.date.toDate().toLocaleDateString(undefined, {
+									year: "numeric",
+									month: "long",
+									day: "numeric",
+								})}
 								left={() => (
 									<Avatar.Text
 										labelStyle={{
@@ -193,17 +168,11 @@ export default function RoundScreen({ navigation }) {
 										anchor={
 											<IconButton
 												icon="dots-vertical"
-												mode={
-													menuStates[item.id] &&
-													"contained-tonal"
-												}
+												mode={menuStates[item.id] && "contained-tonal"}
 												onPress={() => toggleMenu(item.id)}
 											/>
 										}>
-										<Menu.Item
-											onPress={() => goToEditRoundScreen(item)}
-											title="Edit"
-										/>
+										<Menu.Item onPress={() => goToEditRoundScreen(item)} title="Edit" />
 										<Divider />
 										<Menu.Item
 											onPress={() => deleteDBRound(item.id)}
@@ -222,48 +191,9 @@ export default function RoundScreen({ navigation }) {
 									justifyContent: "space-around",
 									paddingRight: 10,
 								}}>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="temperature-high"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.temp}&deg;C</Text>
-								</View>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="wind"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.wind}km/h</Text>
-								</View>
-								<View
-									style={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "space-around",
-										padding: 5,
-									}}>
-									<FontAwesome5
-										name="cloud-rain"
-										size={26}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="labelMedium">{item.rain}mm</Text>
-								</View>
+								<WeatherIcon type="temperature" weatherCode={item.weatherCode} value={item.temp} />
+								<WeatherIcon type="wind" weatherCode={item.weatherCode} value={item.wind} />
+								<WeatherIcon type="rain" weatherCode={item.weatherCode} value={item.rain} />
 							</View>
 						</Card>
 					)}

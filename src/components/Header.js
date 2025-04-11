@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, View } from "react-native";
-import {
-	Appbar,
-	Button,
-	IconButton,
-	useTheme,
-	Text,
-	Avatar,
-	Icon,
-} from "react-native-paper";
+import { Appbar, Button, IconButton, useTheme, Text, Avatar, Icon } from "react-native-paper";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import favicon from "../../assets/favicon.png";
 import { getUser } from "../utils/DataController";
@@ -73,12 +65,7 @@ export default function Header() {
 							alignItems: "center",
 							paddingRight: 7,
 						}}>
-						<IconButton
-							icon="plus"
-							size={16}
-							iconColor={theme.colors.onPrimary}
-							style={{ margin: -5 }}
-						/>
+						<IconButton icon="plus" size={16} iconColor={theme.colors.onPrimary} style={{ margin: -5 }} />
 						<Text
 							style={{
 								color: theme.colors.onPrimary,
@@ -98,10 +85,7 @@ export default function Header() {
 					justifyContent: "center",
 				}}>
 				<Button onPress={() => navigation.navigate("Home")}>
-					<Image
-						source={favicon}
-						style={{ alignSelf: "center", width: 60, height: 60 }}
-					/>
+					<Image source={favicon} style={{ alignSelf: "center", width: 60, height: 60 }} />
 				</Button>
 			</View>
 			<Pressable
@@ -135,13 +119,7 @@ export default function Header() {
 							alignContent: "center",
 							alignItems: "center",
 						}}
-						source={() => (
-							<Icon
-								source="account"
-								color={theme.colors.onPrimary}
-								size={25}
-							/>
-						)}
+						source={() => <Icon source="account" color={theme.colors.onPrimary} size={25} />}
 					/>
 				)}
 			</Pressable>

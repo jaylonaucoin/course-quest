@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Searchbar, Text, TextInput, useTheme } from "react-native-paper";
+import { Text, TextInput, useTheme, List } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 const Input = ({
@@ -13,6 +13,11 @@ const Input = ({
 	inputRef,
 	nextRef,
 	submitForm,
+	searchType = "search",
+	searchResults = [],
+	onSearchResultSelect,
+	showSearchResults = false,
+	searchResultIcon = "magnify",
 }) => {
 	const [passwordVisible, setPasswordVisible] = useState(false);
 	const theme = useTheme();
@@ -52,8 +57,42 @@ const Input = ({
 		}
 	};
 
+	// Customize the display of search results based on search type
+	const renderSearchResultItem = (result, index) => {
+		if (searchType === "course") {
+			return (
+				<List.Item
+					key={index}
+					title={result.text.text}
+					onPress={() => onSearchResultSelect && onSearchResultSelect(result)}
+					style={{
+						borderBottomWidth: index < searchResults.length - 1 ? 1 : 0,
+						borderBottomColor: theme.colors.outline,
+					}}
+					titleStyle={{ color: theme.colors.onSurfaceVariant }}
+					left={(props) => <List.Icon {...props} icon="golf" color={theme.colors.primary} />}
+				/>
+			);
+		} else {
+			// Default rendering for other search types
+			return (
+				<List.Item
+					key={index}
+					title={typeof result === "string" ? result : result.title || result.name || JSON.stringify(result)}
+					onPress={() => onSearchResultSelect && onSearchResultSelect(result)}
+					style={{
+						borderBottomWidth: index < searchResults.length - 1 ? 1 : 0,
+						borderBottomColor: theme.colors.outline,
+					}}
+					titleStyle={{ color: theme.colors.onSurfaceVariant }}
+					left={(props) => <List.Icon {...props} icon={searchResultIcon} color={theme.colors.primary} />}
+				/>
+			);
+		}
+	};
+
 	return (
-		<View className={"max-w-96 self-center grow shrink w-full p-2 basis-" + size}>
+		<View className={"max-w-96 self-center shrink w-full text-wrap p-2"}>
 			{type === "password" ? (
 				<TextInput
 					ref={inputRef}
@@ -88,23 +127,38 @@ const Input = ({
 					outlineStyle={inputStyle}
 				/>
 			) : type === "search" ? (
-				<Searchbar
-					ref={inputRef}
-					required
-					onChangeText={onChange}
-					value={value}
-					name={children}
-					id={children}
-					inputMode="search"
-					returnKeyType="next"
-					clearButtonMode="never"
-					onSubmitEditing={handleSubmitEditing}
-					mode="bar"
-					autoComplete={autofill}
-					placeholder={children}
-					placeholderTextColor={theme.colors.onSurfaceVariant}
-					style={{ ...inputStyle, borderWidth: 1 }}
-				/>
+				<View>
+					<TextInput
+						ref={inputRef}
+						required
+						onChangeText={onChange}
+						value={value}
+						name={children}
+						id={children}
+						inputMode="search"
+						returnKeyType="next"
+						clearButtonMode="never"
+						onSubmitEditing={handleSubmitEditing}
+						mode="outlined"
+						autoComplete={autofill}
+						placeholder={children}
+						outlineStyle={inputStyle}
+					/>
+					{showSearchResults && searchResults.length > 0 && (
+						<View
+							style={{
+								width: "100%",
+								backgroundColor: theme.colors.surfaceVariant,
+								borderRadius: 15,
+								marginBottom: 10,
+								maxHeight: 200,
+							}}>
+							<List.Section>
+								{searchResults.map((result, index) => renderSearchResultItem(result, index))}
+							</List.Section>
+						</View>
+					)}
+				</View>
 			) : type === "date" ? (
 				<View
 					style={{
@@ -120,9 +174,7 @@ const Input = ({
 						justifyContent: "space-between",
 						alignItems: "center",
 					}}>
-					<Text
-						variant="bodyLarge"
-						theme={{ colors: { onSurface: theme.colors.onSurfaceVariant } }}>
+					<Text variant="bodyLarge" theme={{ colors: { onSurface: theme.colors.onSurfaceVariant } }}>
 						Date
 					</Text>
 					<DateTimePicker
@@ -163,6 +215,8 @@ const Input = ({
 					autoComplete={autofill}
 					placeholder={children}
 					returnKeyType="next"
+					lineBreakStrategyIOS="none"
+					textBreakStrategy="simple"
 					onSubmitEditing={handleSubmitEditing}
 					mode="outlined"
 					outlineStyle={inputStyle}

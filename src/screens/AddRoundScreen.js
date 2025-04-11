@@ -1,114 +1,146 @@
-import React, { useRef, useState } from "react";
-import { Pressable, View } from "react-native";
+import * as React from "react";
+import { useRef, useState } from "react";
+import { View } from "react-native";
 import Input from "../components/Input";
-import {
-	Text,
-	Button,
-	useTheme,
-	IconButton,
-	Portal,
-	Modal,
-	ActivityIndicator,
-} from "react-native-paper";
-import { pickImage, addRound, updateRound, uploadImages } from "../utils/DataController";
+import { Text, Button, useTheme, Portal, Modal, ActivityIndicator } from "react-native-paper";
+import { pickImage, addRound } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import img from "../../assets/img.jpg";
-import { Image } from "expo-image";
-import Carousel from "react-native-reanimated-carousel";
+import { getCourseDetails, getWeatherData, searchGolfCourses } from "../utils/APIController";
+import ImageGallery from "../components/ImageGallery";
 
 export default function AddRoundScreen({ navigation }) {
 	const theme = useTheme();
+
 	const [course, setCourse] = useState("");
 	const [date, setDate] = useState(new Date());
 	const [score, setScore] = useState(0);
-	const [temp, setTemp] = useState(0);
-	const [rain, setRain] = useState(0);
-	const [wind, setWind] = useState(0);
-	const [notes, setNotes] = useState(null);
-	const [images, setImages] = useState([img]);
-	const [tees, setTees] = useState(null);
+	const [notes, setNotes] = useState("");
+	const [images, setImages] = useState([]);
+	const [tees, setTees] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [showCourseOptions, setShowCourseOptions] = useState(false);
+	const [courseData, setCourseData] = useState(null);
+	const [courseResults, setCourseResults] = useState([]);
 
 	const courseRef = useRef(null);
 	const dateRef = useRef(null);
 	const scoreRef = useRef(null);
-	const tempRef = useRef(null);
-	const rainRef = useRef(null);
-	const windRef = useRef(null);
 	const notesRef = useRef(null);
 	const teesRef = useRef(null);
 
-	const setPictures = async () => {
+	const handleAddImages = async () => {
 		try {
-			const urls = await pickImage();
-			setImages(urls);
+			const result = await pickImage();
+			if (result && result.length > 0) {
+				setImages([...images, ...result]);
+			}
 		} catch (error) {
-			console.error("Error setting round pictures:", error);
+			console.error("Error adding images:", error);
 		}
+	};
+
+	const handleRemoveImage = (index) => {
+		setImages(images.filter((_, i) => i !== index));
+	};
+
+	const handleCourseChange = (text) => {
+		setCourse(text);
+		if (text.length >= 3) {
+			searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+		} else {
+			setCourseResults([]);
+			setShowCourseOptions(false);
+		}
+	};
+
+	const selectCourse = async (courseData) => {
+		setCourse(courseData.text.text.split(",")[0]);
+		setShowCourseOptions(false);
+		setCourseData(courseData);
+
+		if (dateRef.current) {
+			dateRef.current.focus();
+		}
+	};
+
+	const validateFields = () => {
+		if (!course) {
+			alert("Please enter a course name");
+			courseRef.current.focus();
+			return false;
+		}
+		if (!date) {
+			alert("Please select a date");
+			dateRef.current.focus();
+			return false;
+		}
+		if (!score) {
+			alert("Please enter your score");
+			scoreRef.current.focus();
+			return false;
+		}
+		if (!tees) {
+			alert("Please specify which tees you played from");
+			teesRef.current.focus();
+			return false;
+		}
+		return true;
 	};
 
 	const addDBRound = async () => {
 		try {
-			// Check for required fields and show error messages if missing as well as focus on the missing field
-			if (!course) {
-				courseRef.current.focus();
-				return;
-			}
-			if (!date) {
-				dateRef.current.focus();
-				return;
-			}
-			if (!score) {
-				scoreRef.current.focus();
-				return;
-			}
-			if (!temp) {
-				tempRef.current.focus();
-				return;
-			}
-			if (!rain) {
-				rainRef.current.focus();
-				return;
-			}
-			if (!wind) {
-				windRef.current.focus();
-				return;
-			}
-			if (!tees) {
-				teesRef.current.focus();
-				return;
-			}
+			if (!validateFields()) return;
 			setLoading(true);
-			const roundId = await addRound(
+
+			// Get course details from Google Places API
+			if (!courseData || !courseData.placeId) {
+				alert("Error: Could not get course details. Please try selecting a course again.");
+				setLoading(false);
+				return;
+			}
+
+			const details = await getCourseDetails(courseData.placeId);
+			if (!details) {
+				alert("Could not fetch course details. Please try again.");
+				setLoading(false);
+				return;
+			}
+
+			// Format date as YYYY-MM-DD for weather API
+			const formattedDate = date.toISOString().split("T")[0];
+			const latToUse = details.latitude;
+			const lonToUse = details.longitude;
+
+			// Get weather data
+			const weather = await getWeatherData(latToUse, lonToUse, formattedDate);
+			if (!weather) {
+				alert("Could not fetch weather data. Please try again.");
+				setLoading(false);
+				return;
+			}
+
+			// Add round with all data including images
+			await addRound(
 				course,
 				date,
 				score,
-				temp,
-				rain,
-				wind,
+				weather.temperature,
+				weather.rain,
+				weather.wind,
+				weather.weatherCode,
 				notes,
-				null,
+				images,
 				tees,
+				latToUse,
+				lonToUse,
 			);
-			if (images) {
-				const urls = await uploadImages(images, "rounds", roundId);
-				await updateRound(
-					roundId,
-					course,
-					date,
-					score,
-					temp,
-					rain,
-					wind,
-					notes,
-					urls,
-					tees,
-				);
-			}
+
 			setLoading(false);
 			navigation.navigate("Home");
 		} catch (error) {
 			console.error("Error adding round:", error);
+			alert("Error adding round: " + error.message);
+			setLoading(false);
 		}
 	};
 
@@ -163,11 +195,15 @@ export default function AddRoundScreen({ navigation }) {
 					<Text variant="headlineSmall">Add Round</Text>
 				</View>
 				<Input
-					onChange={setCourse}
+					onChange={handleCourseChange}
 					type="search"
 					value={course}
 					inputRef={courseRef}
-					nextRef={dateRef}>
+					nextRef={dateRef}
+					searchType="course"
+					searchResults={courseResults}
+					showSearchResults={showCourseOptions}
+					onSearchResultSelect={selectCourse}>
 					Course
 				</Input>
 				<Input
@@ -178,93 +214,28 @@ export default function AddRoundScreen({ navigation }) {
 					nextRef={scoreRef}>
 					Date
 				</Input>
-				<Input
-					onChange={setScore}
-					type="number"
-					value={score}
-					inputRef={scoreRef}
-					nextRef={tempRef}>
+				<Input onChange={setScore} type="number" value={score} inputRef={scoreRef} nextRef={notesRef}>
 					Score
 				</Input>
-				<Input
-					onChange={setTemp}
-					type="number"
-					value={temp}
-					inputRef={tempRef}
-					nextRef={rainRef}>
-					Temperature
-				</Input>
-				<Input
-					onChange={setRain}
-					type="number"
-					value={rain}
-					inputRef={rainRef}
-					nextRef={windRef}>
-					Rain
-				</Input>
-				<Input
-					onChange={setWind}
-					type="number"
-					value={wind}
-					inputRef={windRef}
-					nextRef={notesRef}>
-					Wind
-				</Input>
-				<Input
-					onChange={setNotes}
-					value={notes}
-					inputRef={notesRef}
-					nextRef={teesRef}>
+				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>
 					Notes
 				</Input>
 				<Input onChange={setTees} value={tees} inputRef={teesRef}>
 					Tees
 				</Input>
-				<View
-					style={{
-						display: "flex",
-						justifyContent: "center",
-						alignItems: "center",
-						width: "80%",
-						height: "auto",
-						marginVertical: 10,
-					}}>
-					<Carousel
-						width={320}
-						height={200}
-						style={{
-							backgroundColor: theme.colors.surfaceVariant,
-							borderRadius: 15,
-						}}
-						loop={false}
-						snapEnabled={true}
-						pagingEnabled={true}
-						scrollAnimationDuration={250}
-						data={images}
-						renderItem={({ item }) => (
-							<Pressable onPress={setPictures}>
-								<Image
-									placeholder={img}
-									style={{ height: "100%" }}
-									source={item}
-									contentFit="contain"
-								/>
-							</Pressable>
-						)}
-					/>
-					<IconButton
-						icon="camera"
-						iconColor={theme.colors.inverseSurface}
-						size={20}
-						style={{
-							position: "absolute",
-							top: 0,
-							right: 0,
-							backgroundColor: theme.colors.inversePrimary,
-							borderRadius: 100,
-						}}
+
+				<View style={{ width: "80%", marginVertical: 15 }}>
+					<Text variant="bodyLarge" style={{ marginBottom: 10 }}>
+						Photos
+					</Text>
+					<ImageGallery
+						images={images}
+						onAddImages={handleAddImages}
+						onRemoveImage={handleRemoveImage}
+						isEditable={true}
 					/>
 				</View>
+
 				<Button mode="contained" style={{ marginTop: 15 }} onPress={addDBRound}>
 					Add Round
 				</Button>
