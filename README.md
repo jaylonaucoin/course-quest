@@ -1,7 +1,7 @@
 # Course Quest
 
 * **Date Created**: 27 JAN 2025
-* **Last Modification Date**: 15 MAR 2025
+* **Last Modification Date**: 11 APR 2025
 * **GitHub URL**: <https://github.com/jaylonaucoin/course-quest>
 
 ## Author(s)
@@ -47,6 +47,7 @@ FIREBASE_MESSAGING_SENDER_ID=<your_firebase_messaging_sender_id>
 FIREBASE_APP_ID=<your_firebase_app_id>
 FIREBASE_MEASUREMENT_ID=<your_firebase_measurement_id>
 OPEN_METEO_API_KEY=<your_open_meteo_api_key>
+GOOGLE_MAPS_API_KEY=<your_google_maps_api_key>
 ```
 
 ## Built With
@@ -63,6 +64,7 @@ OPEN_METEO_API_KEY=<your_open_meteo_api_key>
 * [NativeWind](https://native-wind.com/) - The design system used
 * [Open-Meteo](https://open-meteo.com/en/license) - The weather API used
 * [React Native Paper](https://callstack.github.io/react-native-paper/) - The UI library used
+* [React Native Map Clustering](https://www.npmjs.com/package/react-native-map-clustering) - The map clustering library used
 
 ## Other Sources Used
 
@@ -75,3 +77,4 @@ OPEN_METEO_API_KEY=<your_open_meteo_api_key>
 * [Expo Image Picker](https://www.npmjs.com/package/expo-image-picker) by [Expo](https://docs.expo.dev/) is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 * [React Native Navigation](https://www.npmjs.com/package/@react-navigation/native).
 * [Date Time Picker](https://www.npmjs.com/package/@react-native-community/datetimepicker) by [React Native Community](https://www.npmjs.com/~react-native-community).
+* [React Native Map Clustering](https://www.npmjs.com/package/react-native-map-clustering) by [React Native Map Clustering](https://www.npmjs.com/~react-native-map-clustering).
