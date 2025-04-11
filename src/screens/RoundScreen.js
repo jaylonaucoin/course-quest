@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { FlatList, View, RefreshControl } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button, RadioButton } from "react-native-paper";
 import { deleteRound, getRounds } from "../utils/DataController";
-import { useScrollToTop } from "@react-navigation/native";
+import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
 import WeatherIcon from "../components/WeatherIcon";
 
 export default function RoundScreen({ navigation }) {
@@ -42,7 +42,7 @@ export default function RoundScreen({ navigation }) {
 	const fetchRounds = async () => {
 		setRefreshing(true);
 		try {
-			const data = await getRounds();
+			const data = await getRounds(sort);
 			setRounds(data);
 		} catch (error) {
 			console.error("Error fetching rounds:", error);
@@ -51,11 +51,20 @@ export default function RoundScreen({ navigation }) {
 		}
 	};
 
+	// Initial load on mount
 	useEffect(() => {
-		getRounds().then((rounds) => {
-			setRounds(rounds);
-		});
+		fetchRounds();
 	}, []);
+
+	// Add useFocusEffect to refresh data when the screen comes into focus
+	useFocusEffect(
+		React.useCallback(() => {
+			fetchRounds();
+			return () => {
+				// Cleanup if needed
+			};
+		}, [sort])
+	);
 
 	const goToEditRoundScreen = (round) => {
 		toggleMenu(round.id);

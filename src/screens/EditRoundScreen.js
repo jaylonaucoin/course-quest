@@ -270,7 +270,12 @@ export default function EditRoundScreen({ route }) {
 					nextRef={scoreRef}>
 					Date
 				</Input>
-				<Input onChange={setScore} type="number" value={score} inputRef={scoreRef} nextRef={notesRef}>
+				<Input
+					onChange={setScore}
+					type="number"
+					value={score.toString()}
+					inputRef={scoreRef}
+					nextRef={notesRef}>
 					Score
 				</Input>
 				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>

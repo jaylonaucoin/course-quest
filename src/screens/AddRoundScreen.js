@@ -207,7 +207,7 @@ export default function AddRoundScreen({ navigation }) {
 					Course
 				</Input>
 				<Input
-					onChange={(selectedDate) => setDate(selectedDate)}
+					onChange={(event, selectedDate) => setDate(selectedDate)}
 					type="date"
 					value={date}
 					inputRef={dateRef}

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Modal, Image } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
 import { deleteRound, getRounds } from "../utils/DataController";
-import { useScrollToTop } from "@react-navigation/native";
+import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
 import Gallery from "react-native-awesome-gallery";
 import WeatherIcon from "../components/WeatherIcon";
 
@@ -56,11 +56,20 @@ export default function HomeScreen({ navigation }) {
 		});
 	};
 
+	// Refresh data on initial mount
 	useEffect(() => {
-		getRounds().then((rounds) => {
-			setRounds(rounds);
-		});
+		fetchRounds();
 	}, []);
+
+	// Add useFocusEffect to refresh data when the screen comes into focus
+	useFocusEffect(
+		React.useCallback(() => {
+			fetchRounds();
+			return () => {
+				// Cleanup if needed
+			};
+		}, [])
+	);
 
 	return (
 		<View style={{ backgroundColor: theme.colors.surface, height: "100%" }}>

@@ -143,8 +143,6 @@ const Input = ({
 						autoComplete={autofill}
 						placeholder={children}
 						outlineStyle={inputStyle}
-						// left={<TextInput.Icon icon="magnify" />}
-						// right={<TextInput.Icon icon="close" onPress={() => onChange("")} />}
 					/>
 					{showSearchResults && searchResults.length > 0 && (
 						<View
