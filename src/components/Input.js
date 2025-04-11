@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Searchbar, Text, TextInput, useTheme, List } from "react-native-paper";
+import { Text, TextInput, useTheme, List } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 const Input = ({
@@ -78,20 +78,14 @@ const Input = ({
 			return (
 				<List.Item
 					key={index}
-					title={
-						typeof result === "string"
-							? result
-							: result.title || result.name || JSON.stringify(result)
-					}
+					title={typeof result === "string" ? result : result.title || result.name || JSON.stringify(result)}
 					onPress={() => onSearchResultSelect && onSearchResultSelect(result)}
 					style={{
 						borderBottomWidth: index < searchResults.length - 1 ? 1 : 0,
 						borderBottomColor: theme.colors.outline,
 					}}
 					titleStyle={{ color: theme.colors.onSurfaceVariant }}
-					left={(props) => (
-						<List.Icon {...props} icon={searchResultIcon} color={theme.colors.primary} />
-					)}
+					left={(props) => <List.Icon {...props} icon={searchResultIcon} color={theme.colors.primary} />}
 				/>
 			);
 		}
@@ -182,9 +176,7 @@ const Input = ({
 						justifyContent: "space-between",
 						alignItems: "center",
 					}}>
-					<Text
-						variant="bodyLarge"
-						theme={{ colors: { onSurface: theme.colors.onSurfaceVariant } }}>
+					<Text variant="bodyLarge" theme={{ colors: { onSurface: theme.colors.onSurfaceVariant } }}>
 						Date
 					</Text>
 					<DateTimePicker

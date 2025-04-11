@@ -65,12 +65,7 @@ export default function Header() {
 							alignItems: "center",
 							paddingRight: 7,
 						}}>
-						<IconButton
-							icon="plus"
-							size={16}
-							iconColor={theme.colors.onPrimary}
-							style={{ margin: -5 }}
-						/>
+						<IconButton icon="plus" size={16} iconColor={theme.colors.onPrimary} style={{ margin: -5 }} />
 						<Text
 							style={{
 								color: theme.colors.onPrimary,

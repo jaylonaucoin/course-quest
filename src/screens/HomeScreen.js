@@ -1,19 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Modal, Image } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
 import { deleteRound, getRounds } from "../utils/DataController";
 import { useScrollToTop } from "@react-navigation/native";
-import { ImageGallery } from "@georstat/react-native-image-gallery";
-import ImageGrid from "../components/ImageGrid";
+import Gallery from "react-native-awesome-gallery";
 import WeatherIcon from "../components/WeatherIcon";
+
+const { width, height } = Dimensions.get("window");
+
 export default function HomeScreen({ navigation }) {
 	const [refreshing, setRefreshing] = useState(false);
 	const theme = useTheme();
 	const [rounds, setRounds] = useState([]);
 	const [menuStates, setMenuStates] = useState({});
-	const [imageGalleryVisible, setImageGalleryVisible] = useState(false);
-	const [imageIndex, setImageIndex] = useState(0);
-	const [currentImages, setCurrentImages] = useState([]);
+	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+	const [isGalleryVisible, setIsGalleryVisible] = useState(false);
+	const [currentRoundImages, setCurrentRoundImages] = useState([]);
 
 	const scrollRef = useRef(null);
 	useScrollToTop(scrollRef);
@@ -60,18 +62,6 @@ export default function HomeScreen({ navigation }) {
 		});
 	}, []);
 
-	const renderImageViewer = (index, images) => {
-		// Convert image URLs to the format expected by ImageGallery
-		const galleryImages = images.map((url, i) => ({
-			id: i,
-			url: url,
-		}));
-
-		setCurrentImages(galleryImages);
-		setImageIndex(index);
-		setImageGalleryVisible(true);
-	};
-
 	return (
 		<View style={{ backgroundColor: theme.colors.surface, height: "100%" }}>
 			{!rounds || rounds.length === 0 ? (
@@ -106,7 +96,7 @@ export default function HomeScreen({ navigation }) {
 					}
 					style={{ padding: 5, height: "100%" }}
 					data={rounds}
-					renderItem={({ item }) => (
+					renderItem={({ item, index }) => (
 						<Card
 							style={{
 								display: "flex",
@@ -158,22 +148,120 @@ export default function HomeScreen({ navigation }) {
 								titleVariant="titleMedium"
 							/>
 							{item.images && item.images[0] && (
-								<View style={{ height: 200 }}>
-									<ImageGrid
-										images={item.images}
-										onImagePress={(index) => renderImageViewer(index, item.images)}
-									/>
-									<ImageGallery
-										isOpen={imageGalleryVisible}
-										close={() => setImageGalleryVisible(false)}
-										images={currentImages}
-										initialIndex={imageIndex}
-									/>
+								<View style={{ height: item.images.length > 1 ? 300 : 200, padding: 5 }}>
+									{/* First large image */}
+									<TouchableOpacity
+										style={{
+											width: "100%",
+											height: 200,
+											marginBottom: 5,
+										}}
+										onPress={() => {
+											setCurrentRoundImages(item.images);
+											setSelectedImageIndex(0);
+											setIsGalleryVisible(true);
+										}}>
+										<Image
+											source={{ uri: item.images[0] }}
+											style={{
+												width: "100%",
+												height: "100%",
+												borderRadius: 8,
+											}}
+											resizeMode="cover"
+										/>
+									</TouchableOpacity>
+
+									{/* Bottom row of images */}
+									{item.images.length > 1 && (
+										<View style={{ flexDirection: "row", height: 90, gap: 5 }}>
+											{/* Second image */}
+											<TouchableOpacity
+												style={{ flex: 1 }}
+												onPress={() => {
+													setCurrentRoundImages(item.images);
+													setSelectedImageIndex(1);
+													setIsGalleryVisible(true);
+												}}>
+												<Image
+													source={{ uri: item.images[1] }}
+													style={{
+														width: "100%",
+														height: "100%",
+														borderRadius: 8,
+													}}
+													resizeMode="cover"
+												/>
+											</TouchableOpacity>
+
+											{/* Third image */}
+											{item.images.length > 2 && (
+												<TouchableOpacity
+													style={{ flex: 1 }}
+													onPress={() => {
+														setCurrentRoundImages(item.images);
+														setSelectedImageIndex(2);
+														setIsGalleryVisible(true);
+													}}>
+													<Image
+														source={{ uri: item.images[2] }}
+														style={{
+															width: "100%",
+															height: "100%",
+															borderRadius: 8,
+														}}
+														resizeMode="cover"
+													/>
+												</TouchableOpacity>
+											)}
+
+											{/* Fourth image or overlay */}
+											{item.images.length > 3 && (
+												<TouchableOpacity
+													style={{ flex: 1 }}
+													onPress={() => {
+														setCurrentRoundImages(item.images);
+														setSelectedImageIndex(3);
+														setIsGalleryVisible(true);
+													}}>
+													<Image
+														source={{ uri: item.images[3] }}
+														style={{
+															width: "100%",
+															height: "100%",
+															borderRadius: 8,
+														}}
+														resizeMode="cover"
+													/>
+													{item.images.length > 4 && (
+														<View
+															style={{
+																position: "absolute",
+																top: 0,
+																left: 0,
+																right: 0,
+																bottom: 0,
+																backgroundColor: "rgba(0,0,0,0.5)",
+																borderRadius: 8,
+																justifyContent: "center",
+																alignItems: "center",
+															}}>
+															<Text style={{ color: "white", fontSize: 24 }}>
+																+{item.images.length - 4}
+															</Text>
+														</View>
+													)}
+												</TouchableOpacity>
+											)}
+										</View>
+									)}
 								</View>
 							)}
-							<Card.Content style={{ paddingVertical: 10 }}>
-								<Text variant="bodySmall">{item.notes}</Text>
-							</Card.Content>
+							{item.notes && (
+								<Card.Content style={{ paddingVertical: 15 }}>
+									<Text variant="bodySmall">{item.notes}</Text>
+								</Card.Content>
+							)}
 							<View
 								style={{
 									display: "flex",
@@ -192,6 +280,33 @@ export default function HomeScreen({ navigation }) {
 					keyExtractor={(item) => item.id}
 				/>
 			)}
+			<Modal
+				visible={isGalleryVisible}
+				transparent={true}
+				onRequestClose={() => setIsGalleryVisible(false)}
+				statusBarTranslucent>
+				<View style={{ flex: 1, backgroundColor: "black" }}>
+					<Gallery
+						data={currentRoundImages}
+						initialIndex={selectedImageIndex}
+						onSwipeToClose={() => setIsGalleryVisible(false)}
+						containerDimensions={{ width, height }}
+						style={{ flex: 1 }}
+						loop={false}
+						onIndexChange={(index) => setSelectedImageIndex(index)}
+						enableSwipeToClose={true}
+						disableVerticalSwipe={false}
+						disableSwipeUp={false}
+					/>
+					<IconButton
+						icon="close"
+						iconColor="white"
+						size={30}
+						style={{ position: "absolute", top: 40, right: 20, zIndex: 1 }}
+						onPress={() => setIsGalleryVisible(false)}
+					/>
+				</View>
+			</Modal>
 		</View>
 	);
 }

@@ -49,9 +49,7 @@ export default function AccountScreen({ navigation }) {
 									alignContent: "center",
 									alignItems: "center",
 								}}
-								source={() => (
-									<Icon source="account" color={theme.colors.onPrimary} size={45} />
-								)}
+								source={() => <Icon source="account" color={theme.colors.onPrimary} size={45} />}
 							/>
 						)}
 					</View>

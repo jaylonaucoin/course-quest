@@ -28,11 +28,12 @@ export async function pickImage(upload = false) {
 
 		// Open image picker
 		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ["images"],
-			quality: 1,
-			allowsMultipleSelection: !upload,
+			mediaTypes: ["images", "videos"],
+			quality: 0.8, // Using 0.8 for better performance while maintaining quality
+			allowsMultipleSelection: true,
 			orderedSelection: true,
 			aspect: [16, 9],
+			selectionLimit: 10, // Limiting to 10 images max for better performance
 		});
 
 		if (result.canceled || !result.assets?.length) return null;
@@ -99,14 +100,18 @@ export async function uploadImage(uri, path = "profilePicture", roundId = null) 
 export async function uploadImages(images, path, roundId) {
 	try {
 		if (!images || !images.length) return [];
-		const urls = [];
 
-		for (const image of images) {
-			const url = await uploadImage(image, path, roundId);
-			urls.push(url);
-		}
+		// Process images concurrently for better performance
+		const uploadPromises = images.map((image) => {
+			// Skip already uploaded images (they start with https://)
+			if (image.startsWith("https://")) {
+				return Promise.resolve(image);
+			}
+			return uploadImage(image, path, roundId);
+		});
 
-		return urls;
+		const results = await Promise.all(uploadPromises);
+		return results.filter((url) => url !== null);
 	} catch (error) {
 		console.error("Error uploading images:", error);
 		return [];
@@ -181,21 +186,15 @@ export async function setAsyncUserAndRounds() {
 	}
 }
 
-export async function addRound(
-	course,
-	date,
-	score,
-	temp,
-	rain,
-	wind,
-	weatherCode,
-	notes,
-	images,
-	tees,
-	lat,
-	lon,
-) {
+export async function addRound(course, date, score, temp, rain, wind, weatherCode, notes, images, tees, lat, lon) {
 	try {
+		// Process images first if provided
+		let processedImages = [];
+		if (images && images.length > 0) {
+			processedImages = await uploadImages(images, "rounds", null);
+		}
+
+		// Create the round document
 		const roundRef = await addDoc(collection(db, "users", auth.currentUser.uid, "rounds"), {
 			course: course,
 			date: date,
@@ -205,15 +204,25 @@ export async function addRound(
 			wind: Number(wind),
 			weatherCode: Number(weatherCode),
 			notes: notes,
-			images: [images],
+			images: processedImages,
 			tees: tees,
 			lat: Number(lat),
 			lon: Number(lon),
 		});
+
+		// If we processed images, update the storage paths with the new round ID
+		if (processedImages.length > 0) {
+			processedImages = await uploadImages(images, "rounds", roundRef.id);
+			await updateDoc(doc(db, "users", auth.currentUser.uid, "rounds", roundRef.id), {
+				images: processedImages,
+			});
+		}
+
 		await setAsyncUserAndRounds();
 		return roundRef.id;
 	} catch (error) {
 		console.error("Error setting rounds:", error);
+		throw error; // Re-throw to allow proper error handling
 	}
 }
 
@@ -237,7 +246,6 @@ export async function deleteRoundImages(id) {
 		for (const image of images.items) {
 			try {
 				await deleteObject(image); // Ensure each deletion is awaited
-				console.log(`Deleted image: ${image.name}`);
 			} catch (imageError) {
 				console.error(`Error deleting image ${image.name}:`, imageError);
 			}
@@ -257,32 +265,37 @@ export async function updateRound(
 	wind,
 	weatherCode,
 	notes,
-	image,
+	images,
 	tees,
 	lat,
 	lon,
 ) {
 	try {
-		console.log("Updating round:", id);
+		// Ensure all images are uploaded (handles both new and existing images)
+		let processedImages = images;
+		if (images && images.length > 0) {
+			processedImages = await uploadImages(images, "rounds", id);
+		}
+
 		await updateDoc(doc(db, "users", auth.currentUser.uid, "rounds", id), {
 			course: course,
 			date: date,
-			score: score,
-			temp: temp,
-			rain: rain,
-			wind: wind,
-			weatherCode: weatherCode,
+			score: Number(score),
+			temp: Number(temp),
+			rain: Number(rain),
+			wind: Number(wind),
+			weatherCode: Number(weatherCode),
 			notes: notes,
-			images: image,
+			images: processedImages,
 			tees: tees,
-			lat: lat,
-			lon: lon,
+			lat: Number(lat),
+			lon: Number(lon),
 		});
-		console.log("Round updated:", id);
+
 		await setAsyncUserAndRounds();
-		console.log("User and rounds updated");
 	} catch (error) {
 		console.error("Error updating round:", error);
+		throw error; // Re-throw to allow proper error handling
 	}
 }
 
@@ -302,6 +315,53 @@ export async function reauthenticate(currentPassword) {
 		await user.reauthenticateWithCredential(credential);
 		return true;
 	} catch {
+		return false;
+	}
+}
+
+// New function to remove a specific image from Firebase Storage
+export async function removeImage(imageUrl, roundId) {
+	try {
+		if (!imageUrl || !imageUrl.startsWith("https://")) return false;
+
+		// Extract the storage path from the URL
+		const pathRegex = new RegExp(`images/${auth.currentUser.uid}/.+`);
+		const match = imageUrl.match(pathRegex);
+
+		if (!match) {
+			console.error("Could not parse image path from URL:", imageUrl);
+			return false;
+		}
+
+		try {
+			// Try to delete from storage
+			const imageRef = ref(storage, match[0]);
+			await deleteObject(imageRef);
+
+			// Update the round document if roundId is provided
+			if (roundId) {
+				const roundRef = doc(db, "users", auth.currentUser.uid, "rounds", roundId);
+				const roundDoc = await getDoc(roundRef);
+
+				if (roundDoc.exists()) {
+					const roundData = roundDoc.data();
+					const updatedImages = (roundData.images || []).filter((url) => url !== imageUrl);
+
+					await updateDoc(roundRef, {
+						images: updatedImages,
+					});
+
+					return true;
+				}
+			}
+
+			return true;
+		} catch (error) {
+			console.error("Error removing image:", error);
+			return false;
+		}
+	} catch (error) {
+		console.error("Error removing image:", error);
 		return false;
 	}
 }

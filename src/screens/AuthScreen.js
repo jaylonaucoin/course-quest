@@ -146,11 +146,7 @@ export default function AuthScreen({ navigation }) {
 			enableOnAndroid={true}
 			keyboardShouldPersistTaps="handled">
 			<Modal visible={resetPassword} onDismiss={() => setResetPassword(false)} title="Reset Password">
-				<Input
-					type="email"
-					onChange={setResetPasswordEmail}
-					value={resetPasswordEmail}
-					autofill="email">
+				<Input type="email" onChange={setResetPasswordEmail} value={resetPasswordEmail} autofill="email">
 					Email
 				</Input>
 				<View

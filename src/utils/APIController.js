@@ -32,7 +32,6 @@ export async function getWeatherData(latitude, longitude, date) {
 		const daysDifference = Math.floor((currentDate - selectedDate) / (1000 * 60 * 60 * 24));
 
 		const formattedDate = selectedDate.toISOString().split("T")[0];
-		console.log(formattedDate);
 
 		// Use different API endpoints based on date range
 		let apiUrl;
@@ -45,10 +44,8 @@ export async function getWeatherData(latitude, longitude, date) {
 			apiUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${formattedDate}&end_date=${formattedDate}&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,weathercode&timezone=auto`;
 		}
 
-		console.log("apiUrl", apiUrl);
 		const response = await fetch(apiUrl);
 		const data = await response.json();
-		console.log(data);
 		return {
 			temperature: data.daily.temperature_2m_max,
 			rain: data.daily.precipitation_sum,
@@ -69,7 +66,6 @@ export async function searchGolfCourses(query, setCourseResults, setShowCourseOp
 	}
 
 	try {
-		console.log("Searching for golf courses with query:", query);
 		const response = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
 			method: "POST",
 			headers: {
@@ -92,13 +88,11 @@ export async function searchGolfCourses(query, setCourseResults, setShowCourseOp
 		});
 
 		const data = await response.json();
-		console.log("Golf course search results:", data);
 
 		if (data.suggestions && data.suggestions.length > 0) {
 			setCourseResults(data.suggestions.map((suggestion) => suggestion.placePrediction));
 			setShowCourseOptions(true);
 		} else {
-			console.log("No golf courses found for query:", query);
 			setCourseResults([]);
 			setShowCourseOptions(false);
 		}

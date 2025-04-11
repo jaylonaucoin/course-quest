@@ -123,9 +123,7 @@ export default function SettingsScreen({ navigation }) {
 							: "Delete Account"
 				}>
 				{modalType === "email" || modalType === "password" ? (
-					<Text variant="bodyLarge">
-						Enter your new {modalType === "email" ? "email" : "password"}.
-					</Text>
+					<Text variant="bodyLarge">Enter your new {modalType === "email" ? "email" : "password"}.</Text>
 				) : (
 					<Text variant="bodyLarge" style={{ textAlign: "center" }}>
 						You are about to delete your account. This action cannot be undone.
@@ -284,9 +282,7 @@ export default function SettingsScreen({ navigation }) {
 						size={20}
 						onPress={() => setModalVisible("email")}
 						color={
-							auth.currentUser?.emailVerified
-								? theme.colors.onSecondary
-								: theme.colors.onSurfaceDisabled
+							auth.currentUser?.emailVerified ? theme.colors.onSecondary : theme.colors.onSurfaceDisabled
 						}
 						style={{
 							backgroundColor: auth.currentUser?.emailVerified
@@ -308,9 +304,7 @@ export default function SettingsScreen({ navigation }) {
 						variant="bodyMedium"
 						style={{
 							fontWeight: "bold",
-							color: auth.currentUser?.emailVerified
-								? theme.colors.primary
-								: theme.colors.error,
+							color: auth.currentUser?.emailVerified ? theme.colors.primary : theme.colors.error,
 						}}>
 						{auth.currentUser?.emailVerified ? "Verified" : "Not Verified"}
 					</Text>

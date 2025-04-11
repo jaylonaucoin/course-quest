@@ -63,10 +63,7 @@ export default function MapScreen() {
 		const loadRounds = async () => {
 			try {
 				const rounds = await getRounds();
-				console.log("Loaded rounds:", rounds);
-
 				if (!rounds || rounds.length === 0) {
-					console.log("No rounds found");
 					return;
 				}
 
@@ -83,12 +80,8 @@ export default function MapScreen() {
 					image: round.images && round.images.length > 0 ? round.images[0] : null,
 				}));
 
-				console.log("Created markers:", newMarkers);
 				setMarkers(newMarkers);
-
 				const region = getCenter(newMarkers);
-				console.log("Calculated region:", region);
-
 				setInitialRegion(region);
 			} catch (error) {
 				console.error("Error loading rounds:", error);
