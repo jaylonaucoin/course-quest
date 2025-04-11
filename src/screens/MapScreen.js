@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import MapView from "react-native-map-clustering";
@@ -5,6 +6,7 @@ import { Marker, Callout } from "react-native-maps";
 import { useTheme, Surface, Tooltip } from "react-native-paper";
 import { getRounds } from "../utils/DataController";
 import { useState, useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 export default function MapScreen() {
@@ -59,37 +61,49 @@ export default function MapScreen() {
 		};
 	};
 
-	useEffect(() => {
-		const loadRounds = async () => {
-			try {
-				const rounds = await getRounds();
-				if (!rounds || rounds.length === 0) {
-					return;
-				}
-
-				const newMarkers = rounds.map((round) => ({
-					latitude: Number(round.lat),
-					longitude: Number(round.lon),
-					title: round.course,
-					description: round.score.toString(),
-					date: round.date ? round.date.toDate().toLocaleDateString() : "No date",
-					score: round.score,
-					temp: round.temp,
-					wind: round.wind,
-					rain: round.rain,
-					image: round.images && round.images.length > 0 ? round.images[0] : null,
-				}));
-
-				setMarkers(newMarkers);
-				const region = getCenter(newMarkers);
-				setInitialRegion(region);
-			} catch (error) {
-				console.error("Error loading rounds:", error);
+	const loadRounds = async () => {
+		try {
+			const rounds = await getRounds();
+			if (!rounds || rounds.length === 0) {
+				return;
 			}
-		};
 
+			const newMarkers = rounds.map((round) => ({
+				latitude: Number(round.lat),
+				longitude: Number(round.lon),
+				title: round.course,
+				description: round.score.toString(),
+				date: round.date ? round.date.toDate().toLocaleDateString() : "No date",
+				score: round.score,
+				temp: round.temp,
+				wind: round.wind,
+				rain: round.rain,
+				image: round.images && round.images.length > 0 ? round.images[0] : null,
+			}));
+
+			setMarkers(newMarkers);
+			const region = getCenter(newMarkers);
+			setInitialRegion(region);
+		} catch (error) {
+			console.error("Error loading rounds:", error);
+		}
+	};
+
+	// Initial load on mount
+	useEffect(() => {
 		loadRounds();
 	}, []);
+
+	// Refresh data when screen comes into focus
+	useFocusEffect(
+		React.useCallback(() => {
+			loadRounds();
+			return () => {
+				// Cleanup if needed
+			};
+		}, []),
+	);
+
 	const styles = StyleSheet.create({
 		tooltipWrapper: {
 			alignItems: "center",

@@ -63,7 +63,7 @@ export default function RoundScreen({ navigation }) {
 			return () => {
 				// Cleanup if needed
 			};
-		}, [sort])
+		}, [sort]),
 	);
 
 	const goToEditRoundScreen = (round) => {

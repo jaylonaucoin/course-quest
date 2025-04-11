@@ -2,22 +2,40 @@ import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { Avatar, Button, Card, Divider, useTheme, Text, Icon, Menu, RadioButton } from "react-native-paper";
 import { getUser, getRounds } from "../utils/DataController";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function AccountScreen({ navigation }) {
 	const [user, setUser] = useState({});
 	const [rounds, setRounds] = useState([]);
 	const [sortMenuVisible, setSortMenuVisible] = useState(false);
 	const [sort, setSort] = useState("date-desc");
-
-	useEffect(() => {
-		getUser().then((user) => {
-			setUser(user);
-		});
-		getRounds().then((rounds) => {
-			setRounds(rounds);
-		});
-	}, []);
 	const theme = useTheme();
+
+	const fetchData = async () => {
+		try {
+			const userData = await getUser();
+			setUser(userData);
+			const roundsData = await getRounds(sort);
+			setRounds(roundsData);
+		} catch (error) {
+			console.error("Error fetching data:", error);
+		}
+	};
+
+	// Initial load on mount
+	useEffect(() => {
+		fetchData();
+	}, []);
+
+	// Refresh data when screen comes into focus
+	useFocusEffect(
+		React.useCallback(() => {
+			fetchData();
+			return () => {
+				// Cleanup if needed
+			};
+		}, [sort]),
+	);
 
 	const changeSort = async (value) => {
 		setSortMenuVisible(false);

@@ -104,11 +104,19 @@ export default function TabNavigator() {
 				name="Map"
 				component={MapScreen}
 				options={{
+					unmountOnBlur: true,
 					tabBarLabel: "Map",
 					tabBarIcon: ({ color, size }) => {
 						return <Ionicons name="map" size={size} color={color} />;
 					},
 				}}
+				listeners={({ navigation }) => ({
+					tabPress: (e) => {
+						// Force navigation to refresh the screen
+						e.preventDefault();
+						navigation.navigate("Map");
+					},
+				})}
 			/>
 			<Tab.Screen
 				name="SettingsStack"

@@ -68,7 +68,7 @@ export default function HomeScreen({ navigation }) {
 			return () => {
 				// Cleanup if needed
 			};
-		}, [])
+		}, []),
 	);
 
 	return (
