@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { FlatList, View } from "react-native";
 import { Avatar, Button, Card, Divider, useTheme, Text, Icon, Menu, RadioButton } from "react-native-paper";
 import { getUser, getRounds } from "../utils/DataController";
@@ -11,7 +11,7 @@ export default function AccountScreen({ navigation }) {
 	const [sort, setSort] = useState("date-desc");
 	const theme = useTheme();
 
-	const fetchData = async () => {
+	const fetchData = useCallback(async () => {
 		try {
 			const userData = await getUser();
 			setUser(userData);
@@ -20,12 +20,12 @@ export default function AccountScreen({ navigation }) {
 		} catch (error) {
 			console.error("Error fetching data:", error);
 		}
-	};
+	}, [sort]);
 
 	// Initial load on mount
 	useEffect(() => {
 		fetchData();
-	}, []);
+	}, [fetchData]);
 
 	// Refresh data when screen comes into focus
 	useFocusEffect(
@@ -34,7 +34,7 @@ export default function AccountScreen({ navigation }) {
 			return () => {
 				// Cleanup if needed
 			};
-		}, [sort]),
+		}, [fetchData]),
 	);
 
 	const changeSort = async (value) => {
