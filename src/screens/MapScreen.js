@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
-export default function MapScreen() {
+export default function MapScreen({ route }) {
 	const theme = useTheme();
 	const themeStyle = theme.dark ? "dark" : "light";
 	const [markers, setMarkers] = useState([]);
@@ -19,6 +19,8 @@ export default function MapScreen() {
 		latitudeDelta: 100,
 		longitudeDelta: 100,
 	});
+
+	const { roundData } = route.params || {};
 
 	const getCenter = (markers) => {
 		if (!markers || markers.length === 0) {
@@ -73,7 +75,7 @@ export default function MapScreen() {
 				longitude: Number(round.lon),
 				title: round.course,
 				description: round.score.toString(),
-				date: round.date ? round.date.toDate().toLocaleDateString() : "No date",
+				date: round.date ? round.date.toDate() : "No date",
 				score: round.score,
 				temp: round.temp,
 				wind: round.wind,
@@ -82,8 +84,19 @@ export default function MapScreen() {
 			}));
 
 			setMarkers(newMarkers);
-			const region = getCenter(newMarkers);
-			setInitialRegion(region);
+			// If roundData is provided, focus on its marker
+			if (roundData && roundData.lat && roundData.lon) {
+				const targetRegion = {
+					latitude: Number(roundData.lat),
+					longitude: Number(roundData.lon),
+					latitudeDelta: 0.01,
+					longitudeDelta: 0.01,
+				};
+				setInitialRegion(targetRegion);
+			} else {
+				const region = getCenter(newMarkers);
+				setInitialRegion(region);
+			}
 		} catch (error) {
 			console.error("Error loading rounds:", error);
 		}

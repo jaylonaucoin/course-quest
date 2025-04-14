@@ -4,7 +4,7 @@ import { useTheme, Button, Avatar, Icon, IconButton } from "react-native-paper";
 import Input from "../components/Input";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { getUser, pickImage, setProfileInfo } from "../utils/DataController";
-import { searchGolfCourses } from "../utils/APIController";
+import { searchGolfCourses, getCourseDetails } from "../utils/APIController";
 
 export default function EditAccountScreen() {
 	const theme = useTheme();
@@ -17,6 +17,9 @@ export default function EditAccountScreen() {
 	const [showCourseOptions, setShowCourseOptions] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [saved, setSaved] = useState(false);
+	const [city, setCity] = useState();
+	const [province, setProvince] = useState();
+	const [country, setCountry] = useState();
 
 	const firstNameRef = useRef(null);
 	const lastNameRef = useRef(null);
@@ -30,6 +33,9 @@ export default function EditAccountScreen() {
 			setHomeCourse(user.homeCourse);
 			setBio(user.bio);
 			setProfilePicture(user.profilePicture);
+			setCity(user.city);
+			setProvince(user.province);
+			setCountry(user.country);
 		});
 	}, []);
 
@@ -54,8 +60,13 @@ export default function EditAccountScreen() {
 		searchGolfCourses(text, setCourseResults, setShowCourseOptions);
 	};
 
-	const selectCourse = (courseData) => {
+	const selectCourse = async (courseData) => {
 		setHomeCourse(courseData.text.text.split(",")[0]);
+		await getCourseDetails(courseData.placeId).then((courseDetails) => {
+			setCity(courseDetails.city);
+			setProvince(courseDetails.province);
+			setCountry(courseDetails.country);
+		});
 		setSaved(false);
 		setShowCourseOptions(false);
 	};
@@ -152,7 +163,7 @@ export default function EditAccountScreen() {
 					style={{ marginTop: 20 }}
 					onPress={async () => {
 						setLoading(true);
-						await setProfileInfo(firstName, lastName, homeCourse, bio);
+						await setProfileInfo(firstName, lastName, homeCourse, bio, city, province, country);
 						setLoading(false);
 						setSaved(true);
 					}}

@@ -133,7 +133,7 @@ export async function getUser() {
 	}
 }
 
-export async function setUser(uid, email, firstName, lastName, homeCourse) {
+export async function setUser(uid, email, firstName, lastName, homeCourse, city, province, country) {
 	try {
 		await setDoc(doc(db, "users", uid), {
 			uid: uid,
@@ -141,6 +141,9 @@ export async function setUser(uid, email, firstName, lastName, homeCourse) {
 			firstName: firstName,
 			lastName: lastName,
 			homeCourse: homeCourse,
+			city: city,
+			province: province,
+			country: country,
 			profilePicture: null,
 			bio: null,
 		});
@@ -162,12 +165,15 @@ export async function getRounds(q = "date-desc") {
 	}
 }
 
-export async function setProfileInfo(firstName, lastName, homeCourse, bio) {
+export async function setProfileInfo(firstName, lastName, homeCourse, bio, city, province, country) {
 	try {
 		await updateDoc(doc(db, "users", auth.currentUser.uid), {
 			firstName: firstName,
 			lastName: lastName,
 			homeCourse: homeCourse,
+			city: city,
+			province: province,
+			country: country,
 			bio: bio,
 		});
 		await setAsyncUserAndRounds();
@@ -186,7 +192,21 @@ export async function setAsyncUserAndRounds() {
 	}
 }
 
-export async function addRound(course, date, score, temp, rain, wind, weatherCode, notes, images, tees, lat, lon) {
+export async function addRound(
+	course,
+	date,
+	score,
+	temp,
+	rain,
+	wind,
+	weatherCode,
+	notes,
+	images,
+	tees,
+	lat,
+	lon,
+	holes,
+) {
 	try {
 		// Process images first if provided
 		let processedImages = [];
@@ -208,6 +228,7 @@ export async function addRound(course, date, score, temp, rain, wind, weatherCod
 			tees: tees,
 			lat: Number(lat),
 			lon: Number(lon),
+			holes: holes,
 		});
 
 		// If we processed images, update the storage paths with the new round ID
@@ -269,6 +290,7 @@ export async function updateRound(
 	tees,
 	lat,
 	lon,
+	holes,
 ) {
 	try {
 		// Ensure all images are uploaded (handles both new and existing images)
@@ -290,6 +312,7 @@ export async function updateRound(
 			tees: tees,
 			lat: Number(lat),
 			lon: Number(lon),
+			holes: holes || "18",
 		});
 
 		await setAsyncUserAndRounds();

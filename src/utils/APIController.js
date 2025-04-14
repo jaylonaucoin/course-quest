@@ -7,16 +7,33 @@ export async function getCourseDetails(placeId) {
 			headers: {
 				"Content-Type": "application/json",
 				"X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-				"X-Goog-FieldMask": "displayName,location",
+				"X-Goog-FieldMask": "displayName,location,addressComponents",
 			},
 		});
 
 		const data = await response.json();
 
+		let city, province, country;
+
+		for (const component of data.addressComponents || []) {
+			if (component.types.includes("locality")) {
+				city = component.longText;
+			}
+			if (component.types.includes("administrative_area_level_1")) {
+				province = component.longText;
+			}
+			if (component.types.includes("country")) {
+				country = component.longText;
+			}
+		}
+
 		return {
 			latitude: data.location.latitude,
 			longitude: data.location.longitude,
 			name: data.displayName.text,
+			city,
+			province,
+			country,
 		};
 	} catch (error) {
 		console.error("Error fetching course details:", error);

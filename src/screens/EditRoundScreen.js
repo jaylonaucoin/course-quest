@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import { useTheme, Text, Button, Portal, Modal, ActivityIndicator } from "react-native-paper";
+import { useTheme, Text, Button, Portal, Modal, ActivityIndicator, ToggleButton } from "react-native-paper";
 import Input from "../components/Input";
 import { getRound, pickImage, updateRound, removeImage } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -25,6 +25,7 @@ export default function EditRoundScreen({ route }) {
 	const [notes, setNotes] = useState(route.params.roundData.notes);
 	const [images, setImages] = useState(route.params.roundData.images || []);
 	const [tees, setTees] = useState(route.params.roundData.tees);
+	const [holes, setHoles] = useState(route.params.roundData.holes || "18");
 	const [loading, setLoading] = useState(false);
 	const [courseResults, setCourseResults] = useState([]);
 	const [showCourseOptions, setShowCourseOptions] = useState(false);
@@ -51,6 +52,7 @@ export default function EditRoundScreen({ route }) {
 			setNotes(round.notes);
 			setImages(round.images || []);
 			setTees(round.tees);
+			setHoles(round.holes || "18");
 		});
 	}, [route.params.roundData.id]);
 
@@ -120,6 +122,10 @@ export default function EditRoundScreen({ route }) {
 			teesRef.current.focus();
 			return false;
 		}
+		if (!holes || !["18", "front9", "back9"].includes(holes)) {
+			alert("Please select a valid hole option");
+			return false;
+		}
 		return true;
 	};
 
@@ -187,6 +193,7 @@ export default function EditRoundScreen({ route }) {
 				notes,
 				images,
 				tees,
+				holes,
 				latToUse,
 				lonToUse,
 			);
@@ -284,6 +291,28 @@ export default function EditRoundScreen({ route }) {
 				<Input onChange={setTees} value={tees} inputRef={teesRef}>
 					Tees
 				</Input>
+				<View style={{ maxWidth: 384, alignSelf: "center", width: "100%", padding: 8 }}>
+					<Text variant="bodyLarge" style={{ marginBottom: 10 }}>
+						Holes
+					</Text>
+					<ToggleButton.Row onValueChange={(value) => setHoles(value)} value={holes}>
+						<ToggleButton
+							icon={() => <Text>18 holes</Text>}
+							value="18"
+							style={{ width: "33.3%", borderRadius: 10 }}
+						/>
+						<ToggleButton
+							icon={() => <Text>Front 9</Text>}
+							value="front9"
+							style={{ width: "33.3%", borderRadius: 10 }}
+						/>
+						<ToggleButton
+							icon={() => <Text>Back 9</Text>}
+							value="back9"
+							style={{ width: "33.3%", borderRadius: 10 }}
+						/>
+					</ToggleButton.Row>
+				</View>
 
 				<View style={{ width: "80%", marginVertical: 15 }}>
 					<Text variant="bodyLarge" style={{ marginBottom: 10 }}>

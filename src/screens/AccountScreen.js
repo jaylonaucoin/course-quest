@@ -71,16 +71,26 @@ export default function AccountScreen({ navigation }) {
 							/>
 						)}
 					</View>
-					<Text variant="headlineMedium">{user.firstName + " " + user.lastName}</Text>
+					<Text variant="headlineMedium" style={{ fontWeight: "bold" }}>
+						{user.firstName + " " + user.lastName}
+					</Text>
 				</View>
 				<Card>
 					<Card.Content>
-						<Text variant="titleMedium">
-							Home Course: <Text variant="titleMedium">{user.homeCourse}</Text>
-						</Text>
-						<Text variant="titleSmall">Location: Nova Scotia, Canada</Text>
+						<View style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 10 }}>
+							<Icon source="golf" size={20} color={theme.colors.primary} />
+							<Text variant="titleMedium" style={{ fontWeight: "bold" }}>
+								{user.homeCourse}
+							</Text>
+						</View>
+						<View style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 10 }}>
+							<Icon source="map-marker" size={20} color={theme.colors.primary} />
+							<Text variant="titleMedium">
+								{user.city}, {user.province}, {user.country}
+							</Text>
+						</View>
 						<Divider style={{ marginVertical: 10 }} bold={true} />
-						<Text variant="bodySmall">{user.bio}</Text>
+						<Text variant="bodyMedium">{user.bio}</Text>
 						<View
 							style={{
 								display: "flex",
@@ -97,7 +107,7 @@ export default function AccountScreen({ navigation }) {
 						justifyContent: "space-between",
 						alignItems: "center",
 					}}>
-					<Text variant="titleLarge" style={{ marginVertical: 10 }}>
+					<Text variant="titleLarge" style={{ marginVertical: 10, fontWeight: "bold" }}>
 						Recent Rounds
 					</Text>
 					<Menu

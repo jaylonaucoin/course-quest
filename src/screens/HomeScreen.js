@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Modal, Image } from "react-native";
+import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Modal, Image, Pressable } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
 import { deleteRound, getRounds } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
@@ -54,6 +54,10 @@ export default function HomeScreen({ navigation }) {
 			screen: "EditRound",
 			params: { roundData: round },
 		});
+	};
+
+	const goToMapScreen = (round) => {
+		navigation.navigate("Map", { roundData: round });
 	};
 
 	// Refresh data on initial mount
@@ -114,12 +118,22 @@ export default function HomeScreen({ navigation }) {
 								backgroundColor: theme.colors.elevation.level2,
 							}}>
 							<Card.Title
-								title={item.course}
-								subtitle={item.date.toDate().toLocaleDateString(undefined, {
-									year: "numeric",
-									month: "long",
-									day: "numeric",
-								})}
+								title={
+									<Pressable onPress={() => goToMapScreen(item)}>
+										<Text variant="bodyLarge" style={{ fontWeight: "700" }}>
+											{item.course}
+										</Text>
+									</Pressable>
+								}
+								subtitle={
+									item.date.toDate().toLocaleDateString(undefined, {
+										year: "numeric",
+										month: "long",
+										day: "numeric",
+									}) +
+									"  |  " +
+									item.holes
+								}
 								left={() => (
 									<Avatar.Text
 										labelStyle={{

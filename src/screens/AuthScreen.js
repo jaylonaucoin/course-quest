@@ -14,7 +14,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { SegmentedButtons, Button, HelperText, useTheme, Text } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setUser } from "../utils/DataController";
-import { searchGolfCourses } from "../utils/APIController";
+import { searchGolfCourses, getCourseDetails } from "../utils/APIController";
 
 export default function AuthScreen({ navigation }) {
 	const theme = useTheme();
@@ -32,6 +32,9 @@ export default function AuthScreen({ navigation }) {
 	const [resetPasswordEmail, setResetPasswordEmail] = useState("");
 	const [courseResults, setCourseResults] = useState([]);
 	const [showCourseOptions, setShowCourseOptions] = useState(false);
+	const [city, setCity] = useState("");
+	const [province, setProvince] = useState("");
+	const [country, setCountry] = useState("");
 
 	const firstNameRef = useRef(null);
 	const lastNameRef = useRef(null);
@@ -45,8 +48,13 @@ export default function AuthScreen({ navigation }) {
 		searchGolfCourses(text, setCourseResults, setShowCourseOptions);
 	};
 
-	const selectCourse = (courseData) => {
+	const selectCourse = async (courseData) => {
 		setHomeCourse(courseData.text.text.split(",")[0]);
+		await getCourseDetails(courseData.placeId).then((courseDetails) => {
+			setCity(courseDetails.city);
+			setProvince(courseDetails.province);
+			setCountry(courseDetails.country);
+		});
 		setShowCourseOptions(false);
 	};
 
@@ -77,7 +85,16 @@ export default function AuthScreen({ navigation }) {
 		try {
 			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 			await sendEmailVerification(userCredential.user);
-			await setUser(userCredential.user.uid, email, registerFirstName, registerLastName, homeCourse);
+			await setUser(
+				userCredential.user.uid,
+				email,
+				registerFirstName,
+				registerLastName,
+				homeCourse,
+				city,
+				province,
+				country,
+			);
 			await login(email, password, navigation);
 		} catch (error) {
 			if (error.code === "auth/email-already-in-use") {
@@ -122,6 +139,9 @@ export default function AuthScreen({ navigation }) {
 					profilePicture: userData.profilePicture,
 					bio: userData.bio,
 					homeCourse: userData.homeCourse,
+					city: userData.city,
+					province: userData.province,
+					country: userData.country,
 					rounds: userData.rounds,
 				}),
 			);

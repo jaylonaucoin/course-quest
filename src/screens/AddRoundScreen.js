@@ -2,7 +2,7 @@ import * as React from "react";
 import { useRef, useState } from "react";
 import { View } from "react-native";
 import Input from "../components/Input";
-import { Text, Button, useTheme, Portal, Modal, ActivityIndicator } from "react-native-paper";
+import { Text, Button, useTheme, Portal, Modal, ActivityIndicator, ToggleButton } from "react-native-paper";
 import { pickImage, addRound } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { getCourseDetails, getWeatherData, searchGolfCourses } from "../utils/APIController";
@@ -17,6 +17,7 @@ export default function AddRoundScreen({ navigation }) {
 	const [notes, setNotes] = useState("");
 	const [images, setImages] = useState([]);
 	const [tees, setTees] = useState("");
+	const [holes, setHoles] = useState("18 holes");
 	const [loading, setLoading] = useState(false);
 	const [showCourseOptions, setShowCourseOptions] = useState(false);
 	const [courseData, setCourseData] = useState(null);
@@ -84,6 +85,10 @@ export default function AddRoundScreen({ navigation }) {
 			teesRef.current.focus();
 			return false;
 		}
+		if (!holes || !["18", "Front 9", "Back 9"].includes(holes)) {
+			alert("Please select a valid hole option");
+			return false;
+		}
 		return true;
 	};
 
@@ -133,6 +138,7 @@ export default function AddRoundScreen({ navigation }) {
 				tees,
 				latToUse,
 				lonToUse,
+				holes,
 			);
 
 			setLoading(false);
@@ -217,17 +223,29 @@ export default function AddRoundScreen({ navigation }) {
 				<Input onChange={setScore} type="number" value={score} inputRef={scoreRef} nextRef={notesRef}>
 					Score
 				</Input>
-				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>
-					Notes
-				</Input>
+				<View style={{ alignSelf: "center", width: "85%", padding: 8 }}>
+					<ToggleButton.Row onValueChange={(value) => setHoles(value)} value={holes}>
+						<ToggleButton
+							icon={() => <Text>18 holes</Text>}
+							value="18 holes"
+							style={{ width: "33.3%", borderBottomLeftRadius: 10, borderTopLeftRadius: 10 }}
+						/>
+						<ToggleButton icon={() => <Text>Front 9</Text>} value="Front 9" style={{ width: "33.3%" }} />
+						<ToggleButton
+							icon={() => <Text>Back 9</Text>}
+							value="Back 9"
+							style={{ width: "33.3%", borderBottomRightRadius: 10, borderTopRightRadius: 10 }}
+						/>
+					</ToggleButton.Row>
+				</View>
 				<Input onChange={setTees} value={tees} inputRef={teesRef}>
 					Tees
 				</Input>
+				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>
+					Notes
+				</Input>
 
 				<View style={{ width: "80%", marginVertical: 15 }}>
-					<Text variant="bodyLarge" style={{ marginBottom: 10 }}>
-						Photos
-					</Text>
 					<ImageGallery
 						images={images}
 						onAddImages={handleAddImages}
