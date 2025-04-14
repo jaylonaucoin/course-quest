@@ -61,9 +61,9 @@ const ImageGallery = ({ images = [], onAddImages, onRemoveImage, isEditable = tr
 							<Image source={{ uri: image }} style={styles.thumbnail} resizeMode="cover" />
 							{isEditable && (
 								<IconButton
-									icon="close"
+									icon="trash-can"
 									size={16}
-									iconColor={theme.colors.error}
+									iconColor={theme.colors.errorContainer}
 									style={styles.removeButton}
 									onPress={() => onRemoveImage(image, index)}
 								/>
@@ -140,10 +140,9 @@ const styles = StyleSheet.create({
 	},
 	removeButton: {
 		position: "absolute",
-		top: -8,
-		right: -8,
+		top: -5,
+		right: -5,
 		margin: 0,
-		backgroundColor: "rgba(255,255,255,0.7)",
 	},
 	addButton: {
 		position: "absolute",

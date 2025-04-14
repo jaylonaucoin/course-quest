@@ -85,7 +85,7 @@ export default function AddRoundScreen({ navigation }) {
 			teesRef.current.focus();
 			return false;
 		}
-		if (!holes || !["18", "Front 9", "Back 9"].includes(holes)) {
+		if (!holes || !["18 holes", "Front 9", "Back 9"].includes(holes)) {
 			alert("Please select a valid hole option");
 			return false;
 		}
@@ -254,7 +254,7 @@ export default function AddRoundScreen({ navigation }) {
 					/>
 				</View>
 
-				<Button mode="contained" style={{ marginTop: 15 }} onPress={addDBRound}>
+				<Button mode="contained" style={{ marginBottom: 15 }} onPress={addDBRound}>
 					Add Round
 				</Button>
 			</View>

@@ -16,7 +16,6 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { EmailAuthProvider } from "firebase/auth";
 
-// Function to pick an image, with optional auto-upload
 export async function pickImage(upload = false) {
 	try {
 		// Request permission
@@ -56,7 +55,9 @@ export async function uploadImage(uri, path = "profilePicture", roundId = null) 
 	try {
 		if (!uri) return null;
 		if (roundId) {
-			path = path + "/" + roundId + "/" + Date.now().toString();
+			// Add both timestamp and a random string to ensure uniqueness
+			const uniqueId = Date.now().toString() + "_" + Math.random().toString(36).substring(2, 10);
+			path = path + "/" + roundId + "/" + uniqueId;
 		}
 
 		// Fetch image blob
@@ -103,10 +104,6 @@ export async function uploadImages(images, path, roundId) {
 
 		// Process images concurrently for better performance
 		const uploadPromises = images.map((image) => {
-			// Skip already uploaded images (they start with https://)
-			if (image.startsWith("https://")) {
-				return Promise.resolve(image);
-			}
 			return uploadImage(image, path, roundId);
 		});
 
@@ -208,12 +205,6 @@ export async function addRound(
 	holes,
 ) {
 	try {
-		// Process images first if provided
-		let processedImages = [];
-		if (images && images.length > 0) {
-			processedImages = await uploadImages(images, "rounds", null);
-		}
-
 		// Create the round document
 		const roundRef = await addDoc(collection(db, "users", auth.currentUser.uid, "rounds"), {
 			course: course,
@@ -224,23 +215,25 @@ export async function addRound(
 			wind: Number(wind),
 			weatherCode: Number(weatherCode),
 			notes: notes,
-			images: processedImages,
+			images: [],
 			tees: tees,
 			lat: Number(lat),
 			lon: Number(lon),
-			holes: holes,
+			holes: holes || "18 holes",
 		});
 
 		// If we processed images, update the storage paths with the new round ID
-		if (processedImages.length > 0) {
-			processedImages = await uploadImages(images, "rounds", roundRef.id);
-			await updateDoc(doc(db, "users", auth.currentUser.uid, "rounds", roundRef.id), {
-				images: processedImages,
+		await uploadImages(images, "rounds", roundRef.id)
+			.then(async (processedImages) => {
+				await updateDoc(doc(db, "users", auth.currentUser.uid, "rounds", roundRef.id), {
+					images: processedImages,
+				});
+			})
+			.catch((error) => {
+				console.error("Error uploading images:", error);
 			});
-		}
 
 		await setAsyncUserAndRounds();
-		return roundRef.id;
 	} catch (error) {
 		console.error("Error setting rounds:", error);
 		throw error; // Re-throw to allow proper error handling
@@ -312,7 +305,7 @@ export async function updateRound(
 			tees: tees,
 			lat: Number(lat),
 			lon: Number(lon),
-			holes: holes || "18",
+			holes: holes || "18 holes",
 		});
 
 		await setAsyncUserAndRounds();

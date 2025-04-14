@@ -25,7 +25,7 @@ export default function EditRoundScreen({ route }) {
 	const [notes, setNotes] = useState(route.params.roundData.notes);
 	const [images, setImages] = useState(route.params.roundData.images || []);
 	const [tees, setTees] = useState(route.params.roundData.tees);
-	const [holes, setHoles] = useState(route.params.roundData.holes || "18");
+	const [holes, setHoles] = useState(route.params.roundData.holes || "18 holes");
 	const [loading, setLoading] = useState(false);
 	const [courseResults, setCourseResults] = useState([]);
 	const [showCourseOptions, setShowCourseOptions] = useState(false);
@@ -52,7 +52,7 @@ export default function EditRoundScreen({ route }) {
 			setNotes(round.notes);
 			setImages(round.images || []);
 			setTees(round.tees);
-			setHoles(round.holes || "18");
+			setHoles(round.holes || "18 holes");
 		});
 	}, [route.params.roundData.id]);
 
@@ -122,7 +122,7 @@ export default function EditRoundScreen({ route }) {
 			teesRef.current.focus();
 			return false;
 		}
-		if (!holes || !["18", "front9", "back9"].includes(holes)) {
+		if (!holes || !["18 holes", "Front 9", "Back 9"].includes(holes)) {
 			alert("Please select a valid hole option");
 			return false;
 		}
@@ -142,23 +142,30 @@ export default function EditRoundScreen({ route }) {
 			let weatherCodeToUse = weatherCode;
 
 			// Only fetch course details and weather if the course selection has changed
-			if (courseData) {
-				const details = await getCourseDetails(courseData.placeId);
-				if (!details) {
-					alert("Could not fetch course details. Please try again.");
-					setLoading(false);
-					return;
+			if (courseData || date !== new Date(route.params.roundData.date.toDate())) {
+				if (courseData) {
+					const details = await getCourseDetails(courseData.placeId);
+					if (!details) {
+						alert("Could not fetch course details. Please try again.");
+						setLoading(false);
+						return;
+					}
+					// Save the lat/lon values from detailed course info
+					latToUse = details.latitude;
+					lonToUse = details.longitude;
 				}
 
+				let formattedDate = date;
+
 				// Format date as YYYY-MM-DD for weather API
-				const formattedDate = date.toISOString().split("T")[0];
+				if (date !== new Date(route.params.roundData.date.toDate())) {
+					formattedDate = date.toISOString().split("T")[0];
+				}
 
-				// Save the lat/lon values from detailed course info
-				latToUse = details.latitude;
-				lonToUse = details.longitude;
-
+				console.log("Fetching weather data for date:", formattedDate);
+				console.log("Fetching weather data for lat/lon:", latToUse, lonToUse);
 				// Get weather data for the selected course and date
-				const weather = await getWeatherData(details.latitude, details.longitude, formattedDate);
+				const weather = await getWeatherData(latToUse, lonToUse, formattedDate);
 				if (!weather) {
 					alert("Could not fetch weather data. Please try again.");
 					setLoading(false);
@@ -193,9 +200,9 @@ export default function EditRoundScreen({ route }) {
 				notes,
 				images,
 				tees,
-				holes,
 				latToUse,
 				lonToUse,
+				holes,
 			);
 
 			setLoading(false);
@@ -285,39 +292,28 @@ export default function EditRoundScreen({ route }) {
 					nextRef={notesRef}>
 					Score
 				</Input>
-				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>
-					Notes
-				</Input>
-				<Input onChange={setTees} value={tees} inputRef={teesRef}>
-					Tees
-				</Input>
-				<View style={{ maxWidth: 384, alignSelf: "center", width: "100%", padding: 8 }}>
-					<Text variant="bodyLarge" style={{ marginBottom: 10 }}>
-						Holes
-					</Text>
+				<View style={{ alignSelf: "center", width: "85%", padding: 8 }}>
 					<ToggleButton.Row onValueChange={(value) => setHoles(value)} value={holes}>
 						<ToggleButton
 							icon={() => <Text>18 holes</Text>}
-							value="18"
-							style={{ width: "33.3%", borderRadius: 10 }}
+							value="18 holes"
+							style={{ width: "33.3%", borderBottomLeftRadius: 10, borderTopLeftRadius: 10 }}
 						/>
-						<ToggleButton
-							icon={() => <Text>Front 9</Text>}
-							value="front9"
-							style={{ width: "33.3%", borderRadius: 10 }}
-						/>
+						<ToggleButton icon={() => <Text>Front 9</Text>} value="Front 9" style={{ width: "33.3%" }} />
 						<ToggleButton
 							icon={() => <Text>Back 9</Text>}
-							value="back9"
-							style={{ width: "33.3%", borderRadius: 10 }}
+							value="Back 9"
+							style={{ width: "33.3%", borderBottomRightRadius: 10, borderTopRightRadius: 10 }}
 						/>
 					</ToggleButton.Row>
 				</View>
-
+				<Input onChange={setTees} value={tees} inputRef={teesRef}>
+					Tees
+				</Input>
+				<Input onChange={setNotes} value={notes} inputRef={notesRef} nextRef={teesRef}>
+					Notes
+				</Input>
 				<View style={{ width: "80%", marginVertical: 15 }}>
-					<Text variant="bodyLarge" style={{ marginBottom: 10 }}>
-						Photos
-					</Text>
 					<ImageGallery
 						images={images}
 						onAddImages={handleAddImages}
@@ -326,7 +322,7 @@ export default function EditRoundScreen({ route }) {
 					/>
 				</View>
 
-				<Button mode="contained" style={{ marginTop: 15 }} onPress={updateDBRound}>
+				<Button mode="contained" style={{ marginBottom: 15 }} onPress={updateDBRound}>
 					Update Round
 				</Button>
 			</View>
