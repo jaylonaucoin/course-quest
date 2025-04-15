@@ -15,6 +15,7 @@ import { SegmentedButtons, Button, HelperText, useTheme, Text } from "react-nati
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setUser } from "../utils/DataController";
 import { searchGolfCourses, getCourseDetails } from "../utils/APIController";
+import * as AppleAuthentication from "expo-apple-authentication";
 
 export default function AuthScreen({ navigation }) {
 	const theme = useTheme();
@@ -49,7 +50,7 @@ export default function AuthScreen({ navigation }) {
 	};
 
 	const selectCourse = async (courseData) => {
-		setHomeCourse(courseData.text.text.split(",")[0]);
+		setHomeCourse(courseData.structuredFormatting.mainText);
 		await getCourseDetails(courseData.placeId).then((courseDetails) => {
 			setCity(courseDetails.city);
 			setProvince(courseDetails.province);
@@ -224,6 +225,60 @@ export default function AuthScreen({ navigation }) {
 								style: { borderColor: theme.colors.primary },
 							},
 						]}
+					/>
+				</View>
+				<View style={{ alignItems: "center", justifyContent: "center" }}>
+					<AppleAuthentication.AppleAuthenticationButton
+						buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+						buttonStyle={
+							!theme.dark
+								? AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+								: AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+						}
+						cornerRadius={12}
+						// style={{ width: 200, height: 44, marginBottom: 15 }}
+						onPress={async () => {
+							try {
+								const credential = await AppleAuthentication.signInAsync({
+									requestedScopes: [
+										AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+										AppleAuthentication.AppleAuthenticationScope.EMAIL,
+									],
+								});
+								console.log(credential);
+								// Create a Firebase credential from the response
+								const provider = new auth.OAuthProvider("apple.com");
+								const token = credential.identityToken;
+								const appleCredential = provider.credential({
+									idToken: token,
+									rawNonce: null,
+								});
+								console.log(appleCredential);
+								console.log(credential);
+								// Sign in with the credential
+								const userCredential = await auth.signInWithCredential(appleCredential);
+								const user = userCredential.user;
+								// Store user data in AsyncStorage
+								await AsyncStorage.setItem(
+									"user",
+									JSON.stringify({
+										uid: user.uid,
+										email: user.email,
+										firstName: user.displayName.split(" ")[0],
+										lastName: user.displayName.split(" ")[1],
+									}),
+								);
+								navigation.replace("Main");
+							} catch (e) {
+								if (e.code === "ERR_REQUEST_CANCELED") {
+									// handle that the user canceled the request
+									console.log("User canceled the request");
+								} else {
+									// handle other errors
+									console.log("Error signing in with Apple: ", e);
+								}
+							}
+						}}
 					/>
 				</View>
 				{error !== "" && (

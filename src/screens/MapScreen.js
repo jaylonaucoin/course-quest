@@ -1,13 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import MapView from "react-native-map-clustering";
-import { Marker, Callout } from "react-native-maps";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { useTheme, Surface, Tooltip } from "react-native-paper";
 import { getRounds } from "../utils/DataController";
 import { useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+
+// Platform-specific imports
+const MapView = Platform.select({
+	web: () => require("react-native-web-maps").WebMapView,
+	default: () => require("react-native-map-clustering").default,
+})();
+
+const Marker = Platform.select({
+	web: () => require("react-native-web-maps").WebMarker,
+	default: () => require("react-native-maps").Marker,
+})();
+
+const Callout = Platform.select({
+	web: () => require("react-native-web-maps").WebCallout,
+	default: () => require("react-native-maps").Callout,
+})();
 
 export default function MapScreen({ route }) {
 	const theme = useTheme();
@@ -21,6 +35,14 @@ export default function MapScreen({ route }) {
 	});
 
 	const { roundData } = route.params || {};
+
+	// Debug logging
+	useEffect(() => {
+		console.log("Platform:", Platform.OS);
+		console.log("API Key:", process.env.GOOGLE_PLACES_API_KEY);
+		console.log("Initial Region:", initialRegion);
+		console.log("Markers:", markers);
+	}, [initialRegion, markers]);
 
 	const getCenter = (markers) => {
 		if (!markers || markers.length === 0) {
@@ -66,6 +88,8 @@ export default function MapScreen({ route }) {
 	const loadRounds = async () => {
 		try {
 			const rounds = await getRounds();
+			console.log("Loaded rounds:", rounds);
+			
 			if (!rounds || rounds.length === 0) {
 				return;
 			}
@@ -168,59 +192,60 @@ export default function MapScreen({ route }) {
 		},
 	});
 
+	const renderMarkerInfo = (marker) => (
+		<View style={styles.tooltipWrapper}>
+			<Surface elevation={4} style={styles.tooltipContainer}>
+				<Text style={styles.title}>{marker.title}</Text>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="calendar-day" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>
+						{new Date(marker.date).toLocaleDateString("en-US", {
+							month: "short",
+							day: "numeric",
+							year: "numeric",
+						})}
+					</Text>
+				</View>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="medal" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>{marker.score}</Text>
+				</View>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="temperature-high" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>{marker.temp} °C</Text>
+				</View>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="wind" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>{marker.wind} km/h</Text>
+				</View>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="tint" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>{marker.rain} mm</Text>
+				</View>
+			</Surface>
+			<View style={styles.trianglePointer} />
+		</View>
+	);
+
 	return (
 		<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
 			<MapView
 				style={{ width: "100%", height: "100%" }}
 				userInterfaceStyle={themeStyle}
 				showsCompass={true}
-				region={initialRegion}>
-				{markers.map((marker, index) => (
+				region={initialRegion}
+				apiKey={Platform.OS === "web" ? process.env.GOOGLE_PLACES_API_KEY : undefined}
+				onMapReady={() => console.log("Map is ready")}
+				onError={(error) => console.error("Map error:", error)}>
+				{markers.map((marker) => (
 					<Marker
-						key={index}
+						key={`${marker.title}-${marker.date}`}
 						coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
 						title={marker.title}
 						description={marker.description}
 						pinColor={theme.colors.primary}>
 						<Callout tooltip={true}>
-							<Tooltip>
-								<View style={styles.tooltipWrapper}>
-									<Surface elevation={4} style={styles.tooltipContainer}>
-										<Text style={styles.title}>{marker.title}</Text>
-										<View style={styles.infoRow}>
-											<FontAwesome5 name="calendar-day" size={12} color={theme.colors.primary} />
-											<Text style={styles.infoText}>
-												{new Date(marker.date).toLocaleDateString("en-US", {
-													month: "short",
-													day: "numeric",
-													year: "numeric",
-												})}
-											</Text>
-										</View>
-										<View style={styles.infoRow}>
-											<FontAwesome5 name="medal" size={12} color={theme.colors.primary} />
-											<Text style={styles.infoText}>{marker.score}</Text>
-										</View>
-										<View style={styles.infoRow}>
-											<FontAwesome5
-												name="temperature-high"
-												size={12}
-												color={theme.colors.primary}
-											/>
-											<Text style={styles.infoText}>{marker.temp} °C</Text>
-										</View>
-										<View style={styles.infoRow}>
-											<FontAwesome5 name="wind" size={12} color={theme.colors.primary} />
-											<Text style={styles.infoText}>{marker.wind} km/h</Text>
-										</View>
-										<View style={styles.infoRow}>
-											<FontAwesome5 name="tint" size={12} color={theme.colors.primary} />
-											<Text style={styles.infoText}>{marker.rain} mm</Text>
-										</View>
-									</Surface>
-									<View style={styles.trianglePointer} />
-								</View>
-							</Tooltip>
+							<Tooltip>{renderMarkerInfo(marker)}</Tooltip>
 						</Callout>
 					</Marker>
 				))}

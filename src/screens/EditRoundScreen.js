@@ -92,7 +92,7 @@ export default function EditRoundScreen({ route }) {
 	};
 
 	const selectCourse = async (courseData) => {
-		setCourse(courseData.text.text.split(",")[0]);
+		setCourse(courseData.structuredFormatting.mainText);
 		setShowCourseOptions(false);
 		setCourseData(courseData);
 

@@ -61,7 +61,7 @@ export default function EditAccountScreen() {
 	};
 
 	const selectCourse = async (courseData) => {
-		setHomeCourse(courseData.text.text.split(",")[0]);
+		setHomeCourse(courseData.structuredFormatting.mainText);
 		await getCourseDetails(courseData.placeId).then((courseDetails) => {
 			setCity(courseDetails.city);
 			setProvince(courseDetails.province);

@@ -13,21 +13,34 @@
       "backgroundColor": "#8cd1a5"
     },
     "ios": {
-      "supportsTablet": true
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "supportsTablet": true,
+      "usesAppleSignIn": true,
+      "bundleIdentifier": "com.yourusername.coursequest",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#6BA368"
-      }
+      },
+      "package": "com.yourusername.coursequest",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
+      "@react-native-google-signin/google-signin",
       [
-        "expo-image-picker",
+        "expo-image-picker",       
         {
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",

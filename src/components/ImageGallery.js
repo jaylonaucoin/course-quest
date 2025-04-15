@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, StyleSheet, Image, TouchableOpacity, FlatList } from "react-native";
 import { IconButton, useTheme, Text } from "react-native-paper";
 
 /**
@@ -26,6 +26,30 @@ const ImageGallery = ({ images = [], onAddImages, onRemoveImage, isEditable = tr
 		);
 	}
 
+	const renderThumbnail = ({ item: image, index }) => (
+		<TouchableOpacity
+			key={index}
+			onPress={() => setActiveImageIndex(index)}
+			style={[
+				styles.thumbnailTouch,
+				activeImageIndex === index && {
+					borderColor: theme.colors.primary,
+					borderWidth: 2,
+				},
+			]}>
+			<Image source={{ uri: image }} style={styles.thumbnail} resizeMode="cover" />
+			{isEditable && (
+				<IconButton
+					icon="trash-can"
+					size={16}
+					iconColor={theme.colors.errorContainer}
+					style={styles.removeButton}
+					onPress={() => onRemoveImage(image, index)}
+				/>
+			)}
+		</TouchableOpacity>
+	);
+
 	return (
 		<View style={styles.container}>
 			{/* Main image display */}
@@ -42,35 +66,15 @@ const ImageGallery = ({ images = [], onAddImages, onRemoveImage, isEditable = tr
 
 			{/* Thumbnails */}
 			{images.length > 1 && (
-				<ScrollView
+				<FlatList
 					horizontal
 					showsHorizontalScrollIndicator={false}
 					style={styles.thumbnailScroll}
-					contentContainerStyle={styles.thumbnailContainer}>
-					{images.map((image, index) => (
-						<TouchableOpacity
-							key={index}
-							onPress={() => setActiveImageIndex(index)}
-							style={[
-								styles.thumbnailTouch,
-								activeImageIndex === index && {
-									borderColor: theme.colors.primary,
-									borderWidth: 2,
-								},
-							]}>
-							<Image source={{ uri: image }} style={styles.thumbnail} resizeMode="cover" />
-							{isEditable && (
-								<IconButton
-									icon="trash-can"
-									size={16}
-									iconColor={theme.colors.errorContainer}
-									style={styles.removeButton}
-									onPress={() => onRemoveImage(image, index)}
-								/>
-							)}
-						</TouchableOpacity>
-					))}
-				</ScrollView>
+					contentContainerStyle={styles.thumbnailContainer}
+					data={images}
+					renderItem={renderThumbnail}
+					keyExtractor={(_, index) => index.toString()}
+				/>
 			)}
 
 			{/* Add more images button */}

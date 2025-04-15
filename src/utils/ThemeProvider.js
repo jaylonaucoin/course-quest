@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { StatusBar, useColorScheme } from "react-native";
+import { StatusBar, useColorScheme, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
@@ -115,10 +115,24 @@ export const ThemeProvider = ({ children }) => {
 	const toggleTheme = async (mode) => {
 		setThemeMode(mode);
 		await AsyncStorage.setItem("theme", mode);
+		
+		// Update document class for web
+		if (Platform.OS === 'web') {
+			document.documentElement.classList.remove('light', 'dark');
+			document.documentElement.classList.add(mode);
+		}
 	};
 
 	// Define themes
 	const theme = themeMode === "dark" ? dark : light;
+
+	// Initialize web dark mode
+	useEffect(() => {
+		if (Platform.OS === 'web') {
+			document.documentElement.classList.remove('light', 'dark');
+			document.documentElement.classList.add(themeMode);
+		}
+	}, [themeMode]);
 
 	return (
 		<ThemeContext.Provider value={{ themeMode, toggleTheme }}>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View } from "react-native";
+import { View, FlatList } from "react-native";
 import { Text, TextInput, useTheme, List } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
@@ -63,13 +63,38 @@ const Input = ({
 			return (
 				<List.Item
 					key={index}
-					title={result.text.text}
+					title={() => {
+						return (
+							<Text style={{ color: theme.colors.onSurfaceVariant, fontSize: 11, lineHeight: 16 }}>
+								{result.text.text.split(",").map((text, i) =>
+									i === 0 ? (
+										<Text
+											key={i}
+											style={{
+												color: theme.colors.onSurfaceVariant,
+												fontSize: 13,
+												fontWeight: "bold",
+											}}>
+											{text}
+										</Text>
+									) : i !== 1 && i !== result.text.text.split(",").length - 1 ? (
+										i === 2 ? (
+											"\n" + text.trim() + ","
+										) : (
+											text + ","
+										)
+									) : i !== 1 ? (
+										text
+									) : null,
+								)}
+							</Text>
+						);
+					}}
 					onPress={() => onSearchResultSelect && onSearchResultSelect(result)}
 					style={{
 						borderBottomWidth: index < searchResults.length - 1 ? 1 : 0,
 						borderBottomColor: theme.colors.outline,
 					}}
-					titleStyle={{ color: theme.colors.onSurfaceVariant }}
 					left={(props) => <List.Icon {...props} icon="golf" color={theme.colors.primary} />}
 				/>
 			);
@@ -127,7 +152,7 @@ const Input = ({
 					outlineStyle={inputStyle}
 				/>
 			) : type === "search" ? (
-				<View>
+				<View style={{ width: "100%" }}>
 					<TextInput
 						ref={inputRef}
 						required
@@ -143,19 +168,25 @@ const Input = ({
 						autoComplete={autofill}
 						placeholder={children}
 						outlineStyle={inputStyle}
+						style={{ zIndex: 2 }}
 					/>
 					{showSearchResults && searchResults.length > 0 && (
-						<View
-							style={{
-								width: "100%",
-								backgroundColor: theme.colors.surfaceVariant,
-								borderRadius: 15,
-								marginBottom: 10,
-								maxHeight: 200,
-							}}>
-							<List.Section>
-								{searchResults.map((result, index) => renderSearchResultItem(result, index))}
-							</List.Section>
+						<View style={{ position: "absolute", top: "80%", left: 0, right: 0, zIndex: 1 }}>
+							<FlatList
+								data={searchResults}
+								keyExtractor={(item, index) => index.toString()}
+								showsVerticalScrollIndicator={true}
+								renderItem={({ item, index }) => renderSearchResultItem(item, index)}
+								style={{
+									backgroundColor: theme.colors.surfaceVariant,
+									borderBottomEndRadius: 10,
+									borderBottomStartRadius: 10,
+									marginBottom: 10,
+									maxHeight: 200,
+									paddingTop: 15,
+								}}
+								nestedScrollEnabled={true}
+							/>
 						</View>
 					)}
 				</View>
@@ -220,6 +251,7 @@ const Input = ({
 					onSubmitEditing={handleSubmitEditing}
 					mode="outlined"
 					outlineStyle={inputStyle}
+					autoCorrect={true}
 				/>
 			)}
 		</View>

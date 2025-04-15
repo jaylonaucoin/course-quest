@@ -1,9 +1,14 @@
 import { initializeApp } from "firebase/app";
-// eslint-disable-next-line import/named
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import {
+	initializeAuth,
+	getReactNativePersistence,
+	browserLocalPersistence,
+	FacebookAuthProvider,
+} from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { Platform } from "react-native";
 
 const firebaseConfig = {
 	apiKey: process.env.FIREBASE_API_KEY,
@@ -16,8 +21,12 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = initializeAuth(app, {
-	persistence: getReactNativePersistence(AsyncStorage),
+
+// Initialize auth with platform-specific persistence
+const auth = initializeAuth(app, {
+	persistence: Platform.OS === "web" ? browserLocalPersistence : getReactNativePersistence(AsyncStorage),
 });
+
+export { auth };
 export const db = getFirestore(app);
 export const storage = getStorage(app);
