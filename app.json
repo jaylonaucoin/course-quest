@@ -13,7 +13,6 @@
       "backgroundColor": "#8cd1a5"
     },
     "ios": {
-      "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
       "usesAppleSignIn": true,
       "bundleIdentifier": "com.yourusername.coursequest",
@@ -22,7 +21,6 @@
       }
     },
     "android": {
-      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#6BA368"
