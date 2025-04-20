@@ -120,14 +120,6 @@ export const ThemeProvider = ({ children }) => {
 	// Define themes
 	const theme = themeMode === "dark" ? dark : light;
 
-	// Initialize web dark mode
-	useEffect(() => {
-		if (Platform.OS === "web") {
-			document.documentElement.classList.remove("light", "dark");
-			document.documentElement.classList.add(themeMode);
-		}
-	}, [themeMode]);
-
 	return (
 		<ThemeContext.Provider value={{ themeMode, toggleTheme }}>
 			<PaperProvider theme={theme}>
