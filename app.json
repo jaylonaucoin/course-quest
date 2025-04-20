@@ -38,13 +38,25 @@
     "plugins": [
       "@react-native-google-signin/google-signin",
       [
-        "expo-image-picker",       
+        "expo-image-picker",
         {
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "8e072311-46f0-4781-ae0e-53ee7deede1a"
+      }
+    },
+    "owner": "jaylonaucoin29",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8e072311-46f0-4781-ae0e-53ee7deede1a"
+    }
   }
 }

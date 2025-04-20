@@ -115,12 +115,6 @@ export const ThemeProvider = ({ children }) => {
 	const toggleTheme = async (mode) => {
 		setThemeMode(mode);
 		await AsyncStorage.setItem("theme", mode);
-		
-		// Update document class for web
-		if (Platform.OS === 'web') {
-			document.documentElement.classList.remove('light', 'dark');
-			document.documentElement.classList.add(mode);
-		}
 	};
 
 	// Define themes
@@ -128,8 +122,8 @@ export const ThemeProvider = ({ children }) => {
 
 	// Initialize web dark mode
 	useEffect(() => {
-		if (Platform.OS === 'web') {
-			document.documentElement.classList.remove('light', 'dark');
+		if (Platform.OS === "web") {
+			document.documentElement.classList.remove("light", "dark");
 			document.documentElement.classList.add(themeMode);
 		}
 	}, [themeMode]);

@@ -89,7 +89,7 @@ export default function MapScreen({ route }) {
 		try {
 			const rounds = await getRounds();
 			console.log("Loaded rounds:", rounds);
-			
+
 			if (!rounds || rounds.length === 0) {
 				return;
 			}

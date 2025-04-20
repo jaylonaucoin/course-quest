@@ -1,10 +1,5 @@
 import { initializeApp } from "firebase/app";
-import {
-	initializeAuth,
-	getReactNativePersistence,
-	browserLocalPersistence,
-	FacebookAuthProvider,
-} from "firebase/auth";
+import { initializeAuth, browserLocalPersistence } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -24,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize auth with platform-specific persistence
 const auth = initializeAuth(app, {
-	persistence: Platform.OS === "web" ? browserLocalPersistence : getReactNativePersistence(AsyncStorage),
+	persistence: Platform.OS === "web" ? browserLocalPersistence : undefined,
 });
 
 export { auth };
