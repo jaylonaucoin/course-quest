@@ -149,11 +149,15 @@ export default function AccountScreen({ navigation }) {
 						}}>
 						<Card.Title
 							title={item.course}
-							subtitle={item.date.toDate().toLocaleDateString(undefined, {
-								year: "numeric",
-								month: "long",
-								day: "numeric",
-							})}
+							subtitle={
+								item.date.toDate().toLocaleDateString(undefined, {
+									year: "numeric",
+									month: "long",
+									day: "numeric",
+								}) +
+								"  |  " +
+								item.holes
+							}
 							left={() => (
 								<Avatar.Text
 									labelStyle={{

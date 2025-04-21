@@ -1,9 +1,65 @@
 import { View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { Ionicons, FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
+import { getUnits } from "../utils/DataController";
+import { useState, useEffect, useCallback } from "react";
+import {
+	convertTemperature,
+	convertWindSpeed,
+	convertPrecipitation,
+	formatValueWithPrecision,
+} from "../utils/UnitConverter";
 
 export default function WeatherIcon({ type, weatherCode = -1, value }) {
 	const theme = useTheme();
+	const [tempUnit, setTempUnit] = useState("");
+	const [windUnit, setWindUnit] = useState("");
+	const [rainUnit, setRainUnit] = useState("");
+	const [displayValue, setDisplayValue] = useState(value || 0);
+
+	// Define handleUnitChange with useCallback to prevent re-creation on each render
+	const handleUnitChange = useCallback(
+		(units) => {
+			if (!units) return;
+
+			const [temp, wind, rain] = units;
+
+			// Set unit display texts
+			setTempUnit(temp === "celsius" ? "°C" : "°F");
+			setWindUnit(wind === "kilometers" ? "km/h" : "mph");
+			setRainUnit(rain === "millimeters" ? "mm" : "in");
+
+			// Ensure value is a valid number
+			const safeValue = typeof value === "number" && !isNaN(value) ? value : 0;
+
+			// Convert values based on unit type
+			if (type === "temperature") {
+				const converted =
+					temp === "fahrenheit" ? convertTemperature(safeValue, "celsius", "fahrenheit") : safeValue;
+				setDisplayValue(formatValueWithPrecision(converted, "temperature"));
+			} else if (type === "wind") {
+				const converted = wind === "miles" ? convertWindSpeed(safeValue, "kilometers", "miles") : safeValue;
+				setDisplayValue(formatValueWithPrecision(converted, "wind"));
+			} else if (type === "rain") {
+				const converted =
+					rain === "inches" ? convertPrecipitation(safeValue, "millimeters", "inches") : safeValue;
+				setDisplayValue(formatValueWithPrecision(converted, "precipitation"));
+			}
+		},
+		[value, type],
+	);
+
+	useEffect(() => {
+		// Force component re-render when value or type changes
+		setDisplayValue(null); // Reset to trigger refresh
+
+		// Re-fetch units
+		getUnits().then((units) => {
+			if (!units) return;
+
+			handleUnitChange(units);
+		});
+	}, [value, type, handleUnitChange]);
 
 	const getWeatherIcon = () => {
 		switch (weatherCode) {
@@ -69,9 +125,9 @@ export default function WeatherIcon({ type, weatherCode = -1, value }) {
 			)}
 			<Text variant="labelMedium">
 				<Text variant="labelMedium" style={{ fontWeight: "bold" }}>
-					{value}
+					{displayValue}{" "}
 				</Text>
-				{type === "wind" ? " km/h" : type === "rain" ? " mm" : " °C"}
+				{type === "wind" ? windUnit : type === "rain" ? rainUnit : tempUnit}
 			</Text>
 		</View>
 	);

@@ -54,7 +54,15 @@ export default function AddRoundScreen({ navigation }) {
 		}
 	};
 
-	const selectCourse = async (courseData) => {
+	const selectCourse = async (courseData, isDismissal) => {
+		// Handle dismissal case
+		if (isDismissal || !courseData) {
+			setShowCourseOptions(false);
+			setCourseResults([]);
+			return;
+		}
+
+		// Handle course selection
 		setCourse(courseData.text.text.split(",")[0]);
 		setShowCourseOptions(false);
 		setCourseData(courseData);

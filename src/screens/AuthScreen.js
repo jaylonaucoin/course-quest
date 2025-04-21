@@ -46,17 +46,32 @@ export default function AuthScreen({ navigation }) {
 
 	const handleCourseChange = (text) => {
 		setHomeCourse(text);
-		searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+		if (text.length > 2) {
+			searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+		} else {
+			setShowCourseOptions(false);
+			setCourseResults([]);
+		}
 	};
 
-	const selectCourse = async (courseData) => {
-		setHomeCourse(courseData.structuredFormatting.mainText);
-		await getCourseDetails(courseData.placeId).then((courseDetails) => {
+	const selectCourse = async (courseData, isDismissal) => {
+		if (isDismissal || !courseData) {
+			setShowCourseOptions(false);
+			setCourseResults([]);
+			return;
+		}
+
+		setHomeCourse(courseData.text.text.split(",")[0]);
+		try {
+			const courseDetails = await getCourseDetails(courseData.placeId);
 			setCity(courseDetails.city);
 			setProvince(courseDetails.province);
 			setCountry(courseDetails.country);
-		});
+		} catch (error) {
+			console.error("Error getting course details:", error);
+		}
 		setShowCourseOptions(false);
+		setCourseResults([]);
 	};
 
 	const checkPassword = (newConfirmPassword) => {
@@ -165,6 +180,7 @@ export default function AuthScreen({ navigation }) {
 			enableAutomaticScroll={true}
 			extraScrollHeight={25}
 			enableOnAndroid={true}
+			nestedScrollEnabled={true}
 			keyboardShouldPersistTaps="handled">
 			<Modal visible={resetPassword} onDismiss={() => setResetPassword(false)} title="Reset Password">
 				<Input type="email" onChange={setResetPasswordEmail} value={resetPasswordEmail} autofill="email">
@@ -323,6 +339,17 @@ export default function AuthScreen({ navigation }) {
 				) : (
 					<View className="w-full">
 						<Input
+							onChange={handleCourseChange}
+							type="search"
+							value={homeCourse}
+							inputRef={homeCourseRef}
+							searchType="course"
+							searchResults={courseResults}
+							showSearchResults={showCourseOptions}
+							onSearchResultSelect={selectCourse}>
+							Home Course
+						</Input>
+						<Input
 							onChange={setRegisterFirstName}
 							value={registerFirstName}
 							autofill="given-name"
@@ -376,17 +403,6 @@ export default function AuthScreen({ navigation }) {
 								Passwords do not match!
 							</HelperText>
 						)}
-						<Input
-							onChange={handleCourseChange}
-							type="search"
-							value={homeCourse}
-							inputRef={homeCourseRef}
-							searchType="course"
-							searchResults={courseResults}
-							showSearchResults={showCourseOptions}
-							onSearchResultSelect={selectCourse}>
-							Home Course
-						</Input>
 					</View>
 				)}
 				<View style={{ width: "40%", alignSelf: "center", marginTop: 12 }}>

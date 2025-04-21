@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Modal, Image, Pressable } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
-import { deleteRound, getRounds } from "../utils/DataController";
+import { deleteRound, getRounds, getUnits } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
 import Gallery from "react-native-awesome-gallery";
 import WeatherIcon from "../components/WeatherIcon";
@@ -16,6 +16,7 @@ export default function HomeScreen({ navigation }) {
 	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 	const [isGalleryVisible, setIsGalleryVisible] = useState(false);
 	const [currentRoundImages, setCurrentRoundImages] = useState([]);
+	const [units, setUnits] = useState(null);
 
 	const scrollRef = useRef(null);
 	useScrollToTop(scrollRef);
@@ -41,6 +42,10 @@ export default function HomeScreen({ navigation }) {
 		try {
 			const data = await getRounds();
 			setRounds(data);
+
+			// Also fetch current units
+			const currentUnits = await getUnits();
+			setUnits(currentUnits);
 		} catch (error) {
 			console.error("Error fetching rounds:", error);
 		} finally {
@@ -294,9 +299,24 @@ export default function HomeScreen({ navigation }) {
 									paddingBottom: 6,
 									paddingRight: 10,
 								}}>
-								<WeatherIcon type="temperature" weatherCode={item.weatherCode} value={item.temp} />
-								<WeatherIcon type="wind" weatherCode={item.weatherCode} value={item.wind} />
-								<WeatherIcon type="rain" weatherCode={item.weatherCode} value={item.rain} />
+								<WeatherIcon
+									key={`temp-${units ? units[0] : "default"}-${item.id}`}
+									type="temperature"
+									weatherCode={item.weatherCode}
+									value={item.temp}
+								/>
+								<WeatherIcon
+									key={`wind-${units ? units[1] : "default"}-${item.id}`}
+									type="wind"
+									weatherCode={item.weatherCode}
+									value={item.wind}
+								/>
+								<WeatherIcon
+									key={`rain-${units ? units[2] : "default"}-${item.id}`}
+									type="rain"
+									weatherCode={item.weatherCode}
+									value={item.rain}
+								/>
 							</View>
 						</Card>
 					)}

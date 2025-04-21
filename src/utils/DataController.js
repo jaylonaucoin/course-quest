@@ -141,6 +141,7 @@ export async function setUser(uid, email, firstName, lastName, homeCourse, city,
 			city: city,
 			province: province,
 			country: country,
+			units: ["celsius", "kilometers", "millimeters"],
 			profilePicture: null,
 			bio: null,
 		});
@@ -379,5 +380,46 @@ export async function removeImage(imageUrl, roundId) {
 	} catch (error) {
 		console.error("Error removing image:", error);
 		return false;
+	}
+}
+
+export async function setUnits(temp, wind, rain) {
+	try {
+		await updateDoc(doc(db, "users", auth.currentUser.uid), {
+			units: [temp, wind, rain],
+		});
+		await setAsyncUserAndRounds();
+	} catch (error) {
+		console.error("Error setting units:", error);
+	}
+}
+
+export async function getUnits() {
+	try {
+		const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+
+		// Check if user document exists and has units property
+		if (userDoc.exists()) {
+			const userData = userDoc.data();
+
+			// If units property exists, return it
+			if (userData.units) {
+				return userData.units;
+			}
+
+			// If units property doesn't exist, create it with default values
+			const defaultUnits = ["celsius", "kilometers", "millimeters"];
+			await updateDoc(doc(db, "users", auth.currentUser.uid), {
+				units: defaultUnits,
+			});
+			return defaultUnits;
+		}
+
+		// Default values if user document doesn't exist
+		return ["celsius", "kilometers", "millimeters"];
+	} catch (error) {
+		console.error("Error getting units:", error);
+		// Provide fallback default values in case of error
+		return ["celsius", "kilometers", "millimeters"];
 	}
 }

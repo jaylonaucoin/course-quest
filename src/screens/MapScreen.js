@@ -36,14 +36,6 @@ export default function MapScreen({ route }) {
 
 	const { roundData } = route.params || {};
 
-	// Debug logging
-	useEffect(() => {
-		console.log("Platform:", Platform.OS);
-		console.log("API Key:", process.env.GOOGLE_PLACES_API_KEY);
-		console.log("Initial Region:", initialRegion);
-		console.log("Markers:", markers);
-	}, [initialRegion, markers]);
-
 	const getCenter = (markers) => {
 		if (!markers || markers.length === 0) {
 			return {
@@ -88,7 +80,6 @@ export default function MapScreen({ route }) {
 	const loadRounds = async () => {
 		try {
 			const rounds = await getRounds();
-			console.log("Loaded rounds:", rounds);
 
 			if (!rounds || rounds.length === 0) {
 				return;

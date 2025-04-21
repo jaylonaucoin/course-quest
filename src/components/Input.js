@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, FlatList } from "react-native";
+import { View, ScrollView } from "react-native";
 import { Text, TextInput, useTheme, List } from "react-native-paper";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
@@ -145,6 +145,7 @@ const Input = ({
 					id={children}
 					autoComplete={autofill}
 					placeholder={children}
+					clearButtonMode="while-editing"
 					inputMode="email"
 					returnKeyType="next"
 					onSubmitEditing={handleSubmitEditing}
@@ -162,31 +163,28 @@ const Input = ({
 						id={children}
 						inputMode="search"
 						returnKeyType="next"
-						clearButtonMode="never"
+						clearButtonMode="while-editing"
 						onSubmitEditing={handleSubmitEditing}
 						mode="outlined"
 						autoComplete={autofill}
 						placeholder={children}
 						outlineStyle={inputStyle}
+						autoCorrect={false}
 						style={{ zIndex: 2 }}
 					/>
 					{showSearchResults && searchResults.length > 0 && (
 						<View style={{ position: "absolute", top: "80%", left: 0, right: 0, zIndex: 1 }}>
-							<FlatList
-								data={searchResults}
-								keyExtractor={(item, index) => index.toString()}
-								showsVerticalScrollIndicator={true}
-								renderItem={({ item, index }) => renderSearchResultItem(item, index)}
+							<ScrollView
 								style={{
 									backgroundColor: theme.colors.surfaceVariant,
 									borderBottomEndRadius: 10,
 									borderBottomStartRadius: 10,
-									marginBottom: 10,
-									maxHeight: 200,
-									paddingTop: 15,
+									maxHeight: 300,
 								}}
-								nestedScrollEnabled={true}
-							/>
+								contentContainerStyle={{ paddingTop: 15, paddingBottom: 5 }}
+								showsVerticalScrollIndicator={true}>
+								{searchResults.map((item, index) => renderSearchResultItem(item, index))}
+							</ScrollView>
 						</View>
 					)}
 				</View>
@@ -227,6 +225,7 @@ const Input = ({
 					name={children}
 					id={children}
 					autoComplete={autofill}
+					clearButtonMode="while-editing"
 					placeholder={children}
 					inputMode="numeric"
 					returnKeyType="next"
@@ -243,6 +242,7 @@ const Input = ({
 					multiline={children === "Bio" || children === "Notes"}
 					name={children}
 					id={children}
+					clearButtonMode="while-editing"
 					autoComplete={autofill}
 					placeholder={children}
 					returnKeyType="next"
