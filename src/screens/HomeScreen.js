@@ -176,7 +176,12 @@ export default function HomeScreen({ navigation }) {
 								titleVariant="titleMedium"
 							/>
 							{item.images && item.images[0] && (
-								<View style={{ height: item.images.length > 1 ? 300 : 200, padding: 5 }}>
+								<View
+									style={{
+										height: item.images.length > 1 ? 335 : 210,
+										paddingHorizontal: 5,
+										paddingVertical: 10,
+									}}>
 									{/* First large image */}
 									<TouchableOpacity
 										style={{
@@ -202,7 +207,7 @@ export default function HomeScreen({ navigation }) {
 
 									{/* Bottom row of images */}
 									{item.images.length > 1 && (
-										<View style={{ flexDirection: "row", height: 90, gap: 5 }}>
+										<View style={{ flexDirection: "row", height: 125, gap: 5 }}>
 											{/* Second image */}
 											<TouchableOpacity
 												style={{ flex: 1 }}
