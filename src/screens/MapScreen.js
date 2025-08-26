@@ -1,30 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useTheme, Surface, Tooltip } from "react-native-paper";
 import { getRounds } from "../utils/DataController";
 import { useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-
-// Platform-specific imports
-const MapView = Platform.select({
-	web: () => require("react-native-web-maps").WebMapView,
-	default: () => require("react-native-maps").default,
-})();
-
-// For native platforms, import clustering separately to control when it's used
-const ClusteredMapView = Platform.OS !== "web" ? require("react-native-map-clustering").default : null;
-
-const Marker = Platform.select({
-	web: () => require("react-native-web-maps").WebMarker,
-	default: () => require("react-native-maps").Marker,
-})();
-
-const Callout = Platform.select({
-	web: () => require("react-native-web-maps").WebCallout,
-	default: () => require("react-native-maps").Callout,
-})();
+import MapView, { Marker, Callout } from "react-native-maps";
+import ClusteredMapView from "react-native-map-clustering";
 
 export default function MapScreen({ route }) {
 	const theme = useTheme();
@@ -92,11 +75,7 @@ export default function MapScreen({ route }) {
 
 				// Set region directly
 				try {
-					if (Platform.OS === "web") {
-						mapRef.current.setRegion(region);
-					} else {
-						mapRef.current.animateToRegion(region, 500);
-					}
+					mapRef.current.animateToRegion(region, 500);
 				} catch (error) {
 					console.error("Error animating to region:", error);
 				}
@@ -148,11 +127,7 @@ export default function MapScreen({ route }) {
 			// Also try to set region directly if map is ready
 			if (mapRef.current) {
 				try {
-					if (Platform.OS === "web") {
-						mapRef.current.setRegion(targetRegion);
-					} else {
-						mapRef.current.animateToRegion(targetRegion, 500);
-					}
+					mapRef.current.animateToRegion(targetRegion, 500);
 				} catch (error) {
 					console.error("Error setting region:", error);
 				}
@@ -276,7 +251,7 @@ export default function MapScreen({ route }) {
 						</Text>
 					</Surface>
 				</View>
-			) : Platform.OS !== "web" ? (
+			) : (
 				<ClusteredMapView
 					ref={mapRef}
 					style={{ width: "100%", height: "100%" }}
@@ -305,38 +280,6 @@ export default function MapScreen({ route }) {
 						</Marker>
 					))}
 				</ClusteredMapView>
-			) : (
-				<MapView
-					ref={mapRef}
-					style={{ width: "100%", height: "100%" }}
-					userInterfaceStyle={themeStyle}
-					clusterColor={theme.colors.primary}
-					clusterTextColor={theme.colors.onPrimary}
-					showsCompass={true}
-					tracksViewChanges={true}
-					initialRegion={initialRegion}
-					apiKey={process.env.GOOGLE_PLACES_API_KEY}
-					onMapReady={() => {
-						console.log("Map is ready");
-						fitToMarkersWithDelay();
-					}}
-					onError={(error) => {
-						console.error("Map error:", error);
-						setMapError(true);
-					}}>
-					{markers.map((marker) => (
-						<Marker
-							key={`${marker.title}-${marker.date}`}
-							coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-							title={marker.title}
-							description={marker.description}
-							pinColor={theme.colors.primary}>
-							<Callout tooltip={true}>
-								<Tooltip>{renderMarkerInfo(marker)}</Tooltip>
-							</Callout>
-						</Marker>
-					))}
-				</MapView>
 			)}
 		</View>
 	);
