@@ -13,6 +13,25 @@ export default function MapScreen({ route }) {
 	const theme = useTheme();
 	const themeStyle = theme.dark ? "dark" : "light";
 	const [markers, setMarkers] = useState([]);
+	
+	// Custom map style to hide road and river labels
+	const customMapStyle = [
+		{
+			featureType: "road",
+			elementType: "labels.text",
+			stylers: [{ visibility: "off" }]
+		},
+		{
+			featureType: "water",
+			elementType: "labels.text",
+			stylers: [{ visibility: "off" }]
+		},
+		{
+			featureType: "transit",
+			elementType: "labels.text",
+			stylers: [{ visibility: "off" }]
+		}
+	];
 	const [initialRegion, setInitialRegion] = useState({
 		latitude: 25,
 		longitude: -100,
@@ -256,6 +275,8 @@ export default function MapScreen({ route }) {
 					ref={mapRef}
 					style={{ width: "100%", height: "100%" }}
 					userInterfaceStyle={themeStyle}
+					customMapStyle={customMapStyle}
+					mapType="mutedStandard"
 					tracksViewChanges={true}
 					clusterColor={theme.colors.primary}
 					clusterTextColor={theme.colors.onPrimary}
