@@ -3,7 +3,7 @@ import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Modal, Im
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
 import { deleteRound, getRounds, getUnits } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
-import {ImageGallery as Gallery} from "../components/ImageGallery";
+import Gallery from "react-native-awesome-gallery";
 import WeatherIcon from "../components/WeatherIcon";
 
 const { width, height } = Dimensions.get("window");
