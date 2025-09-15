@@ -141,8 +141,9 @@ export default function EditRoundScreen({ route }) {
 			let windToUse = wind;
 			let weatherCodeToUse = weatherCode;
 
+			const newDate = new Date(route.params.roundData.date.toDate());
 			// Only fetch course details and weather if the course selection has changed
-			if (courseData || date !== new Date(route.params.roundData.date.toDate())) {
+			if (courseData || date !== newDate) {
 				if (courseData) {
 					const details = await getCourseDetails(courseData.placeId);
 					if (!details) {
@@ -158,12 +159,9 @@ export default function EditRoundScreen({ route }) {
 				let formattedDate = date;
 
 				// Format date as YYYY-MM-DD for weather API
-				if (date !== new Date(route.params.roundData.date.toDate())) {
+				if (date !== newDate) {
 					formattedDate = date.toISOString().split("T")[0];
 				}
-
-				console.log("Fetching weather data for date:", formattedDate);
-				console.log("Fetching weather data for lat/lon:", latToUse, lonToUse);
 				// Get weather data for the selected course and date
 				const weather = await getWeatherData(latToUse, lonToUse, formattedDate);
 				if (!weather) {

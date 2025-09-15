@@ -9,6 +9,7 @@ import TabNavigator from "./src/utils/TabNavigator";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AppRegistry } from "react-native";
 import appConfig from "./app.json";
+import { ThemeProvider } from "./src/utils/ThemeProvider";
 
 const appName = appConfig.expo.name;
 

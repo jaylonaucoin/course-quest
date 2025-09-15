@@ -328,16 +328,16 @@ export default function HomeScreen({ navigation }) {
 					keyExtractor={(item) => item.id}
 				/>
 			)}
-				<ImageView
-					images={currentRoundImages.map(uri => ({ uri }))}
-					imageIndex={selectedImageIndex}
-					visible={isGalleryVisible}
-					onRequestClose={() => setIsGalleryVisible(false)}
-					onImageIndexChange={(index) => setSelectedImageIndex(index)}
-					swipeToCloseEnabled={true}
-					doubleTapToZoomEnabled={true}
-					presentationStyle="overFullScreen"
-				/>
+			<ImageView
+				images={currentRoundImages.map((uri) => ({ uri }))}
+				imageIndex={selectedImageIndex}
+				visible={isGalleryVisible}
+				onRequestClose={() => setIsGalleryVisible(false)}
+				onImageIndexChange={(index) => setSelectedImageIndex(index)}
+				swipeToCloseEnabled={true}
+				doubleTapToZoomEnabled={true}
+				presentationStyle="overFullScreen"
+			/>
 		</View>
 	);
 }

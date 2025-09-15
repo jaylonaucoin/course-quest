@@ -92,7 +92,6 @@ export default function SettingsScreen({ navigation }) {
 	const handleUnitSystemChange = async (value) => {
 		if (!value) return; // Ignore null values
 
-		console.log(`Changing unit system from ${unitSystem} to ${value}`);
 		setUnitSystem(value);
 
 		// Update DB directly with proper values based on the new system
@@ -101,13 +100,11 @@ export default function SettingsScreen({ navigation }) {
 			setWindUnit("miles");
 			setRainUnit("inches");
 			await setUnits("fahrenheit", "miles", "inches");
-			console.log("Set imperial units directly");
 		} else if (value === "metric") {
 			setTempUnit("celsius");
 			setWindUnit("kilometers");
 			setRainUnit("millimeters");
 			await setUnits("celsius", "kilometers", "millimeters");
-			console.log("Set metric units directly");
 		}
 		// Custom system uses the existing individual unit values
 	};
@@ -115,31 +112,25 @@ export default function SettingsScreen({ navigation }) {
 	// Individual unit change handlers
 	const handleTempUnitChange = async (value) => {
 		if (!value) return; // Ignore null values
-		console.log(`Changing temp unit from ${tempUnit} to ${value}`);
 		setTempUnit(value);
 		if (unitSystem === "custom") {
 			await setUnits(value, windUnit, rainUnit);
-			console.log(`Updated temp unit in DB: ${value}`);
 		}
 	};
 
 	const handleWindUnitChange = async (value) => {
 		if (!value) return; // Ignore null values
-		console.log(`Changing wind unit from ${windUnit} to ${value}`);
 		setWindUnit(value);
 		if (unitSystem === "custom") {
 			await setUnits(tempUnit, value, rainUnit);
-			console.log(`Updated wind unit in DB: ${value}`);
 		}
 	};
 
 	const handleRainUnitChange = async (value) => {
 		if (!value) return; // Ignore null values
-		console.log(`Changing rain unit from ${rainUnit} to ${value}`);
 		setRainUnit(value);
 		if (unitSystem === "custom") {
 			await setUnits(tempUnit, windUnit, value);
-			console.log(`Updated rain unit in DB: ${value}`);
 		}
 	};
 

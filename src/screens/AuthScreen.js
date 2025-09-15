@@ -261,7 +261,6 @@ export default function AuthScreen({ navigation }) {
 										AppleAuthentication.AppleAuthenticationScope.EMAIL,
 									],
 								});
-								console.log(credential);
 								// Create a Firebase credential from the response
 								const provider = new auth.OAuthProvider("apple.com");
 								const token = credential.identityToken;
@@ -269,8 +268,6 @@ export default function AuthScreen({ navigation }) {
 									idToken: token,
 									rawNonce: null,
 								});
-								console.log(appleCredential);
-								console.log(credential);
 								// Sign in with the credential
 								const userCredential = await auth.signInWithCredential(appleCredential);
 								const user = userCredential.user;
@@ -288,10 +285,8 @@ export default function AuthScreen({ navigation }) {
 							} catch (e) {
 								if (e.code === "ERR_REQUEST_CANCELED") {
 									// handle that the user canceled the request
-									console.log("User canceled the request");
 								} else {
 									// handle other errors
-									console.log("Error signing in with Apple: ", e);
 								}
 							}
 						}}

@@ -69,15 +69,6 @@ module.exports = [
 
 			// Auto-fixable unused imports
 			"no-unused-vars": "off", // Turn off base rule
-			"unused-imports/no-unused-imports": "error", // Auto-remove unused imports
-			"unused-imports/no-unused-vars": [
-				"error",
-				{
-					argsIgnorePattern: "^_",
-					varsIgnorePattern: "^_",
-					caughtErrorsIgnorePattern: "^_",
-				},
-			],
 
 			"no-console": ["warn", { allow: ["warn", "error"] }],
 			"no-undef": "error",
