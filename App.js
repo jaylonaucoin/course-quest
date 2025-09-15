@@ -3,14 +3,12 @@ import "./global.css";
 import { useEffect } from "react";
 import * as Location from "expo-location";
 import { Camera } from "expo-camera";
-import { Audio } from "expo-av";
+import { getRecordingPermissionsAsync } from "expo-audio";
 import AuthScreen from "./src/screens/AuthScreen";
 import TabNavigator from "./src/utils/TabNavigator";
-import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AppRegistry } from "react-native";
 import appConfig from "./app.json";
-import { ThemeProvider } from "./src/utils/ThemeProvider";
 
 const appName = appConfig.expo.name;
 
@@ -30,7 +28,7 @@ export default function App() {
 			await Camera.requestCameraPermissionsAsync();
 
 			// Request Microphone Permission
-			await Audio.requestPermissionsAsync();
+			await getRecordingPermissionsAsync();
 		})();
 	}, []);
 
