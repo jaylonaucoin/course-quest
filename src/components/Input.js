@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import { View, ScrollView } from "react-native";
-import { Text, TextInput, useTheme, List } from "react-native-paper";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { useState } from "react";
+import { useTheme } from "react-native-paper";
 
 const Input = ({
 	children,
 	type = "text",
-	size = "full",
+	_size = "full",
 	autofill = "off",
 	onChange,
 	value,

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Text, Button, useTheme } from "react-native-paper";
-import Input from "../components/Input"; // Your custom input component
-import Modal from "../components/Modal"; // Your custom modal component
+import { useState } from "react";
+import { useTheme } from "react-native-paper";
+// Your custom input component
+// Your custom modal component
 import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 
 export function useReauthentication() {

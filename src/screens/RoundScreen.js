@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { FlatList, View, RefreshControl } from "react-native";
-import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button, RadioButton } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { deleteRound, getRounds } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
-import WeatherIcon from "../components/WeatherIcon";
 
 export default function RoundScreen({ navigation }) {
 	const theme = useTheme();

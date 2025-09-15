@@ -5,13 +5,9 @@ import {
 	sendEmailVerification,
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { View } from "react-native";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { auth, db } from "../../firebaseConfig";
-import Input from "../components/Input";
-import Modal from "../components/Modal";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { SegmentedButtons, Button, HelperText, useTheme, Text } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setUser } from "../utils/DataController";
 import { searchGolfCourses, getCourseDetails } from "../utils/APIController";
@@ -261,7 +257,6 @@ export default function AuthScreen({ navigation }) {
 										AppleAuthentication.AppleAuthenticationScope.EMAIL,
 									],
 								});
-								console.log(credential);
 								// Create a Firebase credential from the response
 								const provider = new auth.OAuthProvider("apple.com");
 								const token = credential.identityToken;
@@ -269,8 +264,6 @@ export default function AuthScreen({ navigation }) {
 									idToken: token,
 									rawNonce: null,
 								});
-								console.log(appleCredential);
-								console.log(credential);
 								// Sign in with the credential
 								const userCredential = await auth.signInWithCredential(appleCredential);
 								const user = userCredential.user;
@@ -288,10 +281,8 @@ export default function AuthScreen({ navigation }) {
 							} catch (e) {
 								if (e.code === "ERR_REQUEST_CANCELED") {
 									// handle that the user canceled the request
-									console.log("User canceled the request");
 								} else {
 									// handle other errors
-									console.log("Error signing in with Apple: ", e);
 								}
 							}
 						}}

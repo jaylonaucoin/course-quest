@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { FlatList, View } from "react-native";
-import { Avatar, Button, Card, Divider, useTheme, Text, Icon, Menu, RadioButton } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { getUser, getRounds } from "../utils/DataController";
 import { useFocusEffect } from "@react-navigation/native";
 

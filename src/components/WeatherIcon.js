@@ -1,6 +1,4 @@
-import { View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
-import { Ionicons, FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
+import { useTheme } from "react-native-paper";
 import { getUnits } from "../utils/DataController";
 import { useState, useEffect, useCallback } from "react";
 import {

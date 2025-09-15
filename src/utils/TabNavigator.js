@@ -1,22 +1,18 @@
-import React from "react";
 import { CommonActions } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { BottomNavigation } from "react-native-paper";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import SettingsScreen from "../screens/SettingsScreen.js";
 import MapScreen from "../screens/MapScreen.js";
 import RoundScreen from "../screens/RoundScreen.js";
 import HomeScreen from "../screens/HomeScreen.js";
 
-import Header from "../components/Header";
 import AddRoundScreen from "../screens/AddRoundScreen";
 import AccountScreen from "../screens/AccountScreen";
 import EditRoundScreen from "../screens/EditRoundScreen";
 import EditAccountScreen from "../screens/EditAccountScreen";
 
-const Tab = createBottomTabNavigator();
-const NativeStack = createNativeStackNavigator();
+const _Tab = createBottomTabNavigator();
+const _NativeStack = createNativeStackNavigator();
 
 export default function TabNavigator() {
 	return (

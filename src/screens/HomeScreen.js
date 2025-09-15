@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Image, Pressable } from "react-native";
-import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
+import { Dimensions } from "react-native";
+import { useTheme } from "react-native-paper";
 import { deleteRound, getRounds, getUnits } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
-import ImageView from "react-native-image-viewing";
-import WeatherIcon from "../components/WeatherIcon";
 
-const { width, height } = Dimensions.get("window");
+const { width: _width, height: _height } = Dimensions.get("window");
 
 export default function HomeScreen({ navigation }) {
 	const [refreshing, setRefreshing] = useState(false);
@@ -114,7 +112,7 @@ export default function HomeScreen({ navigation }) {
 					}
 					style={{ padding: 5, height: "100%" }}
 					data={rounds}
-					renderItem={({ item, index }) => (
+					renderItem={({ item, index: _index }) => (
 						<Card
 							style={{
 								display: "flex",
@@ -328,16 +326,16 @@ export default function HomeScreen({ navigation }) {
 					keyExtractor={(item) => item.id}
 				/>
 			)}
-				<ImageView
-					images={currentRoundImages.map(uri => ({ uri }))}
-					imageIndex={selectedImageIndex}
-					visible={isGalleryVisible}
-					onRequestClose={() => setIsGalleryVisible(false)}
-					onImageIndexChange={(index) => setSelectedImageIndex(index)}
-					swipeToCloseEnabled={true}
-					doubleTapToZoomEnabled={true}
-					presentationStyle="overFullScreen"
-				/>
+			<ImageView
+				images={currentRoundImages.map((uri) => ({ uri }))}
+				imageIndex={selectedImageIndex}
+				visible={isGalleryVisible}
+				onRequestClose={() => setIsGalleryVisible(false)}
+				onImageIndexChange={(index) => setSelectedImageIndex(index)}
+				swipeToCloseEnabled={true}
+				doubleTapToZoomEnabled={true}
+				presentationStyle="overFullScreen"
+			/>
 		</View>
 	);
 }

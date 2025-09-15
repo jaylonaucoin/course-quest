@@ -3,18 +3,16 @@ import "./global.css";
 import { useEffect } from "react";
 import * as Location from "expo-location";
 import { Camera } from "expo-camera";
-import { Audio } from "expo-av";
+import { requestRecordingPermissionsAsync } from "expo-audio";
 import AuthScreen from "./src/screens/AuthScreen";
 import TabNavigator from "./src/utils/TabNavigator";
-import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AppRegistry } from "react-native";
 import appConfig from "./app.json";
-import { ThemeProvider } from "./src/utils/ThemeProvider";
 
 const appName = appConfig.expo.name;
 
-const NativeStack = createNativeStackNavigator();
+const _NativeStack = createNativeStackNavigator();
 
 export default function App() {
 	useEffect(() => {
@@ -30,17 +28,21 @@ export default function App() {
 			await Camera.requestCameraPermissionsAsync();
 
 			// Request Microphone Permission
-			await Audio.requestPermissionsAsync();
+			await requestRecordingPermissionsAsync();
 		})();
 	}, []);
 
 	return (
-		<ThemeProvider>
-			<NativeStack.Navigator id="stack-navigator">
-				<NativeStack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
-				<NativeStack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
-			</NativeStack.Navigator>
-		</ThemeProvider>
+		<SafeAreaProvider>
+			<NavigationContainer>
+				<ThemeProvider>
+					<NativeStack.Navigator id="stack-navigator">
+						<NativeStack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
+						<NativeStack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
+					</NativeStack.Navigator>
+				</ThemeProvider>
+			</NavigationContainer>
+		</SafeAreaProvider>
 	);
 }
 
