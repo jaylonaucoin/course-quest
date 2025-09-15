@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { useColorScheme } from "react-native";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { StatusBar, useColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { PaperProvider } from "react-native-paper";
+import { NavigationContainer } from "@react-navigation/native";
 
 const dark = {
 	dark: true,
@@ -121,8 +123,10 @@ export const ThemeProvider = ({ children }) => {
 	return (
 		<ThemeContext.Provider value={{ themeMode, toggleTheme }}>
 			<PaperProvider theme={theme}>
-				<StatusBar barStyle={themeMode === "dark" ? "light-content" : "dark-content"} />
-				{children}
+				<NavigationContainer>
+					<StatusBar barStyle={themeMode === "dark" ? "light-content" : "dark-content"} />
+					{children}
+				</NavigationContainer>
 			</PaperProvider>
 		</ThemeContext.Provider>
 	);

@@ -1,6 +1,6 @@
 import React from "react";
-import { StyleSheet } from "react-native";
-import { useTheme } from "react-native-paper";
+import { View, StyleSheet, Image, TouchableOpacity, FlatList } from "react-native";
+import { IconButton, useTheme, Text } from "react-native-paper";
 
 /**
  * A reusable component for managing images in forms

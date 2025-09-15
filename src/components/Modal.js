@@ -1,5 +1,6 @@
-import { useTheme } from "react-native-paper";
-import { Keyboard } from "react-native";
+import React from "react";
+import { Modal, Portal, Text, useTheme } from "react-native-paper";
+import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 
 export default function CustomModal({ visible, onDismiss, title, children, dismissable = true }) {
 	const theme = useTheme();

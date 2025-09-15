@@ -44,9 +44,7 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
         }
       ],
-      "expo-font",
-      "expo-audio",
-      "expo-video"
+      "expo-font"
     ],
     "extra": {
       "eas": {

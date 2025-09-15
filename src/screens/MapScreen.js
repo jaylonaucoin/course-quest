@@ -1,33 +1,36 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import { StyleSheet } from "react-native";
-import { useTheme } from "react-native-paper";
+import { View, Text, StyleSheet } from "react-native";
+import { useTheme, Surface, Tooltip } from "react-native-paper";
 import { getRounds } from "../utils/DataController";
 import { useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MapView, { Marker, Callout } from "react-native-maps";
+import ClusteredMapView from "react-native-map-clustering";
 
 export default function MapScreen({ route }) {
 	const theme = useTheme();
 	const themeStyle = theme.dark ? "dark" : "light";
 	const [markers, setMarkers] = useState([]);
-
+	
 	// Custom map style to hide road and river labels
 	const customMapStyle = [
 		{
 			featureType: "road",
 			elementType: "labels.text",
-			stylers: [{ visibility: "off" }],
+			stylers: [{ visibility: "off" }]
 		},
 		{
 			featureType: "water",
 			elementType: "labels.text",
-			stylers: [{ visibility: "off" }],
+			stylers: [{ visibility: "off" }]
 		},
 		{
 			featureType: "transit",
 			elementType: "labels.text",
-			stylers: [{ visibility: "off" }],
-		},
+			stylers: [{ visibility: "off" }]
+		}
 	];
 	const [initialRegion, setInitialRegion] = useState({
 		latitude: 25,
@@ -92,8 +95,8 @@ export default function MapScreen({ route }) {
 				// Set region directly
 				try {
 					mapRef.current.animateToRegion(region, 500);
-				} catch (_error) {
-					console.error("Error animating to region:", _error);
+				} catch (error) {
+					console.error("Error animating to region:", error);
 				}
 			}
 		}, 300);
@@ -144,12 +147,12 @@ export default function MapScreen({ route }) {
 			if (mapRef.current) {
 				try {
 					mapRef.current.animateToRegion(targetRegion, 500);
-				} catch (_error) {
-					console.error("Error setting region:", _error);
+				} catch (error) {
+					console.error("Error setting region:", error);
 				}
 			}
-		} catch (_error) {
-			console.error("Error loading rounds:", _error);
+		} catch (error) {
+			console.error("Error loading rounds:", error);
 		}
 	};
 
@@ -282,7 +285,7 @@ export default function MapScreen({ route }) {
 					onMapReady={() => {
 						fitToMarkersWithDelay();
 					}}
-					onError={(_error) => {
+					onError={(error) => {
 						setMapError(true);
 					}}>
 					{markers.map((marker) => (

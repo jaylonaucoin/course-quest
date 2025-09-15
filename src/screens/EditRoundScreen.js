@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { useTheme } from "react-native-paper";
+import React, { useEffect, useRef, useState } from "react";
+import { View } from "react-native";
+import { useTheme, Text, Button, Portal, Modal, ActivityIndicator, ToggleButton } from "react-native-paper";
+import Input from "../components/Input";
 import { getRound, pickImage, updateRound, removeImage } from "../utils/DataController";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
 import { searchGolfCourses, getCourseDetails, getWeatherData } from "../utils/APIController";
+import ImageGallery from "../components/ImageGallery";
 
 export default function EditRoundScreen({ route }) {
 	const theme = useTheme();
@@ -138,7 +142,7 @@ export default function EditRoundScreen({ route }) {
 			let weatherCodeToUse = weatherCode;
 
 			// Only fetch course details and weather if the course selection has changed
-			if (courseData || date.getTime() !== new Date(route.params.roundData.date.toDate()).getTime()) {
+			if (courseData || date !== new Date(route.params.roundData.date.toDate())) {
 				if (courseData) {
 					const details = await getCourseDetails(courseData.placeId);
 					if (!details) {
@@ -154,10 +158,12 @@ export default function EditRoundScreen({ route }) {
 				let formattedDate = date;
 
 				// Format date as YYYY-MM-DD for weather API
-				if (date.getTime() !== new Date(route.params.roundData.date.toDate()).getTime()) {
+				if (date !== new Date(route.params.roundData.date.toDate())) {
 					formattedDate = date.toISOString().split("T")[0];
 				}
 
+				console.log("Fetching weather data for date:", formattedDate);
+				console.log("Fetching weather data for lat/lon:", latToUse, lonToUse);
 				// Get weather data for the selected course and date
 				const weather = await getWeatherData(latToUse, lonToUse, formattedDate);
 				if (!weather) {

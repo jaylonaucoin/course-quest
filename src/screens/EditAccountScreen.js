@@ -1,5 +1,8 @@
-import { useState, useRef, useEffect } from "react";
-import { useTheme } from "react-native-paper";
+import React, { useState, useRef, useEffect } from "react";
+import { Pressable, View } from "react-native";
+import { useTheme, Button, Avatar, Icon, IconButton } from "react-native-paper";
+import Input from "../components/Input";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { getUser, pickImage, setProfileInfo } from "../utils/DataController";
 import { searchGolfCourses, getCourseDetails } from "../utils/APIController";
 

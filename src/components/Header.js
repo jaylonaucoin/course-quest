@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { useTheme } from "react-native-paper";
+import React, { useEffect, useState } from "react";
+import { Image, Pressable, View } from "react-native";
+import { Appbar, Button, IconButton, useTheme, Text, Avatar, Icon } from "react-native-paper";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import favicon from "../../assets/favicon.png";
 import { getUser } from "../utils/DataController";
