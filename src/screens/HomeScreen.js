@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Modal, Image, Pressable } from "react-native";
+import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Image, Pressable } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
 import { deleteRound, getRounds, getUnits } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
-import Gallery from "react-native-awesome-gallery";
+import ImageView from "react-native-image-viewing";
 import WeatherIcon from "../components/WeatherIcon";
 
 const { width, height } = Dimensions.get("window");
@@ -328,33 +328,16 @@ export default function HomeScreen({ navigation }) {
 					keyExtractor={(item) => item.id}
 				/>
 			)}
-			<Modal
-				visible={isGalleryVisible}
-				transparent={true}
-				onRequestClose={() => setIsGalleryVisible(false)}
-				statusBarTranslucent>
-				<View style={{ flex: 1, backgroundColor: "black" }}>
-					<Gallery
-						data={currentRoundImages}
-						initialIndex={selectedImageIndex}
-						onSwipeToClose={() => setIsGalleryVisible(false)}
-						containerDimensions={{ width, height }}
-						style={{ flex: 1 }}
-						loop={false}
-						onIndexChange={(index) => setSelectedImageIndex(index)}
-						enableSwipeToClose={true}
-						disableVerticalSwipe={false}
-						disableSwipeUp={false}
-					/>
-					<IconButton
-						icon="close"
-						iconColor="white"
-						size={30}
-						style={{ position: "absolute", top: 40, right: 20, zIndex: 1 }}
-						onPress={() => setIsGalleryVisible(false)}
-					/>
-				</View>
-			</Modal>
+				<ImageView
+					images={currentRoundImages.map(uri => ({ uri }))}
+					imageIndex={selectedImageIndex}
+					visible={isGalleryVisible}
+					onRequestClose={() => setIsGalleryVisible(false)}
+					onImageIndexChange={(index) => setSelectedImageIndex(index)}
+					swipeToCloseEnabled={true}
+					doubleTapToZoomEnabled={true}
+					presentationStyle="overFullScreen"
+				/>
 		</View>
 	);
 }
