@@ -166,6 +166,7 @@ export default function RoundScreen({ navigation }) {
 								leftStyle={{ marginRight: 30 }}
 								right={() => (
 									<Menu
+										key={menuStates[item.id]}
 										visible={menuStates[item.id]}
 										onDismiss={() => toggleMenu(item.id)}
 										style={{ marginTop: 55, marginRight: 40 }}
