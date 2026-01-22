@@ -22,7 +22,7 @@
 
 ### Authentication & User Management
 - [x] Email/password authentication with Firebase
-- [x] Apple Sign-In integration (needs fixes)
+- [x] Apple Sign-In integration (implemented, hidden until Apple Developer account ready)
 - [x] Password reset via email
 - [x] Email verification
 - [x] Re-authentication for sensitive operations
@@ -49,24 +49,19 @@
 
 ## Critical Issues
 
-### 1. Apple Sign-In Implementation is Incomplete
+### 1. ~~Apple Sign-In Implementation is Incomplete~~ (FIXED - Hidden)
 
-**File:** `src/screens/AuthScreen.js` (lines 246-292)
+**File:** `src/screens/AuthScreen.js`
 
-**Problems:**
-- No Firestore user document is created for Apple Sign-In users
-- `user.displayName` can be null on subsequent logins (Apple only provides it on first sign-in)
-- The `auth.OAuthProvider` usage is incorrect - should be `OAuthProvider` from firebase/auth
-- No error handling or user feedback for Apple Sign-In errors
+**Status:** RESOLVED (Feature hidden until Apple Developer account is set up)
 
-**Fix Required:**
-```javascript
-// Need to:
-// 1. Import OAuthProvider correctly from firebase/auth
-// 2. Handle case where displayName is null (prompt user to enter name)
-// 3. Create Firestore user document after Apple Sign-In
-// 4. Add proper error handling with user feedback
-```
+**Fixes Applied:**
+- Imported `OAuthProvider` and `signInWithCredential` correctly from firebase/auth
+- Added Firestore user document creation for Apple Sign-In users using existing `setUser()` function
+- Added name prompt modal for cases where Apple doesn't provide displayName (subsequent logins)
+- Added proper error handling with user-friendly error messages via `setError()` state
+
+**To Enable:** Uncomment the Apple Sign-In button JSX block in `AuthScreen.js` (search for "TODO: Enable Apple Sign-In")
 
 ---
 
@@ -369,7 +364,7 @@ Ensure Firebase Storage rules:
 
 ### Phase 1: Critical Fixes (Before Any Release)
 
-1. [ ] Fix Apple Sign-In implementation
+1. [x] Fix Apple Sign-In implementation
 2. [ ] Add delete confirmation dialogs
 3. [ ] Replace `alert()` with proper UI components
 4. [ ] Fix hardcoded units on map tooltips
