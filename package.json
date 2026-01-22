@@ -5,6 +5,7 @@
 	"scripts": {
 		"start": "expo start -c",
 		"lint": "eslint .",
+		"publishExpoGo": "eas update",
 		"prettier": "prettier --write .",
 		"android": "expo run:android",
 		"ios": "expo run:ios",
