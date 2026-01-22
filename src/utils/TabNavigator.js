@@ -1,4 +1,5 @@
 import React from "react";
+import { View, StyleSheet } from "react-native";
 import { CommonActions } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -14,13 +15,16 @@ import AddRoundScreen from "../screens/AddRoundScreen";
 import AccountScreen from "../screens/AccountScreen";
 import EditRoundScreen from "../screens/EditRoundScreen";
 import EditAccountScreen from "../screens/EditAccountScreen";
+import OfflineBanner from "../components/OfflineBanner";
 
 const Tab = createBottomTabNavigator();
 const NativeStack = createNativeStackNavigator();
 
 export default function TabNavigator() {
 	return (
-		<Tab.Navigator
+		<View style={styles.container}>
+			<OfflineBanner />
+			<Tab.Navigator
 			initialRouteName="Home"
 			id="bottomTab"
 			screenOptions={{
@@ -137,8 +141,15 @@ export default function TabNavigator() {
 				}}
 			/>
 		</Tab.Navigator>
+		</View>
 	);
 }
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
+});
 
 const RoundStackNavigator = () => {
 	return (

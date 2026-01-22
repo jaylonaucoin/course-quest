@@ -10,6 +10,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AppRegistry } from "react-native";
 import appConfig from "./app.json";
 import { ThemeProvider } from "./src/utils/ThemeProvider";
+import { NetworkProvider } from "./src/utils/NetworkProvider";
 
 const appName = appConfig.expo.name;
 
@@ -35,10 +36,12 @@ export default function App() {
 
 	return (
 		<ThemeProvider>
-			<NativeStack.Navigator id="stack-navigator">
-				<NativeStack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
-				<NativeStack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
-			</NativeStack.Navigator>
+			<NetworkProvider>
+				<NativeStack.Navigator id="stack-navigator">
+					<NativeStack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
+					<NativeStack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
+				</NativeStack.Navigator>
+			</NetworkProvider>
 		</ThemeProvider>
 	);
 }

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { initializeAuth, browserLocalPersistence, getReactNativePersistence } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { Platform } from "react-native";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
@@ -25,3 +25,15 @@ const auth = initializeAuth(app, {
 export { auth };
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Enable Firestore offline persistence for caching and offline support
+// This allows the app to work offline and queue writes until connectivity returns
+enableIndexedDbPersistence(db).catch((err) => {
+	if (err.code === "failed-precondition") {
+		// Multiple tabs open, persistence can only be enabled in one tab at a time
+		console.warn("Firestore persistence unavailable: multiple tabs open");
+	} else if (err.code === "unimplemented") {
+		// The current browser/environment doesn't support persistence
+		console.warn("Firestore persistence not supported in this environment");
+	}
+});

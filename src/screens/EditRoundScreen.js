@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import { useTheme, Text, Button, Portal, Modal, ActivityIndicator, ToggleButton } from "react-native-paper";
+import { useTheme, Text, Button, Portal, Modal, ActivityIndicator, ToggleButton, Icon } from "react-native-paper";
 import Input from "../components/Input";
 import { getRound, pickImage, updateRound, removeImage } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
 import { searchGolfCourses, getCourseDetails, getWeatherData } from "../utils/APIController";
 import ImageGallery from "../components/ImageGallery";
+import { useNetwork } from "../utils/NetworkProvider";
 
 export default function EditRoundScreen({ route }) {
 	const theme = useTheme();
 	const navigation = useNavigation();
+	const { isOnline } = useNetwork();
 
 	const [id, setId] = useState(route.params.roundData.id);
 	const [course, setCourse] = useState(route.params.roundData.course);
@@ -262,6 +264,25 @@ export default function EditRoundScreen({ route }) {
 					}}>
 					<Text variant="headlineSmall">Edit Round</Text>
 				</View>
+				{!isOnline && (
+					<View
+						style={{
+							backgroundColor: theme.colors.errorContainer,
+							padding: 12,
+							borderRadius: 8,
+							marginBottom: 15,
+							width: "85%",
+							flexDirection: "row",
+							alignItems: "center",
+							gap: 10,
+						}}>
+						<Icon source="wifi-off" size={20} color={theme.colors.onErrorContainer} />
+						<Text style={{ color: theme.colors.onErrorContainer, flex: 1 }} variant="bodySmall">
+							Updating course or date requires internet for weather data. Other changes will sync when back
+							online.
+						</Text>
+					</View>
+				)}
 				<Input
 					onChange={handleCourseChange}
 					type="search"

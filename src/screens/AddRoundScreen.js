@@ -2,14 +2,16 @@ import * as React from "react";
 import { useRef, useState } from "react";
 import { View } from "react-native";
 import Input from "../components/Input";
-import { Text, Button, useTheme, Portal, Modal, ActivityIndicator, ToggleButton } from "react-native-paper";
+import { Text, Button, useTheme, Portal, Modal, ActivityIndicator, ToggleButton, Icon } from "react-native-paper";
 import { pickImage, addRound } from "../utils/DataController";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { getCourseDetails, getWeatherData, searchGolfCourses } from "../utils/APIController";
 import ImageGallery from "../components/ImageGallery";
+import { useNetwork } from "../utils/NetworkProvider";
 
 export default function AddRoundScreen({ navigation }) {
 	const theme = useTheme();
+	const { isOnline } = useNetwork();
 
 	const [course, setCourse] = useState("");
 	const [date, setDate] = useState(new Date());
@@ -208,6 +210,24 @@ export default function AddRoundScreen({ navigation }) {
 					}}>
 					<Text variant="headlineSmall">Add Round</Text>
 				</View>
+				{!isOnline && (
+					<View
+						style={{
+							backgroundColor: theme.colors.errorContainer,
+							padding: 12,
+							borderRadius: 8,
+							marginBottom: 15,
+							width: "85%",
+							flexDirection: "row",
+							alignItems: "center",
+							gap: 10,
+						}}>
+						<Icon source="wifi-off" size={20} color={theme.colors.onErrorContainer} />
+						<Text style={{ color: theme.colors.onErrorContainer, flex: 1 }} variant="bodySmall">
+							Adding rounds requires internet to fetch course and weather data. Please connect to continue.
+						</Text>
+					</View>
+				)}
 				<Input
 					onChange={handleCourseChange}
 					type="search"
@@ -262,7 +282,7 @@ export default function AddRoundScreen({ navigation }) {
 					/>
 				</View>
 
-				<Button mode="contained" style={{ marginBottom: 15 }} onPress={addDBRound}>
+				<Button mode="contained" style={{ marginBottom: 15 }} onPress={addDBRound} disabled={!isOnline}>
 					Add Round
 				</Button>
 			</View>

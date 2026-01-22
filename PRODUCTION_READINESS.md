@@ -65,15 +65,32 @@
 
 ---
 
-### 2. No Offline Support
+### 2. ~~No Offline Support~~ (FIXED)
 
-**Impact:** App fails or behaves unexpectedly without network connectivity. All Firestore/Storage operations fail silently or with errors.
+**Status:** RESOLVED
 
-**Fix Required:**
-- Enable Firestore offline persistence
-- Cache critical data locally
-- Show offline indicator to users
-- Queue operations for when connectivity returns
+**Fixes Applied:**
+- Enabled Firestore offline persistence in `firebaseConfig.js` using `enableIndexedDbPersistence()`
+- Created `NetworkProvider` context (`src/utils/NetworkProvider.js`) for network state management using `@react-native-community/netinfo`
+- Created `OfflineBanner` component (`src/components/OfflineBanner.js`) - animated banner that shows when offline
+- Updated `DataController.js` with cache-first reading strategy:
+  - `getUser()`, `getRounds()`, `getUnits()` now return cached data immediately and sync in background
+  - Added `getCachedRounds()` for offline-only access
+  - Added `clearCache()` for logout cleanup
+  - Background sync functions automatically update cache when online
+- Added offline indicator to TabNavigator
+- Added offline warnings to AddRoundScreen and EditRoundScreen (these require network for Google Places and Weather APIs)
+- Firestore automatically queues write operations when offline and syncs when connectivity returns
+
+**Files Changed:**
+- `firebaseConfig.js` - Enable Firestore persistence
+- `src/utils/NetworkProvider.js` - NEW: Network context provider
+- `src/components/OfflineBanner.js` - NEW: Offline indicator banner
+- `src/utils/DataController.js` - Cache-first data fetching
+- `src/utils/TabNavigator.js` - Added OfflineBanner
+- `App.js` - Wrapped with NetworkProvider
+- `src/screens/AddRoundScreen.js` - Offline warning and disabled submit when offline
+- `src/screens/EditRoundScreen.js` - Offline warning
 
 ---
 
@@ -383,7 +400,7 @@ Ensure Firebase Storage rules:
 
 1. [ ] Handicap calculation and tracking
 2. [ ] Data export (CSV/JSON)
-3. [ ] Offline support
+3. [x] Offline support
 4. [ ] Improved empty states with illustrations
 5. [ ] Round comparison feature
 
@@ -446,4 +463,4 @@ When working on this codebase:
 
 ---
 
-*Last Updated: January 21, 2026*
+*Last Updated: January 22, 2026*
