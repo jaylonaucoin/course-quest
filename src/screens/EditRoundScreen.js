@@ -8,11 +8,13 @@ import { useNavigation } from "@react-navigation/native";
 import { searchGolfCourses, getCourseDetails, getWeatherData } from "../utils/APIController";
 import ImageGallery from "../components/ImageGallery";
 import { useNetwork } from "../utils/NetworkProvider";
+import { useToast } from "../utils/ToastContext";
 
 export default function EditRoundScreen({ route }) {
 	const theme = useTheme();
 	const navigation = useNavigation();
 	const { isOnline } = useNetwork();
+	const { showToast, showError } = useToast();
 
 	const [id, setId] = useState(route.params.roundData.id);
 	const [course, setCourse] = useState(route.params.roundData.course);
@@ -60,7 +62,7 @@ export default function EditRoundScreen({ route }) {
 
 	const handleAddImages = async () => {
 		try {
-			const result = await pickImage();
+			const result = await pickImage(false, { onPermissionDenied: showError });
 			if (result && result.length > 0) {
 				setImages([...images, ...result]);
 			}
@@ -105,27 +107,27 @@ export default function EditRoundScreen({ route }) {
 
 	const validateFields = () => {
 		if (!course) {
-			alert("Please enter a course name");
+			showToast("Please enter a course name", "error");
 			courseRef.current.focus();
 			return false;
 		}
 		if (!date) {
-			alert("Please select a date");
+			showToast("Please select a date", "error");
 			dateRef.current.focus();
 			return false;
 		}
 		if (!score) {
-			alert("Please enter your score");
+			showToast("Please enter your score", "error");
 			scoreRef.current.focus();
 			return false;
 		}
 		if (!tees) {
-			alert("Please specify which tees you played from");
+			showToast("Please specify which tees you played from", "error");
 			teesRef.current.focus();
 			return false;
 		}
 		if (!holes || !["18 holes", "Front 9", "Back 9"].includes(holes)) {
-			alert("Please select a valid hole option");
+			showToast("Please select a valid hole option", "error");
 			return false;
 		}
 		return true;
@@ -149,7 +151,7 @@ export default function EditRoundScreen({ route }) {
 				if (courseData) {
 					const details = await getCourseDetails(courseData.placeId);
 					if (!details) {
-						alert("Could not fetch course details. Please try again.");
+						showError("Could not fetch course details. Please try again.");
 						setLoading(false);
 						return;
 					}
@@ -167,7 +169,7 @@ export default function EditRoundScreen({ route }) {
 				// Get weather data for the selected course and date
 				const weather = await getWeatherData(latToUse, lonToUse, formattedDate);
 				if (!weather) {
-					alert("Could not fetch weather data. Please try again.");
+					showError("Could not fetch weather data. Please try again.");
 					setLoading(false);
 					return;
 				}
@@ -209,7 +211,7 @@ export default function EditRoundScreen({ route }) {
 			navigation.navigate("Home");
 		} catch (error) {
 			console.error("Error updating round:", error);
-			alert("Error updating round: " + error.message);
+			showError("Error updating round: " + error.message);
 			setLoading(false);
 		}
 	};
@@ -278,8 +280,8 @@ export default function EditRoundScreen({ route }) {
 						}}>
 						<Icon source="wifi-off" size={20} color={theme.colors.onErrorContainer} />
 						<Text style={{ color: theme.colors.onErrorContainer, flex: 1 }} variant="bodySmall">
-							Updating course or date requires internet for weather data. Other changes will sync when back
-							online.
+							Updating course or date requires internet for weather data. Other changes will sync when
+							back online.
 						</Text>
 					</View>
 				)}

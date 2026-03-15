@@ -2,7 +2,10 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme, Surface, Tooltip } from "react-native-paper";
-import { getRounds } from "../utils/DataController";
+import { getRounds, getUnits } from "../utils/DataController";
+import { convertTemperature, convertWindSpeed, convertPrecipitation } from "../utils/UnitConverter";
+import { useToast } from "../utils/ToastContext";
+import { handleError } from "../utils/errorHandler";
 import { useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
@@ -11,8 +14,10 @@ import ClusteredMapView from "react-native-map-clustering";
 
 export default function MapScreen({ route }) {
 	const theme = useTheme();
+	const { showError } = useToast();
 	const themeStyle = theme.dark ? "dark" : "light";
 	const [markers, setMarkers] = useState([]);
+	const [units, setUnits] = useState(["celsius", "kilometers", "millimeters"]);
 
 	// Custom map style to hide road and river labels
 	const customMapStyle = [
@@ -104,7 +109,13 @@ export default function MapScreen({ route }) {
 
 	const loadRounds = async () => {
 		try {
-			const rounds = await getRounds();
+			const [rounds, userUnits] = await Promise.all([
+				getRounds(),
+				getUnits().catch(() => ["celsius", "kilometers", "millimeters"]),
+			]);
+			if (userUnits && userUnits.length >= 3) {
+				setUnits(userUnits);
+			}
 
 			if (!rounds || rounds.length === 0) {
 				return;
@@ -152,7 +163,7 @@ export default function MapScreen({ route }) {
 				}
 			}
 		} catch (error) {
-			console.error("Error loading rounds:", error);
+			handleError(error, "Failed to load map data. Pull down to try again.", showError);
 		}
 	};
 
@@ -222,40 +233,61 @@ export default function MapScreen({ route }) {
 		},
 	});
 
-	const renderMarkerInfo = (marker) => (
-		<View style={styles.tooltipWrapper}>
-			<Surface elevation={4} style={styles.tooltipContainer}>
-				<Text style={styles.title}>{marker.title}</Text>
-				<View style={styles.infoRow}>
-					<FontAwesome5 name="calendar-day" size={12} color={theme.colors.primary} />
-					<Text style={styles.infoText}>
-						{new Date(marker.date).toLocaleDateString("en-US", {
-							month: "short",
-							day: "numeric",
-							year: "numeric",
-						})}
-					</Text>
-				</View>
-				<View style={styles.infoRow}>
-					<FontAwesome5 name="medal" size={12} color={theme.colors.primary} />
-					<Text style={styles.infoText}>{marker.score}</Text>
-				</View>
-				<View style={styles.infoRow}>
-					<FontAwesome5 name="temperature-high" size={12} color={theme.colors.primary} />
-					<Text style={styles.infoText}>{marker.temp} °C</Text>
-				</View>
-				<View style={styles.infoRow}>
-					<FontAwesome5 name="wind" size={12} color={theme.colors.primary} />
-					<Text style={styles.infoText}>{marker.wind} km/h</Text>
-				</View>
-				<View style={styles.infoRow}>
-					<FontAwesome5 name="tint" size={12} color={theme.colors.primary} />
-					<Text style={styles.infoText}>{marker.rain} mm</Text>
-				</View>
-			</Surface>
-			<View style={styles.trianglePointer} />
-		</View>
-	);
+	const getUnitLabels = () => ({
+		temp: units[0] === "fahrenheit" ? "°F" : "°C",
+		wind: units[1] === "miles" ? "mph" : "km/h",
+		precip: units[2] === "inches" ? "in" : "mm",
+	});
+
+	const renderMarkerInfo = (marker) => {
+		const labels = getUnitLabels();
+		const tempUnit = units[0] ?? "celsius";
+		const windUnit = units[1] ?? "kilometers";
+		const precipUnit = units[2] ?? "millimeters";
+		const displayTemp = marker.temp != null ? convertTemperature(marker.temp, "celsius", tempUnit) : "-";
+		const displayWind = marker.wind != null ? convertWindSpeed(marker.wind, "kilometers", windUnit) : "-";
+		const displayRain = marker.rain != null ? convertPrecipitation(marker.rain, "millimeters", precipUnit) : "-";
+		return (
+			<View style={styles.tooltipWrapper}>
+				<Surface elevation={4} style={styles.tooltipContainer}>
+					<Text style={styles.title}>{marker.title}</Text>
+					<View style={styles.infoRow}>
+						<FontAwesome5 name="calendar-day" size={12} color={theme.colors.primary} />
+						<Text style={styles.infoText}>
+							{new Date(marker.date).toLocaleDateString("en-US", {
+								month: "short",
+								day: "numeric",
+								year: "numeric",
+							})}
+						</Text>
+					</View>
+					<View style={styles.infoRow}>
+						<FontAwesome5 name="medal" size={12} color={theme.colors.primary} />
+						<Text style={styles.infoText}>{marker.score}</Text>
+					</View>
+					<View style={styles.infoRow}>
+						<FontAwesome5 name="temperature-high" size={12} color={theme.colors.primary} />
+						<Text style={styles.infoText}>
+							{typeof displayTemp === "number" ? Math.round(displayTemp) : displayTemp} {labels.temp}
+						</Text>
+					</View>
+					<View style={styles.infoRow}>
+						<FontAwesome5 name="wind" size={12} color={theme.colors.primary} />
+						<Text style={styles.infoText}>
+							{typeof displayWind === "number" ? displayWind.toFixed(1) : displayWind} {labels.wind}
+						</Text>
+					</View>
+					<View style={styles.infoRow}>
+						<FontAwesome5 name="tint" size={12} color={theme.colors.primary} />
+						<Text style={styles.infoText}>
+							{typeof displayRain === "number" ? displayRain.toFixed(2) : displayRain} {labels.precip}
+						</Text>
+					</View>
+				</Surface>
+				<View style={styles.trianglePointer} />
+			</View>
+		);
+	};
 
 	return (
 		<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

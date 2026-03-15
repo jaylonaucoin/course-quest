@@ -8,10 +8,12 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { getCourseDetails, getWeatherData, searchGolfCourses } from "../utils/APIController";
 import ImageGallery from "../components/ImageGallery";
 import { useNetwork } from "../utils/NetworkProvider";
+import { useToast } from "../utils/ToastContext";
 
 export default function AddRoundScreen({ navigation }) {
 	const theme = useTheme();
 	const { isOnline } = useNetwork();
+	const { showToast, showError } = useToast();
 
 	const [course, setCourse] = useState("");
 	const [date, setDate] = useState(new Date());
@@ -33,7 +35,7 @@ export default function AddRoundScreen({ navigation }) {
 
 	const handleAddImages = async () => {
 		try {
-			const result = await pickImage();
+			const result = await pickImage(false, { onPermissionDenied: showError });
 			if (result && result.length > 0) {
 				setImages([...images, ...result]);
 			}
@@ -76,27 +78,27 @@ export default function AddRoundScreen({ navigation }) {
 
 	const validateFields = () => {
 		if (!course) {
-			alert("Please enter a course name");
+			showToast("Please enter a course name", "error");
 			courseRef.current.focus();
 			return false;
 		}
 		if (!date) {
-			alert("Please select a date");
+			showToast("Please select a date", "error");
 			dateRef.current.focus();
 			return false;
 		}
 		if (!score) {
-			alert("Please enter your score");
+			showToast("Please enter your score", "error");
 			scoreRef.current.focus();
 			return false;
 		}
 		if (!tees) {
-			alert("Please specify which tees you played from");
+			showToast("Please specify which tees you played from", "error");
 			teesRef.current.focus();
 			return false;
 		}
 		if (!holes || !["18 holes", "Front 9", "Back 9"].includes(holes)) {
-			alert("Please select a valid hole option");
+			showToast("Please select a valid hole option", "error");
 			return false;
 		}
 		return true;
@@ -107,16 +109,15 @@ export default function AddRoundScreen({ navigation }) {
 			if (!validateFields()) return;
 			setLoading(true);
 
-			// Get course details from Google Places API
 			if (!courseData || !courseData.placeId) {
-				alert("Error: Could not get course details. Please try selecting a course again.");
+				showError("Could not get course details. Please try selecting a course again.");
 				setLoading(false);
 				return;
 			}
 
 			const details = await getCourseDetails(courseData.placeId);
 			if (!details) {
-				alert("Could not fetch course details. Please try again.");
+				showError("Could not fetch course details. Please try again.");
 				setLoading(false);
 				return;
 			}
@@ -129,7 +130,7 @@ export default function AddRoundScreen({ navigation }) {
 			// Get weather data
 			const weather = await getWeatherData(latToUse, lonToUse, formattedDate);
 			if (!weather) {
-				alert("Could not fetch weather data. Please try again.");
+				showError("Could not fetch weather data. Please try again.");
 				setLoading(false);
 				return;
 			}
@@ -155,7 +156,7 @@ export default function AddRoundScreen({ navigation }) {
 			navigation.navigate("Home");
 		} catch (error) {
 			console.error("Error adding round:", error);
-			alert("Error adding round: " + error.message);
+			showError("Error adding round: " + error.message);
 			setLoading(false);
 		}
 	};
@@ -224,7 +225,8 @@ export default function AddRoundScreen({ navigation }) {
 						}}>
 						<Icon source="wifi-off" size={20} color={theme.colors.onErrorContainer} />
 						<Text style={{ color: theme.colors.onErrorContainer, flex: 1 }} variant="bodySmall">
-							Adding rounds requires internet to fetch course and weather data. Please connect to continue.
+							Adding rounds requires internet to fetch course and weather data. Please connect to
+							continue.
 						</Text>
 					</View>
 				)}

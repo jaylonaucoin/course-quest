@@ -106,12 +106,11 @@ async function setCachedData(key, data) {
 	}
 }
 
-export async function pickImage(upload = false) {
+export async function pickImage(upload = false, { onPermissionDenied } = {}) {
 	try {
-		// Request permission
 		const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 		if (status !== "granted") {
-			alert("Permission to access media library is required!");
+			onPermissionDenied?.("Permission to access media library is required!");
 			return null;
 		}
 

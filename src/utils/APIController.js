@@ -13,6 +13,11 @@ export async function getCourseDetails(placeId) {
 
 		const data = await response.json();
 
+		if (!data || !data.displayName || !data.location) {
+			console.error("Invalid course details response:", data);
+			return null;
+		}
+
 		let city, province, country;
 
 		for (const component of data.addressComponents || []) {
@@ -30,7 +35,7 @@ export async function getCourseDetails(placeId) {
 		return {
 			latitude: data.location.latitude,
 			longitude: data.location.longitude,
-			name: data.displayName.text,
+			name: data.displayName.text ?? "",
 			city,
 			province,
 			country,

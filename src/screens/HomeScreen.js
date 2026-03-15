@@ -5,18 +5,23 @@ import { deleteRound, getRounds, getUnits } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
 import ImageView from "react-native-image-viewing";
 import WeatherIcon from "../components/WeatherIcon";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useToast } from "../utils/ToastContext";
+import { handleError } from "../utils/errorHandler";
 
 const { width, height } = Dimensions.get("window");
 
 export default function HomeScreen({ navigation }) {
 	const [refreshing, setRefreshing] = useState(false);
 	const theme = useTheme();
+	const { showError } = useToast();
 	const [rounds, setRounds] = useState([]);
 	const [menuStates, setMenuStates] = useState({});
 	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 	const [isGalleryVisible, setIsGalleryVisible] = useState(false);
 	const [currentRoundImages, setCurrentRoundImages] = useState([]);
 	const [units, setUnits] = useState(null);
+	const [deleteConfirmRound, setDeleteConfirmRound] = useState(null);
 
 	const scrollRef = useRef(null);
 	useScrollToTop(scrollRef);
@@ -28,12 +33,13 @@ export default function HomeScreen({ navigation }) {
 		}));
 	};
 
-	const deleteDBRound = async (id) => {
-		toggleMenu(id);
+	const handleDeleteConfirm = async () => {
+		if (!deleteConfirmRound) return;
+		const id = deleteConfirmRound.id;
+		setDeleteConfirmRound(null);
 		await deleteRound(id);
-		await getRounds().then((rounds) => {
-			setRounds(rounds);
-		});
+		const updatedRounds = await getRounds();
+		setRounds(updatedRounds);
 	};
 
 	// Function to fetch rounds from the database
@@ -47,7 +53,7 @@ export default function HomeScreen({ navigation }) {
 			const currentUnits = await getUnits();
 			setUnits(currentUnits);
 		} catch (error) {
-			console.error("Error fetching rounds:", error);
+			handleError(error, "Failed to load rounds. Pull down to try again.", showError);
 		} finally {
 			setRefreshing(false);
 		}
@@ -168,7 +174,10 @@ export default function HomeScreen({ navigation }) {
 										<Menu.Item onPress={() => goToEditRoundScreen(item)} title="Edit" />
 										<Divider />
 										<Menu.Item
-											onPress={() => deleteDBRound(item.id)}
+											onPress={() => {
+												toggleMenu(item.id);
+												setDeleteConfirmRound(item);
+											}}
 											title="Delete"
 											titleStyle={{ color: theme.colors.error }}
 										/>
@@ -338,6 +347,15 @@ export default function HomeScreen({ navigation }) {
 				swipeToCloseEnabled={true}
 				doubleTapToZoomEnabled={true}
 				presentationStyle="overFullScreen"
+			/>
+			<ConfirmDialog
+				visible={!!deleteConfirmRound}
+				onDismiss={() => setDeleteConfirmRound(null)}
+				onConfirm={handleDeleteConfirm}
+				title="Delete Round?"
+				message="This cannot be undone."
+				confirmLabel="Delete"
+				destructive
 			/>
 		</View>
 	);
