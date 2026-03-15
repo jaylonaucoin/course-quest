@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Modal, Image, Pressable } from "react-native";
+import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Image, Pressable } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
-import { deleteRound, getRounds } from "../utils/DataController";
+import { deleteRound, getRounds, getUnits } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
-import Gallery from "react-native-awesome-gallery";
+import ImageView from "react-native-image-viewing";
 import WeatherIcon from "../components/WeatherIcon";
 
 const { width, height } = Dimensions.get("window");
@@ -16,6 +16,7 @@ export default function HomeScreen({ navigation }) {
 	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 	const [isGalleryVisible, setIsGalleryVisible] = useState(false);
 	const [currentRoundImages, setCurrentRoundImages] = useState([]);
+	const [units, setUnits] = useState(null);
 
 	const scrollRef = useRef(null);
 	useScrollToTop(scrollRef);
@@ -41,6 +42,10 @@ export default function HomeScreen({ navigation }) {
 		try {
 			const data = await getRounds();
 			setRounds(data);
+
+			// Also fetch current units
+			const currentUnits = await getUnits();
+			setUnits(currentUnits);
 		} catch (error) {
 			console.error("Error fetching rounds:", error);
 		} finally {
@@ -149,6 +154,7 @@ export default function HomeScreen({ navigation }) {
 								leftStyle={{ marginRight: 30 }}
 								right={() => (
 									<Menu
+										key={menuStates[item.id]}
 										visible={menuStates[item.id]}
 										onDismiss={() => toggleMenu(item.id)}
 										style={{ marginTop: 55, marginRight: 40 }}
@@ -171,7 +177,12 @@ export default function HomeScreen({ navigation }) {
 								titleVariant="titleMedium"
 							/>
 							{item.images && item.images[0] && (
-								<View style={{ height: item.images.length > 1 ? 300 : 200, padding: 5 }}>
+								<View
+									style={{
+										height: item.images.length > 1 ? 335 : 210,
+										paddingHorizontal: 5,
+										paddingVertical: 10,
+									}}>
 									{/* First large image */}
 									<TouchableOpacity
 										style={{
@@ -197,7 +208,7 @@ export default function HomeScreen({ navigation }) {
 
 									{/* Bottom row of images */}
 									{item.images.length > 1 && (
-										<View style={{ flexDirection: "row", height: 90, gap: 5 }}>
+										<View style={{ flexDirection: "row", height: 125, gap: 5 }}>
 											{/* Second image */}
 											<TouchableOpacity
 												style={{ flex: 1 }}
@@ -294,42 +305,40 @@ export default function HomeScreen({ navigation }) {
 									paddingBottom: 6,
 									paddingRight: 10,
 								}}>
-								<WeatherIcon type="temperature" weatherCode={item.weatherCode} value={item.temp} />
-								<WeatherIcon type="wind" weatherCode={item.weatherCode} value={item.wind} />
-								<WeatherIcon type="rain" weatherCode={item.weatherCode} value={item.rain} />
+								<WeatherIcon
+									key={`temp-${units ? units[0] : "default"}-${item.id}`}
+									type="temperature"
+									weatherCode={item.weatherCode}
+									value={item.temp}
+								/>
+								<WeatherIcon
+									key={`wind-${units ? units[1] : "default"}-${item.id}`}
+									type="wind"
+									weatherCode={item.weatherCode}
+									value={item.wind}
+								/>
+								<WeatherIcon
+									key={`rain-${units ? units[2] : "default"}-${item.id}`}
+									type="rain"
+									weatherCode={item.weatherCode}
+									value={item.rain}
+								/>
 							</View>
 						</Card>
 					)}
 					keyExtractor={(item) => item.id}
 				/>
 			)}
-			<Modal
+			<ImageView
+				images={currentRoundImages.map((uri) => ({ uri }))}
+				imageIndex={selectedImageIndex}
 				visible={isGalleryVisible}
-				transparent={true}
 				onRequestClose={() => setIsGalleryVisible(false)}
-				statusBarTranslucent>
-				<View style={{ flex: 1, backgroundColor: "black" }}>
-					<Gallery
-						data={currentRoundImages}
-						initialIndex={selectedImageIndex}
-						onSwipeToClose={() => setIsGalleryVisible(false)}
-						containerDimensions={{ width, height }}
-						style={{ flex: 1 }}
-						loop={false}
-						onIndexChange={(index) => setSelectedImageIndex(index)}
-						enableSwipeToClose={true}
-						disableVerticalSwipe={false}
-						disableSwipeUp={false}
-					/>
-					<IconButton
-						icon="close"
-						iconColor="white"
-						size={30}
-						style={{ position: "absolute", top: 40, right: 20, zIndex: 1 }}
-						onPress={() => setIsGalleryVisible(false)}
-					/>
-				</View>
-			</Modal>
+				onImageIndexChange={(index) => setSelectedImageIndex(index)}
+				swipeToCloseEnabled={true}
+				doubleTapToZoomEnabled={true}
+				presentationStyle="overFullScreen"
+			/>
 		</View>
 	);
 }

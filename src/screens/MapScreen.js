@@ -1,24 +1,45 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import MapView from "react-native-map-clustering";
-import { Marker, Callout } from "react-native-maps";
 import { useTheme, Surface, Tooltip } from "react-native-paper";
 import { getRounds } from "../utils/DataController";
 import { useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MapView, { Marker, Callout } from "react-native-maps";
+import ClusteredMapView from "react-native-map-clustering";
 
 export default function MapScreen({ route }) {
 	const theme = useTheme();
 	const themeStyle = theme.dark ? "dark" : "light";
 	const [markers, setMarkers] = useState([]);
+
+	// Custom map style to hide road and river labels
+	const customMapStyle = [
+		{
+			featureType: "road",
+			elementType: "labels.text",
+			stylers: [{ visibility: "off" }],
+		},
+		{
+			featureType: "water",
+			elementType: "labels.text",
+			stylers: [{ visibility: "off" }],
+		},
+		{
+			featureType: "transit",
+			elementType: "labels.text",
+			stylers: [{ visibility: "off" }],
+		},
+	];
 	const [initialRegion, setInitialRegion] = useState({
 		latitude: 25,
 		longitude: -100,
 		latitudeDelta: 100,
 		longitudeDelta: 100,
 	});
+	const mapRef = React.useRef(null);
+	const [mapError, setMapError] = useState(false);
 
 	const { roundData } = route.params || {};
 
@@ -63,9 +84,28 @@ export default function MapScreen({ route }) {
 		};
 	};
 
+	// Add this function to force map update - now properly scoped inside the component
+	const fitToMarkersWithDelay = () => {
+		// Small delay to ensure map is fully loaded
+		// eslint-disable-next-line no-undef
+		setTimeout(() => {
+			if (mapRef.current && markers.length > 0) {
+				const region = getCenter(markers);
+
+				// Set region directly
+				try {
+					mapRef.current.animateToRegion(region, 500);
+				} catch (error) {
+					console.error("Error animating to region:", error);
+				}
+			}
+		}, 300);
+	};
+
 	const loadRounds = async () => {
 		try {
 			const rounds = await getRounds();
+
 			if (!rounds || rounds.length === 0) {
 				return;
 			}
@@ -83,19 +123,33 @@ export default function MapScreen({ route }) {
 				image: round.images && round.images.length > 0 ? round.images[0] : null,
 			}));
 
+			// Set markers
 			setMarkers(newMarkers);
+
+			// Calculate target region
+			let targetRegion;
 			// If roundData is provided, focus on its marker
 			if (roundData && roundData.lat && roundData.lon) {
-				const targetRegion = {
+				targetRegion = {
 					latitude: Number(roundData.lat),
 					longitude: Number(roundData.lon),
-					latitudeDelta: 0.01,
-					longitudeDelta: 0.01,
+					latitudeDelta: 0.05,
+					longitudeDelta: 0.05,
 				};
-				setInitialRegion(targetRegion);
 			} else {
-				const region = getCenter(newMarkers);
-				setInitialRegion(region);
+				targetRegion = getCenter(newMarkers);
+			}
+
+			// Set initial region
+			setInitialRegion(targetRegion);
+
+			// Also try to set region directly if map is ready
+			if (mapRef.current) {
+				try {
+					mapRef.current.animateToRegion(targetRegion, 500);
+				} catch (error) {
+					console.error("Error setting region:", error);
+				}
 			}
 		} catch (error) {
 			console.error("Error loading rounds:", error);
@@ -168,63 +222,86 @@ export default function MapScreen({ route }) {
 		},
 	});
 
+	const renderMarkerInfo = (marker) => (
+		<View style={styles.tooltipWrapper}>
+			<Surface elevation={4} style={styles.tooltipContainer}>
+				<Text style={styles.title}>{marker.title}</Text>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="calendar-day" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>
+						{new Date(marker.date).toLocaleDateString("en-US", {
+							month: "short",
+							day: "numeric",
+							year: "numeric",
+						})}
+					</Text>
+				</View>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="medal" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>{marker.score}</Text>
+				</View>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="temperature-high" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>{marker.temp} °C</Text>
+				</View>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="wind" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>{marker.wind} km/h</Text>
+				</View>
+				<View style={styles.infoRow}>
+					<FontAwesome5 name="tint" size={12} color={theme.colors.primary} />
+					<Text style={styles.infoText}>{marker.rain} mm</Text>
+				</View>
+			</Surface>
+			<View style={styles.trianglePointer} />
+		</View>
+	);
+
 	return (
 		<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-			<MapView
-				style={{ width: "100%", height: "100%" }}
-				userInterfaceStyle={themeStyle}
-				showsCompass={true}
-				region={initialRegion}>
-				{markers.map((marker, index) => (
-					<Marker
-						key={index}
-						coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-						title={marker.title}
-						description={marker.description}
-						pinColor={theme.colors.primary}>
-						<Callout tooltip={true}>
-							<Tooltip>
-								<View style={styles.tooltipWrapper}>
-									<Surface elevation={4} style={styles.tooltipContainer}>
-										<Text style={styles.title}>{marker.title}</Text>
-										<View style={styles.infoRow}>
-											<FontAwesome5 name="calendar-day" size={12} color={theme.colors.primary} />
-											<Text style={styles.infoText}>
-												{new Date(marker.date).toLocaleDateString("en-US", {
-													month: "short",
-													day: "numeric",
-													year: "numeric",
-												})}
-											</Text>
-										</View>
-										<View style={styles.infoRow}>
-											<FontAwesome5 name="medal" size={12} color={theme.colors.primary} />
-											<Text style={styles.infoText}>{marker.score}</Text>
-										</View>
-										<View style={styles.infoRow}>
-											<FontAwesome5
-												name="temperature-high"
-												size={12}
-												color={theme.colors.primary}
-											/>
-											<Text style={styles.infoText}>{marker.temp} °C</Text>
-										</View>
-										<View style={styles.infoRow}>
-											<FontAwesome5 name="wind" size={12} color={theme.colors.primary} />
-											<Text style={styles.infoText}>{marker.wind} km/h</Text>
-										</View>
-										<View style={styles.infoRow}>
-											<FontAwesome5 name="tint" size={12} color={theme.colors.primary} />
-											<Text style={styles.infoText}>{marker.rain} mm</Text>
-										</View>
-									</Surface>
-									<View style={styles.trianglePointer} />
-								</View>
-							</Tooltip>
-						</Callout>
-					</Marker>
-				))}
-			</MapView>
+			{mapError ? (
+				<View style={{ padding: 20, alignItems: "center" }}>
+					<Text style={{ color: theme.colors.error, marginBottom: 10 }}>
+						There was an error loading the map.
+					</Text>
+					<Surface style={{ padding: 10, borderRadius: 8 }}>
+						<Text onPress={() => setMapError(false)} style={{ color: theme.colors.primary }}>
+							Tap to retry
+						</Text>
+					</Surface>
+				</View>
+			) : (
+				<ClusteredMapView
+					ref={mapRef}
+					style={{ width: "100%", height: "100%" }}
+					userInterfaceStyle={themeStyle}
+					customMapStyle={customMapStyle}
+					mapType="mutedStandard"
+					tracksViewChanges={true}
+					clusterColor={theme.colors.primary}
+					clusterTextColor={theme.colors.onPrimary}
+					initialRegion={initialRegion}
+					clusteringEnabled={true}
+					onMapReady={() => {
+						fitToMarkersWithDelay();
+					}}
+					onError={(error) => {
+						setMapError(true);
+					}}>
+					{markers.map((marker) => (
+						<Marker
+							key={`${marker.title}-${marker.date}`}
+							coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+							title={marker.title}
+							description={marker.description}
+							pinColor={theme.colors.primary}>
+							<Callout tooltip={true}>
+								<Tooltip>{renderMarkerInfo(marker)}</Tooltip>
+							</Callout>
+						</Marker>
+					))}
+				</ClusteredMapView>
+			)}
 		</View>
 	);
 }

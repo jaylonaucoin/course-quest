@@ -1,7 +1,8 @@
 import React from "react";
+import { View, StyleSheet } from "react-native";
 import { CommonActions } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BottomNavigation } from "react-native-paper";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import SettingsScreen from "../screens/SettingsScreen.js";
@@ -14,13 +15,16 @@ import AddRoundScreen from "../screens/AddRoundScreen";
 import AccountScreen from "../screens/AccountScreen";
 import EditRoundScreen from "../screens/EditRoundScreen";
 import EditAccountScreen from "../screens/EditAccountScreen";
+import OfflineBanner from "../components/OfflineBanner";
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const NativeStack = createNativeStackNavigator();
 
 export default function TabNavigator() {
 	return (
-		<Tab.Navigator
+		<View style={styles.container}>
+			<OfflineBanner />
+			<Tab.Navigator
 			initialRouteName="Home"
 			id="bottomTab"
 			screenOptions={{
@@ -137,19 +141,26 @@ export default function TabNavigator() {
 				}}
 			/>
 		</Tab.Navigator>
+		</View>
 	);
 }
 
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
+});
+
 const RoundStackNavigator = () => {
 	return (
-		<Stack.Navigator
+		<NativeStack.Navigator
 			id="RoundStack"
 			initialRouteName="Rounds"
 			screenOptions={{
 				animation: "none",
 				animationEnabled: false,
 			}}>
-			<Stack.Screen
+			<NativeStack.Screen
 				name="Rounds"
 				component={RoundScreen}
 				options={{
@@ -157,7 +168,7 @@ const RoundStackNavigator = () => {
 					header: ({ navigation }) => <Header navigation={navigation} title="Rounds" />,
 				}}
 			/>
-			<Stack.Screen
+			<NativeStack.Screen
 				name="AddRound"
 				component={AddRoundScreen}
 				options={{
@@ -165,7 +176,7 @@ const RoundStackNavigator = () => {
 					header: ({ navigation }) => <Header navigation={navigation} title="Add Round" />,
 				}}
 			/>
-			<Stack.Screen
+			<NativeStack.Screen
 				name="EditRound"
 				component={EditRoundScreen}
 				options={{
@@ -173,20 +184,20 @@ const RoundStackNavigator = () => {
 					header: ({ navigation }) => <Header navigation={navigation} title="Edit Round" />,
 				}}
 			/>
-		</Stack.Navigator>
+		</NativeStack.Navigator>
 	);
 };
 
 const SettingsStackNavigator = () => {
 	return (
-		<Stack.Navigator
+		<NativeStack.Navigator
 			id="SettingsStack"
 			initialRouteName="Settings"
 			screenOptions={{
 				animation: "none",
 				animationEnabled: false,
 			}}>
-			<Stack.Screen
+			<NativeStack.Screen
 				name="Settings"
 				component={SettingsScreen}
 				options={{
@@ -194,7 +205,7 @@ const SettingsStackNavigator = () => {
 					header: ({ navigation }) => <Header navigation={navigation} title="Settings" />,
 				}}
 			/>
-			<Stack.Screen
+			<NativeStack.Screen
 				name="Account"
 				component={AccountScreen}
 				options={{
@@ -202,7 +213,7 @@ const SettingsStackNavigator = () => {
 					header: ({ navigation }) => <Header navigation={navigation} title="Account" />,
 				}}
 			/>
-			<Stack.Screen
+			<NativeStack.Screen
 				name="EditAccount"
 				component={EditAccountScreen}
 				options={{
@@ -210,6 +221,6 @@ const SettingsStackNavigator = () => {
 					header: ({ navigation }) => <Header navigation={navigation} title="Edit Account" />,
 				}}
 			/>
-		</Stack.Navigator>
+		</NativeStack.Navigator>
 	);
 };

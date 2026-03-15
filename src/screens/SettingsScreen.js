@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView, ScrollView, View } from "react-native";
 import {
 	signOut,
@@ -8,13 +8,14 @@ import {
 	updatePassword,
 	deleteUser,
 } from "firebase/auth";
-import { ToggleButton, Button, Text, useTheme } from "react-native-paper";
+import { ToggleButton, Button, Text, useTheme, Icon } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useThemeContext } from "../utils/ThemeProvider";
 import Modal from "../components/Modal";
 import Input from "../components/Input";
 import { useReauthentication } from "../hooks/useReauthentication";
+import { setUnits, getUnits } from "../utils/DataController";
 
 export default function SettingsScreen({ navigation }) {
 	const auth = getAuth();
@@ -27,9 +28,48 @@ export default function SettingsScreen({ navigation }) {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [passwordMismatch, setPasswordMismatch] = useState(false);
 	const [error, setError] = useState("");
+	const [unitSystem, setUnitSystem] = useState(() => getUnits() || "metric");
+	const [tempUnit, setTempUnit] = useState(() => getUnits() || "celsius");
+	const [windUnit, setWindUnit] = useState(() => getUnits() || "kilometers");
+	const [rainUnit, setRainUnit] = useState(() => getUnits() || "millimeters");
 
 	const { themeMode, toggleTheme } = useThemeContext();
 	const theme = useTheme();
+
+	useEffect(() => {
+		// Initialize unit settings from stored values
+		const loadUnitSettings = async () => {
+			try {
+				const unitValues = await getUnits();
+				if (!unitValues || unitValues.length < 3) return;
+
+				// Set individual unit values with defaults if values are undefined
+				const [tempValue = "celsius", windValue = "kilometers", rainValue = "millimeters"] = unitValues;
+
+				setTempUnit(tempValue);
+				setWindUnit(windValue);
+				setRainUnit(rainValue);
+
+				// Determine unit system based on the combination
+				if (tempValue === "celsius" && windValue === "kilometers" && rainValue === "millimeters") {
+					setUnitSystem("metric");
+				} else if (tempValue === "fahrenheit" && windValue === "miles" && rainValue === "inches") {
+					setUnitSystem("imperial");
+				} else {
+					setUnitSystem("custom");
+				}
+			} catch (error) {
+				console.error("Error loading unit settings:", error);
+				// Set defaults if there's an error
+				setTempUnit("celsius");
+				setWindUnit("kilometers");
+				setRainUnit("millimeters");
+				setUnitSystem("metric");
+			}
+		};
+
+		loadUnitSettings();
+	}, []);
 
 	const signOutUser = async () => {
 		try {
@@ -46,6 +86,52 @@ export default function SettingsScreen({ navigation }) {
 	const setModalVisible = async (type) => {
 		setModalType(type);
 		setVisible(true);
+	};
+
+	// Separate functions for direct unit system changes to ensure proper DB updates
+	const handleUnitSystemChange = async (value) => {
+		if (!value) return; // Ignore null values
+
+		setUnitSystem(value);
+
+		// Update DB directly with proper values based on the new system
+		if (value === "imperial") {
+			setTempUnit("fahrenheit");
+			setWindUnit("miles");
+			setRainUnit("inches");
+			await setUnits("fahrenheit", "miles", "inches");
+		} else if (value === "metric") {
+			setTempUnit("celsius");
+			setWindUnit("kilometers");
+			setRainUnit("millimeters");
+			await setUnits("celsius", "kilometers", "millimeters");
+		}
+		// Custom system uses the existing individual unit values
+	};
+
+	// Individual unit change handlers
+	const handleTempUnitChange = async (value) => {
+		if (!value) return; // Ignore null values
+		setTempUnit(value);
+		if (unitSystem === "custom") {
+			await setUnits(value, windUnit, rainUnit);
+		}
+	};
+
+	const handleWindUnitChange = async (value) => {
+		if (!value) return; // Ignore null values
+		setWindUnit(value);
+		if (unitSystem === "custom") {
+			await setUnits(tempUnit, value, rainUnit);
+		}
+	};
+
+	const handleRainUnitChange = async (value) => {
+		if (!value) return; // Ignore null values
+		setRainUnit(value);
+		if (unitSystem === "custom") {
+			await setUnits(tempUnit, windUnit, value);
+		}
 	};
 
 	const handleUpdateEmail = async () => {
@@ -218,7 +304,11 @@ export default function SettingsScreen({ navigation }) {
 						Color Scheme
 					</Text>
 					<ToggleButton.Row
-						onValueChange={(value) => toggleTheme(value)}
+						onValueChange={(value) => {
+							if (value) {
+								toggleTheme(value);
+							}
+						}}
 						value={themeMode}
 						style={{
 							width: "60%",
@@ -273,6 +363,182 @@ export default function SettingsScreen({ navigation }) {
 						marginTop: 20,
 					}}>
 					<Text variant="bodyLarge" style={{ fontWeight: "bold" }}>
+						Units
+					</Text>
+					<ToggleButton.Row
+						onValueChange={(value) => {
+							if (value) {
+								handleUnitSystemChange(value);
+							}
+						}}
+						value={unitSystem}
+						style={{
+							alignSelf: "center",
+							width: "80%",
+							flexDirection: "row",
+							borderRadius: 10,
+							borderWidth: 0,
+							marginTop: 5,
+						}}>
+						<ToggleButton
+							icon={() => <Text>Imperial</Text>}
+							label="Imperial"
+							status={unitSystem === "imperial" ? "checked" : "unchecked"}
+							value="imperial"
+							style={{ width: "33.3%" }}
+						/>
+						<ToggleButton
+							icon={() => <Text>Metric</Text>}
+							label="Metric"
+							status={unitSystem === "metric" ? "checked" : "unchecked"}
+							value="metric"
+							style={{ width: "33.3%" }}
+						/>
+						<ToggleButton
+							icon={() => <Text>Custom</Text>}
+							label="Custom"
+							status={unitSystem === "custom" ? "checked" : "unchecked"}
+							value="custom"
+							style={{ width: "33.3%" }}
+						/>
+					</ToggleButton.Row>
+				</View>
+				{unitSystem === "custom" && (
+					<>
+						<View
+							style={{
+								display: "flex",
+								flexDirection: "row",
+								justifyContent: "space-between",
+								alignItems: "center",
+							}}>
+							<Text variant="bodyLarge">Temperature</Text>
+							<ToggleButton.Row
+								onValueChange={(value) => {
+									if (value) {
+										handleTempUnitChange(value);
+									}
+								}}
+								value={tempUnit}
+								style={{
+									alignSelf: "center",
+									width: "60%",
+									flexDirection: "row",
+									borderRadius: 10,
+									borderWidth: 0,
+									marginTop: 5,
+								}}>
+								<ToggleButton
+									icon={() => <Icon source="temperature-celsius" size={20} />}
+									label="Celsius"
+									status={tempUnit === "celsius" ? "checked" : "unchecked"}
+									value="celsius"
+									style={{ width: "50%" }}
+									disabled={unitSystem === "imperial" || unitSystem === "metric"}
+								/>
+								<ToggleButton
+									icon={() => <Icon source="temperature-fahrenheit" size={20} />}
+									label="Fahrenheit"
+									status={tempUnit === "fahrenheit" ? "checked" : "unchecked"}
+									value="fahrenheit"
+									style={{ width: "50%" }}
+									disabled={unitSystem === "imperial" || unitSystem === "metric"}
+								/>
+							</ToggleButton.Row>
+						</View>
+						<View
+							style={{
+								display: "flex",
+								flexDirection: "row",
+								justifyContent: "space-between",
+								alignItems: "center",
+							}}>
+							<Text variant="bodyLarge">Wind</Text>
+							<ToggleButton.Row
+								onValueChange={(value) => {
+									if (value) {
+										handleWindUnitChange(value);
+									}
+								}}
+								value={windUnit}
+								style={{
+									alignSelf: "center",
+									width: "60%",
+									flexDirection: "row",
+									borderRadius: 10,
+									borderWidth: 0,
+									marginTop: 5,
+								}}>
+								<ToggleButton
+									icon={() => <Text style={{ fontWeight: "bold" }}>km/h</Text>}
+									label="km/h"
+									status={windUnit === "kilometers" ? "checked" : "unchecked"}
+									value="kilometers"
+									style={{ width: "50%" }}
+									disabled={unitSystem === "imperial" || unitSystem === "metric"}
+								/>
+								<ToggleButton
+									icon={() => <Text style={{ fontWeight: "bold" }}>mph</Text>}
+									label="mph"
+									status={windUnit === "miles" ? "checked" : "unchecked"}
+									value="miles"
+									style={{ width: "50%" }}
+									disabled={unitSystem === "imperial" || unitSystem === "metric"}
+								/>
+							</ToggleButton.Row>
+						</View>
+						<View
+							style={{
+								display: "flex",
+								flexDirection: "row",
+								justifyContent: "space-between",
+								alignItems: "center",
+							}}>
+							<Text variant="bodyLarge">Precipitation</Text>
+							<ToggleButton.Row
+								onValueChange={(value) => {
+									if (value) {
+										handleRainUnitChange(value);
+									}
+								}}
+								value={rainUnit}
+								style={{
+									alignSelf: "center",
+									width: "60%",
+									flexDirection: "row",
+									borderRadius: 10,
+									borderWidth: 0,
+									marginTop: 5,
+								}}>
+								<ToggleButton
+									icon={() => <Text style={{ fontWeight: "bold" }}>mm</Text>}
+									label="mm"
+									status={rainUnit === "millimeters" ? "checked" : "unchecked"}
+									value="millimeters"
+									style={{ width: "50%" }}
+									disabled={unitSystem === "imperial" || unitSystem === "metric"}
+								/>
+								<ToggleButton
+									icon={() => <Text style={{ fontWeight: "bold" }}>in</Text>}
+									label="in"
+									status={rainUnit === "inches" ? "checked" : "unchecked"}
+									value="inches"
+									style={{ width: "50%" }}
+									disabled={unitSystem === "imperial" || unitSystem === "metric"}
+								/>
+							</ToggleButton.Row>
+						</View>
+					</>
+				)}
+				<View
+					style={{
+						display: "flex",
+						flexDirection: "row",
+						justifyContent: "space-between",
+						alignItems: "center",
+						marginTop: 20,
+					}}>
+					<Text variant="bodyLarge" style={{ fontWeight: "bold" }}>
 						Email
 					</Text>
 					<Text variant="bodyMedium">{auth.currentUser?.email}</Text>
@@ -314,6 +580,7 @@ export default function SettingsScreen({ navigation }) {
 						}}
 						labelStyle={{
 							color: theme.colors.onSecondary,
+							fontSize: 12,
 						}}
 						onPress={() => {
 							sendEmailVerification(auth.currentUser)
@@ -324,6 +591,7 @@ export default function SettingsScreen({ navigation }) {
 									alert("Error sending verification email: " + error);
 								});
 						}}
+						compact
 						mode={"contained"}>
 						Resend Verification
 					</Button>
@@ -366,7 +634,7 @@ export default function SettingsScreen({ navigation }) {
 						Delete Account
 					</Button>
 				</View>
-				<View style={{ width: "40%", alignSelf: "center", marginTop: 50 }}>
+				<View style={{ width: "40%", alignSelf: "center", marginVertical: 20 }}>
 					<Button
 						contentStyle={{ padding: 4 }}
 						labelStyle={{ fontSize: 16, fontWeight: 600, color: theme.colors.onError }}

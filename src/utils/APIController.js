@@ -91,16 +91,7 @@ export async function searchGolfCourses(query, setCourseResults, setShowCourseOp
 			},
 			body: JSON.stringify({
 				input: query,
-				includedPrimaryTypes: ["golf_course"],
-				locationBias: {
-					circle: {
-						center: {
-							latitude: 37.7937,
-							longitude: -122.3965,
-						},
-						radius: 5000.0,
-					},
-				},
+				includedPrimaryTypes: ["golf_course", "sports_club"],
 			}),
 		});
 

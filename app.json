@@ -1,39 +1,61 @@
 {
-  "expo": {
-    "name": "course-quest",
-    "slug": "course-quest",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#8cd1a5"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#6BA368"
-      }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
-    },
-    "plugins": [
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
-        }
-      ]
-    ]
-  }
+	"expo": {
+		"name": "course-quest",
+		"slug": "course-quest",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/icon.png",
+		"userInterfaceStyle": "automatic",
+		"newArchEnabled": true,
+		"splash": {
+			"image": "./assets/splash-icon.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#8cd1a5"
+		},
+		"ios": {
+			"supportsTablet": true,
+			"usesAppleSignIn": true,
+			"bundleIdentifier": "com.yourusername.coursequest",
+			"infoPlist": {
+				"ITSAppUsesNonExemptEncryption": false
+			}
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/adaptive-icon.png",
+				"backgroundColor": "#6BA368"
+			},
+			"package": "com.yourusername.coursequest",
+			"permissions": ["android.permission.RECORD_AUDIO", "android.permission.RECORD_AUDIO"]
+		},
+		"web": {
+			"favicon": "./assets/favicon.png",
+			"bundler": "metro"
+		},
+		"plugins": [
+			[
+				"expo-image-picker",
+				{
+					"photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
+					"cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+					"microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
+				}
+			],
+			"expo-font",
+			"expo-audio",
+			"expo-video"
+		],
+		"extra": {
+			"eas": {
+				"projectId": "8e072311-46f0-4781-ae0e-53ee7deede1a"
+			}
+		},
+		"owner": "jaylonaucoin29",
+		"runtimeVersion": {
+			"policy": "appVersion"
+		},
+		"updates": {
+			"url": "https://u.expo.dev/8e072311-46f0-4781-ae0e-53ee7deede1a"
+		}
+	}
 }

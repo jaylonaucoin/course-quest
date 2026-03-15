@@ -1,9 +1,9 @@
 import { initializeApp } from "firebase/app";
-// eslint-disable-next-line import/named
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore } from "firebase/firestore";
+import { initializeAuth, browserLocalPersistence, getReactNativePersistence } from "firebase/auth";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { Platform } from "react-native";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
 	apiKey: process.env.FIREBASE_API_KEY,
@@ -16,8 +16,24 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = initializeAuth(app, {
-	persistence: getReactNativePersistence(AsyncStorage),
+
+// Initialize auth with platform-specific persistence
+const auth = initializeAuth(app, {
+	persistence: Platform.OS === "web" ? browserLocalPersistence : getReactNativePersistence(ReactNativeAsyncStorage),
 });
+
+export { auth };
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Enable Firestore offline persistence for caching and offline support
+// This allows the app to work offline and queue writes until connectivity returns
+enableIndexedDbPersistence(db).catch((err) => {
+	if (err.code === "failed-precondition") {
+		// Multiple tabs open, persistence can only be enabled in one tab at a time
+		console.warn("Firestore persistence unavailable: multiple tabs open");
+	} else if (err.code === "unimplemented") {
+		// The current browser/environment doesn't support persistence
+		console.warn("Firestore persistence not supported in this environment");
+	}
+});

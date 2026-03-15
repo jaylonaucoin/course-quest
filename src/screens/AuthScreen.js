@@ -3,6 +3,8 @@ import {
 	signInWithEmailAndPassword,
 	sendPasswordResetEmail,
 	sendEmailVerification,
+	OAuthProvider,
+	signInWithCredential,
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { View } from "react-native";
@@ -15,6 +17,7 @@ import { SegmentedButtons, Button, HelperText, useTheme, Text } from "react-nati
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setUser } from "../utils/DataController";
 import { searchGolfCourses, getCourseDetails } from "../utils/APIController";
+import * as AppleAuthentication from "expo-apple-authentication";
 
 export default function AuthScreen({ navigation }) {
 	const theme = useTheme();
@@ -36,6 +39,12 @@ export default function AuthScreen({ navigation }) {
 	const [province, setProvince] = useState("");
 	const [country, setCountry] = useState("");
 
+	// Apple Sign-In state
+	const [showNamePrompt, setShowNamePrompt] = useState(false);
+	const [appleFirstName, setAppleFirstName] = useState("");
+	const [appleLastName, setAppleLastName] = useState("");
+	const [pendingAppleUser, setPendingAppleUser] = useState(null);
+
 	const firstNameRef = useRef(null);
 	const lastNameRef = useRef(null);
 	const emailRef = useRef(null);
@@ -45,17 +54,32 @@ export default function AuthScreen({ navigation }) {
 
 	const handleCourseChange = (text) => {
 		setHomeCourse(text);
-		searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+		if (text.length > 2) {
+			searchGolfCourses(text, setCourseResults, setShowCourseOptions);
+		} else {
+			setShowCourseOptions(false);
+			setCourseResults([]);
+		}
 	};
 
-	const selectCourse = async (courseData) => {
+	const selectCourse = async (courseData, isDismissal) => {
+		if (isDismissal || !courseData) {
+			setShowCourseOptions(false);
+			setCourseResults([]);
+			return;
+		}
+
 		setHomeCourse(courseData.text.text.split(",")[0]);
-		await getCourseDetails(courseData.placeId).then((courseDetails) => {
+		try {
+			const courseDetails = await getCourseDetails(courseData.placeId);
 			setCity(courseDetails.city);
 			setProvince(courseDetails.province);
 			setCountry(courseDetails.country);
-		});
+		} catch (error) {
+			console.error("Error getting course details:", error);
+		}
 		setShowCourseOptions(false);
+		setCourseResults([]);
 	};
 
 	const checkPassword = (newConfirmPassword) => {
@@ -158,12 +182,170 @@ export default function AuthScreen({ navigation }) {
 		}
 	};
 
+	// Complete Apple Sign-In after user provides their name
+	const completeAppleSignIn = async () => {
+		if (!pendingAppleUser || !appleFirstName.trim() || !appleLastName.trim()) {
+			return;
+		}
+
+		try {
+			const user = pendingAppleUser;
+
+			// Create Firestore user document
+			await setUser(
+				user.uid,
+				user.email,
+				appleFirstName.trim(),
+				appleLastName.trim(),
+				"", // homeCourse
+				"", // city
+				"", // province
+				"", // country
+			);
+
+			// Store user data in AsyncStorage
+			await AsyncStorage.setItem(
+				"user",
+				JSON.stringify({
+					uid: user.uid,
+					email: user.email,
+					firstName: appleFirstName.trim(),
+					lastName: appleLastName.trim(),
+					profilePicture: null,
+					bio: null,
+					homeCourse: "",
+					city: "",
+					province: "",
+					country: "",
+					rounds: [],
+				}),
+			);
+
+			// Clean up state
+			setShowNamePrompt(false);
+			setPendingAppleUser(null);
+			setAppleFirstName("");
+			setAppleLastName("");
+
+			navigation.replace("Main");
+		} catch (error) {
+			console.error("Error completing Apple Sign-In:", error);
+			setError("Failed to complete sign-in. Please try again.");
+			setShowNamePrompt(false);
+			setPendingAppleUser(null);
+		}
+	};
+
+	// Handle Apple Sign-In
+	const handleAppleSignIn = async () => {
+		try {
+			const credential = await AppleAuthentication.signInAsync({
+				requestedScopes: [
+					AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+					AppleAuthentication.AppleAuthenticationScope.EMAIL,
+				],
+			});
+
+			// Create a Firebase credential from the response
+			const provider = new OAuthProvider("apple.com");
+			const token = credential.identityToken;
+			const appleCredential = provider.credential({
+				idToken: token,
+				rawNonce: null,
+			});
+
+			// Sign in with the credential
+			const userCredential = await signInWithCredential(auth, appleCredential);
+			const user = userCredential.user;
+
+			// Check if user document exists in Firestore
+			const userDoc = await getDoc(doc(db, "users", user.uid));
+
+			if (userDoc.exists()) {
+				// Existing user - fetch their data
+				const userData = userDoc.data();
+
+				await AsyncStorage.setItem(
+					"user",
+					JSON.stringify({
+						uid: user.uid,
+						email: user.email,
+						firstName: userData.firstName,
+						lastName: userData.lastName,
+						profilePicture: userData.profilePicture,
+						bio: userData.bio,
+						homeCourse: userData.homeCourse,
+						city: userData.city,
+						province: userData.province,
+						country: userData.country,
+						rounds: userData.rounds,
+					}),
+				);
+
+				navigation.replace("Main");
+			} else {
+				// New user - need to create Firestore document
+				// Check if Apple provided the name (only on first sign-in)
+				const firstName = credential.fullName?.givenName;
+				const lastName = credential.fullName?.familyName;
+
+				if (firstName && lastName) {
+					// Apple provided the name, create document directly
+					await setUser(
+						user.uid,
+						user.email,
+						firstName,
+						lastName,
+						"", // homeCourse
+						"", // city
+						"", // province
+						"", // country
+					);
+
+					await AsyncStorage.setItem(
+						"user",
+						JSON.stringify({
+							uid: user.uid,
+							email: user.email,
+							firstName: firstName,
+							lastName: lastName,
+							profilePicture: null,
+							bio: null,
+							homeCourse: "",
+							city: "",
+							province: "",
+							country: "",
+							rounds: [],
+						}),
+					);
+
+					navigation.replace("Main");
+				} else {
+					// Apple didn't provide the name (subsequent login without prior Firestore doc)
+					// Show modal to prompt user for their name
+					setPendingAppleUser(user);
+					setShowNamePrompt(true);
+				}
+			}
+		} catch (e) {
+			if (e.code === "ERR_REQUEST_CANCELED") {
+				// User cancelled - no action needed
+			} else if (e.code === "auth/account-exists-with-different-credential") {
+				setError("An account already exists with this email using a different sign-in method.");
+			} else {
+				setError("Apple Sign-In failed. Please try again.");
+				console.error("Apple Sign-In error:", e);
+			}
+		}
+	};
+
 	return (
 		<KeyboardAwareScrollView
 			contentContainerStyle={{ flexGrow: 1, backgroundColor: theme.colors.surface }}
 			enableAutomaticScroll={true}
 			extraScrollHeight={25}
 			enableOnAndroid={true}
+			nestedScrollEnabled={true}
 			keyboardShouldPersistTaps="handled">
 			<Modal visible={resetPassword} onDismiss={() => setResetPassword(false)} title="Reset Password">
 				<Input type="email" onChange={setResetPasswordEmail} value={resetPasswordEmail} autofill="email">
@@ -193,6 +375,33 @@ export default function AuthScreen({ navigation }) {
 						onPress={() => setResetPassword(false)}
 						mode={"contained"}>
 						Cancel
+					</Button>
+				</View>
+			</Modal>
+			<Modal
+				visible={showNamePrompt}
+				onDismiss={() => {}}
+				title="Complete Your Profile"
+				dismissable={false}>
+				<Input onChange={setAppleFirstName} value={appleFirstName}>
+					First Name
+				</Input>
+				<Input onChange={setAppleLastName} value={appleLastName}>
+					Last Name
+				</Input>
+				<View
+					style={{
+						justifyContent: "space-between",
+						gap: 20,
+						width: "100%",
+					}}>
+					<Button
+						contentStyle={{ padding: 4 }}
+						labelStyle={{ fontSize: 16, fontWeight: 600 }}
+						onPress={completeAppleSignIn}
+						disabled={!appleFirstName.trim() || !appleLastName.trim()}
+						mode={"contained"}>
+						Continue
 					</Button>
 				</View>
 			</Modal>
@@ -226,6 +435,21 @@ export default function AuthScreen({ navigation }) {
 						]}
 					/>
 				</View>
+				{/* TODO: Enable Apple Sign-In when Apple Developer account is set up
+				<View style={{ alignItems: "center", justifyContent: "center", marginBottom: 15 }}>
+					<AppleAuthentication.AppleAuthenticationButton
+						buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+						buttonStyle={
+							!theme.dark
+								? AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+								: AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+						}
+						cornerRadius={12}
+						style={{ width: 200, height: 44 }}
+						onPress={handleAppleSignIn}
+					/>
+				</View>
+				*/}
 				{error !== "" && (
 					<HelperText
 						style={{
@@ -267,6 +491,17 @@ export default function AuthScreen({ navigation }) {
 					</View>
 				) : (
 					<View className="w-full">
+						<Input
+							onChange={handleCourseChange}
+							type="search"
+							value={homeCourse}
+							inputRef={homeCourseRef}
+							searchType="course"
+							searchResults={courseResults}
+							showSearchResults={showCourseOptions}
+							onSearchResultSelect={selectCourse}>
+							Home Course
+						</Input>
 						<Input
 							onChange={setRegisterFirstName}
 							value={registerFirstName}
@@ -321,17 +556,6 @@ export default function AuthScreen({ navigation }) {
 								Passwords do not match!
 							</HelperText>
 						)}
-						<Input
-							onChange={handleCourseChange}
-							type="search"
-							value={homeCourse}
-							inputRef={homeCourseRef}
-							searchType="course"
-							searchResults={courseResults}
-							showSearchResults={showCourseOptions}
-							onSearchResultSelect={selectCourse}>
-							Home Course
-						</Input>
 					</View>
 				)}
 				<View style={{ width: "40%", alignSelf: "center", marginTop: 12 }}>

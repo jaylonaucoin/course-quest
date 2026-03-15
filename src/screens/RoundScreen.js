@@ -142,11 +142,15 @@ export default function RoundScreen({ navigation }) {
 							}}>
 							<Card.Title
 								title={item.course}
-								subtitle={item.date.toDate().toLocaleDateString(undefined, {
-									year: "numeric",
-									month: "long",
-									day: "numeric",
-								})}
+								subtitle={
+									item.date.toDate().toLocaleDateString(undefined, {
+										year: "numeric",
+										month: "long",
+										day: "numeric",
+									}) +
+									"  |  " +
+									item.holes
+								}
 								left={() => (
 									<Avatar.Text
 										labelStyle={{
@@ -162,6 +166,7 @@ export default function RoundScreen({ navigation }) {
 								leftStyle={{ marginRight: 30 }}
 								right={() => (
 									<Menu
+										key={menuStates[item.id]}
 										visible={menuStates[item.id]}
 										onDismiss={() => toggleMenu(item.id)}
 										style={{ marginTop: 55, marginRight: 40 }}
