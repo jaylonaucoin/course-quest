@@ -11,6 +11,8 @@ import { AppRegistry } from "react-native";
 import appConfig from "./app.json";
 import { ThemeProvider } from "./src/utils/ThemeProvider";
 import { NetworkProvider } from "./src/utils/NetworkProvider";
+import { ToastProvider } from "./src/utils/ToastContext";
+import ErrorBoundary from "./src/components/ErrorBoundary";
 
 const appName = appConfig.expo.name;
 
@@ -36,12 +38,16 @@ export default function App() {
 
 	return (
 		<ThemeProvider>
-			<NetworkProvider>
-				<NativeStack.Navigator id="stack-navigator">
-					<NativeStack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
-					<NativeStack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
-				</NativeStack.Navigator>
-			</NetworkProvider>
+			<ToastProvider>
+				<NetworkProvider>
+					<ErrorBoundary>
+						<NativeStack.Navigator id="stack-navigator">
+							<NativeStack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
+							<NativeStack.Screen name="Main" component={TabNavigator} options={{ headerShown: false }} />
+						</NativeStack.Navigator>
+					</ErrorBoundary>
+				</NetworkProvider>
+			</ToastProvider>
 		</ThemeProvider>
 	);
 }

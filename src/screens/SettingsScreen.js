@@ -16,10 +16,12 @@ import Modal from "../components/Modal";
 import Input from "../components/Input";
 import { useReauthentication } from "../hooks/useReauthentication";
 import { setUnits, getUnits } from "../utils/DataController";
+import { useToast } from "../utils/ToastContext";
 
 export default function SettingsScreen({ navigation }) {
 	const auth = getAuth();
 	const { openReauth, ReauthModal } = useReauthentication();
+	const { showToast, showError } = useToast();
 
 	const [visible, setVisible] = useState(false);
 	const [modalType, setModalType] = useState("");
@@ -149,9 +151,9 @@ export default function SettingsScreen({ navigation }) {
 			}
 			await verifyBeforeUpdateEmail(auth.currentUser, email);
 			setVisible(false);
-			alert("Email updated successfully!");
+			showToast("Email updated successfully!");
 		} catch (error) {
-			alert("Failed to update email: " + error.message);
+			showError("Failed to update email: " + error.message);
 		}
 	};
 
@@ -166,9 +168,9 @@ export default function SettingsScreen({ navigation }) {
 			}
 			await updatePassword(auth.currentUser, password);
 			setVisible(false);
-			alert("Password updated successfully!");
+			showToast("Password updated successfully!");
 		} catch (error) {
-			alert("Failed to update password: " + error.message);
+			showError("Failed to update password: " + error.message);
 		}
 	};
 
@@ -176,13 +178,13 @@ export default function SettingsScreen({ navigation }) {
 		try {
 			await openReauth(); // Wait for successful reauthentication
 			await deleteUser(auth.currentUser);
-			alert("Account deleted successfully!");
+			showToast("Account deleted successfully!");
 			navigation.reset({
 				index: 0,
 				routes: [{ name: "Auth" }],
 			});
 		} catch (error) {
-			alert("Failed to delete account: " + error.message);
+			showError("Failed to delete account: " + error.message);
 		}
 	};
 
@@ -585,10 +587,10 @@ export default function SettingsScreen({ navigation }) {
 						onPress={() => {
 							sendEmailVerification(auth.currentUser)
 								.then(() => {
-									alert("Verification email sent!");
+									showToast("Verification email sent!");
 								})
 								.catch((error) => {
-									alert("Error sending verification email: " + error);
+									showError("Error sending verification email: " + error);
 								});
 						}}
 						compact

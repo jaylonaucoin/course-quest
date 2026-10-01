@@ -18,9 +18,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setUser } from "../utils/DataController";
 import { searchGolfCourses, getCourseDetails } from "../utils/APIController";
 import * as AppleAuthentication from "expo-apple-authentication";
+import { useToast } from "../utils/ToastContext";
 
 export default function AuthScreen({ navigation }) {
 	const theme = useTheme();
+	const { showToast } = useToast();
 
 	const [activeView, setActiveView] = useState("login");
 	const [email, setEmail] = useState("");
@@ -94,7 +96,7 @@ export default function AuthScreen({ navigation }) {
 	const sendResetPassword = async () => {
 		try {
 			await sendPasswordResetEmail(auth, resetPasswordEmail);
-			alert("Password reset email sent!");
+			showToast("Password reset email sent!");
 			setResetPassword(false);
 		} catch (error) {
 			setError("Error sending password reset email: " + error.message);

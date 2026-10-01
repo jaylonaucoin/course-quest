@@ -3,6 +3,8 @@ import { FlatList, View } from "react-native";
 import { Avatar, Button, Card, Divider, useTheme, Text, Icon, Menu, RadioButton } from "react-native-paper";
 import { getUser, getRounds } from "../utils/DataController";
 import { useFocusEffect } from "@react-navigation/native";
+import { useToast } from "../utils/ToastContext";
+import { handleError } from "../utils/errorHandler";
 
 export default function AccountScreen({ navigation }) {
 	const [user, setUser] = useState({});
@@ -10,6 +12,7 @@ export default function AccountScreen({ navigation }) {
 	const [sortMenuVisible, setSortMenuVisible] = useState(false);
 	const [sort, setSort] = useState("date-desc");
 	const theme = useTheme();
+	const { showError } = useToast();
 
 	const fetchData = useCallback(async () => {
 		try {
@@ -18,9 +21,9 @@ export default function AccountScreen({ navigation }) {
 			const roundsData = await getRounds(sort);
 			setRounds(roundsData);
 		} catch (error) {
-			console.error("Error fetching data:", error);
+			handleError(error, "Failed to load profile. Pull down to try again.", showError);
 		}
-	}, [sort]);
+	}, [sort, showError]);
 
 	// Initial load on mount
 	useEffect(() => {
