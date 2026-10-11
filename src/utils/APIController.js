@@ -1,5 +1,27 @@
 import { GOOGLE_PLACES_API_KEY } from "react-native-dotenv";
 
+const OPEN_METEO_ALLOWED_ORIGINS = ["https://api.open-meteo.com/", "https://archive-api.open-meteo.com/"];
+
+const DEFAULT_WEATHER = { temperature: 0, rain: 0, wind: 0, weatherCode: 0 };
+
+function isValidCoordinate(value, min, max) {
+	return typeof value === "number" && Number.isFinite(value) && value >= min && value <= max;
+}
+
+function buildOpenMeteoRequestUrl(hostname, pathname, params) {
+	const url = new URL(pathname, `https://${hostname}`);
+
+	if (url.protocol !== "https:" || !OPEN_METEO_ALLOWED_ORIGINS.some((origin) => url.href.startsWith(origin))) {
+		throw new Error("Disallowed weather API host");
+	}
+
+	for (const [key, value] of Object.entries(params)) {
+		url.searchParams.set(key, String(value));
+	}
+
+	return url;
+}
+
 export async function getCourseDetails(placeId) {
 	try {
 		const response = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
@@ -12,6 +34,11 @@ export async function getCourseDetails(placeId) {
 		});
 
 		const data = await response.json();
+
+		if (!data || !data.displayName || !data.location) {
+			console.error("Invalid course details response:", data);
+			return null;
+		}
 
 		let city, province, country;
 
@@ -30,7 +57,7 @@ export async function getCourseDetails(placeId) {
 		return {
 			latitude: data.location.latitude,
 			longitude: data.location.longitude,
-			name: data.displayName.text,
+			name: data.displayName.text ?? "",
 			city,
 			province,
 			country,
@@ -43,25 +70,43 @@ export async function getCourseDetails(placeId) {
 
 export async function getWeatherData(latitude, longitude, date) {
 	try {
-		// Determine if the date is less than 7 days in the past
-		const selectedDate = new Date(date);
-		const currentDate = new Date();
-		const daysDifference = Math.floor((currentDate - selectedDate) / (1000 * 60 * 60 * 24));
-
-		const formattedDate = selectedDate.toISOString().split("T")[0];
-
-		// Use different API endpoints based on date range
-		let apiUrl;
-
-		if (daysDifference < 7 && daysDifference >= 0) {
-			// For recent dates (less than 7 days old), use the forecast API
-			apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weather_code,temperature_2m_max,wind_speed_10m_max,precipitation_sum&start_date=${formattedDate}&end_date=${formattedDate}`;
-		} else {
-			// For older dates, use the archive API
-			apiUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${formattedDate}&end_date=${formattedDate}&daily=temperature_2m_max,precipitation_sum,wind_speed_10m_max,weathercode&timezone=auto`;
+		if (!isValidCoordinate(latitude, -90, 90) || !isValidCoordinate(longitude, -180, 180)) {
+			return DEFAULT_WEATHER;
 		}
 
-		const response = await fetch(apiUrl);
+		const selectedDate = new Date(date);
+		if (Number.isNaN(selectedDate.getTime())) {
+			return DEFAULT_WEATHER;
+		}
+
+		const currentDate = new Date();
+		const daysDifference = Math.floor((currentDate - selectedDate) / (1000 * 60 * 60 * 24));
+		const formattedDate = selectedDate.toISOString().split("T")[0];
+
+		const requestUrl =
+			daysDifference < 7 && daysDifference >= 0
+				? buildOpenMeteoRequestUrl("api.open-meteo.com", "/v1/forecast", {
+						latitude,
+						longitude,
+						daily: "weather_code,temperature_2m_max,wind_speed_10m_max,precipitation_sum",
+						start_date: formattedDate,
+						end_date: formattedDate,
+					})
+				: buildOpenMeteoRequestUrl("archive-api.open-meteo.com", "/v1/archive", {
+						latitude,
+						longitude,
+						start_date: formattedDate,
+						end_date: formattedDate,
+						daily: "temperature_2m_max,precipitation_sum,wind_speed_10m_max,weathercode",
+						timezone: "auto",
+					});
+
+		const requestHref = requestUrl.href;
+		if (!OPEN_METEO_ALLOWED_ORIGINS.some((origin) => requestHref.startsWith(origin))) {
+			throw new Error("Disallowed weather API host");
+		}
+
+		const response = await fetch(requestHref, { redirect: "error" });
 		const data = await response.json();
 		return {
 			temperature: data.daily.temperature_2m_max,

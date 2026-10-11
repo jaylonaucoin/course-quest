@@ -5,9 +5,11 @@ import Input from "../components/Input";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { getUser, pickImage, setProfileInfo } from "../utils/DataController";
 import { searchGolfCourses, getCourseDetails } from "../utils/APIController";
+import { useToast } from "../utils/ToastContext";
 
 export default function EditAccountScreen() {
 	const theme = useTheme();
+	const { showError } = useToast();
 	const [firstName, setFirstName] = useState();
 	const [lastName, setLastName] = useState();
 	const [homeCourse, setHomeCourse] = useState();
@@ -73,7 +75,7 @@ export default function EditAccountScreen() {
 
 	const setPicture = async () => {
 		try {
-			const url = await pickImage(true);
+			const url = await pickImage(true, { onPermissionDenied: showError });
 			setProfilePicture(url);
 			setSaved(false);
 		} catch (error) {
