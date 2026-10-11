@@ -139,18 +139,57 @@ export async function pickImage(upload = false, { onPermissionDenied } = {}) {
 	}
 }
 
+const LOCAL_IMAGE_URI_PREFIXES = [
+	"file://",
+	"content://",
+	"ph://",
+	"assets-library://",
+	"asset:/",
+	"data:image/",
+	"blob:",
+];
+
+function isTrustedFirebaseImageUrl(uri) {
+	if (typeof uri !== "string") return false;
+
+	const uid = auth.currentUser?.uid;
+	if (!uid) return false;
+
+	const isFirebaseHost =
+		uri.startsWith("https://firebasestorage.googleapis.com/") ||
+		/^https:\/\/[^/]+\.firebasestorage\.app\//.test(uri);
+
+	if (!isFirebaseHost) return false;
+
+	return uri.includes(`images%2F${uid}%2F`) || uri.includes(`images/${uid}/`);
+}
+
+function isAllowedLocalImageUri(uri) {
+	return typeof uri === "string" && LOCAL_IMAGE_URI_PREFIXES.some((prefix) => uri.startsWith(prefix));
+}
+
 // Function to upload an image to Firebase Storage
 export async function uploadImage(uri, path = "profilePicture", roundId = null) {
 	try {
 		if (!uri) return null;
+
+		if (isTrustedFirebaseImageUrl(uri)) {
+			return uri;
+		}
+
+		if (!isAllowedLocalImageUri(uri)) {
+			console.error("Disallowed image URI scheme.");
+			return null;
+		}
+
 		if (roundId) {
 			// Add both timestamp and a random string to ensure uniqueness
 			const uniqueId = Date.now().toString() + "_" + Math.random().toString(36).substring(2, 10);
 			path = path + "/" + roundId + "/" + uniqueId;
 		}
 
-		// Fetch image blob
-		const response = await fetch(uri);
+		// Fetch image blob from a validated local URI only
+		const response = await fetch(uri, { redirect: "error" });
 		if (!response.ok) {
 			console.error("Failed to fetch image data.");
 			return null;
