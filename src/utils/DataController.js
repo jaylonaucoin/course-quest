@@ -299,7 +299,7 @@ async function syncUserInBackground() {
 		}
 	} catch (error) {
 		// Silent fail for background sync
-		console.debug("Background user sync failed:", error);
+		console.error("Background user sync failed:", error);
 	}
 }
 
@@ -402,7 +402,7 @@ async function syncRoundsInBackground(field = "date", direction = "desc") {
 		await setCachedData(CACHE_KEYS.ROUNDS, rounds);
 	} catch (error) {
 		// Silent fail for background sync
-		console.debug("Background rounds sync failed:", error);
+		console.error("Background rounds sync failed:", error);
 	}
 }
 
@@ -715,7 +715,7 @@ async function syncUnitsInBackground() {
 		}
 	} catch (error) {
 		// Silent fail for background sync
-		console.debug("Background units sync failed:", error);
+		console.error("Background units sync failed:", error);
 	}
 }
 

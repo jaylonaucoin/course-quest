@@ -1,5 +1,6 @@
 // eslint.config.js
 const js = require("@eslint/js");
+const globals = require("globals");
 const prettier = require("eslint-config-prettier");
 const prettierPlugin = require("eslint-plugin-prettier");
 
@@ -9,19 +10,20 @@ module.exports = [
 
 	// Configuration files (Node.js environment)
 	{
-		files: ["*.config.js", "babel.config.js", "metro.config.js", "tailwind.config.js", ".eslintrc.js"],
+		files: [
+			"*.config.js",
+			"babel.config.js",
+			"metro.config.js",
+			"tailwind.config.js",
+			".eslintrc.js",
+			".detoxrc.js",
+			"e2e/jest.config.js",
+		],
 		languageOptions: {
 			ecmaVersion: "latest",
 			sourceType: "commonjs",
 			globals: {
-				module: "readonly",
-				require: "readonly",
-				exports: "readonly",
-				__dirname: "readonly",
-				__filename: "readonly",
-				process: "readonly",
-				Buffer: "readonly",
-				global: "readonly",
+				...globals.node,
 			},
 		},
 		plugins: {
@@ -44,17 +46,10 @@ module.exports = [
 				},
 			},
 			globals: {
-				// React Native globals
+				...globals.browser,
+				...globals.node,
 				__DEV__: "readonly",
-				global: "readonly",
-				process: "readonly",
-				Buffer: "readonly",
-				console: "readonly",
-				fetch: "readonly",
-				alert: "readonly",
-				// React globals
 				React: "readonly",
-				// Platform specific
 				Platform: "readonly",
 			},
 		},
@@ -76,6 +71,60 @@ module.exports = [
 			// React hooks rules
 			"react-hooks/rules-of-hooks": "error",
 			"react-hooks/exhaustive-deps": "warn",
+		},
+	},
+
+	// Jest tests, mocks, and setup
+	{
+		files: ["**/*.{test,spec}.{js,jsx}", "__mocks__/**/*.js", "jest.setup.js"],
+		languageOptions: {
+			ecmaVersion: "latest",
+			sourceType: "module",
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: true,
+				},
+			},
+			globals: {
+				...globals.browser,
+				...globals.node,
+				...globals.jest,
+				__DEV__: "readonly",
+				React: "readonly",
+				Platform: "readonly",
+			},
+		},
+		plugins: {
+			prettier: prettierPlugin,
+		},
+		rules: {
+			"prettier/prettier": "error",
+			"no-undef": "error",
+		},
+	},
+
+	// Detox e2e tests
+	{
+		files: ["e2e/**/*.{js,jsx}"],
+		languageOptions: {
+			ecmaVersion: "latest",
+			sourceType: "commonjs",
+			globals: {
+				...globals.node,
+				...globals.jest,
+				device: "readonly",
+				element: "readonly",
+				by: "readonly",
+				waitFor: "readonly",
+				jasmine: "readonly",
+			},
+		},
+		plugins: {
+			prettier: prettierPlugin,
+		},
+		rules: {
+			"prettier/prettier": "error",
+			"no-undef": "error",
 		},
 	},
 

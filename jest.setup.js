@@ -70,7 +70,6 @@ jest.mock("expo-image-picker", () => ({
 }));
 
 jest.mock("@expo/vector-icons", () => {
-	const React = require("react");
 	const { View } = require("react-native");
 	return {
 		Ionicons: View,
