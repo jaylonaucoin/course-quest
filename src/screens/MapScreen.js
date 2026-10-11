@@ -92,7 +92,6 @@ export default function MapScreen({ route }) {
 	// Add this function to force map update - now properly scoped inside the component
 	const fitToMarkersWithDelay = () => {
 		// Small delay to ensure map is fully loaded
-		// eslint-disable-next-line no-undef
 		setTimeout(() => {
 			if (mapRef.current && markers.length > 0) {
 				const region = getCenter(markers);
