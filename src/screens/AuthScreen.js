@@ -380,11 +380,7 @@ export default function AuthScreen({ navigation }) {
 					</Button>
 				</View>
 			</Modal>
-			<Modal
-				visible={showNamePrompt}
-				onDismiss={() => {}}
-				title="Complete Your Profile"
-				dismissable={false}>
+			<Modal visible={showNamePrompt} onDismiss={() => {}} title="Complete Your Profile" dismissable={false}>
 				<Input onChange={setAppleFirstName} value={appleFirstName}>
 					First Name
 				</Input>

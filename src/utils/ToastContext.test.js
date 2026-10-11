@@ -17,9 +17,7 @@ function TestConsumer() {
 function wrapper({ children }) {
 	return (
 		<SafeAreaProvider>
-			<PaperProvider>
-				{children}
-			</PaperProvider>
+			<PaperProvider>{children}</PaperProvider>
 		</SafeAreaProvider>
 	);
 }
@@ -30,7 +28,7 @@ describe("ToastContext", () => {
 			<ToastProvider>
 				<TestConsumer />
 			</ToastProvider>,
-			{ wrapper }
+			{ wrapper },
 		);
 		expect(screen.getByText("Show Toast")).toBeInTheDocument();
 		expect(screen.getByText("Show Error")).toBeInTheDocument();
@@ -41,7 +39,7 @@ describe("ToastContext", () => {
 			<ToastProvider>
 				<TestConsumer />
 			</ToastProvider>,
-			{ wrapper }
+			{ wrapper },
 		);
 		fireEvent.click(screen.getByText("Show Toast"));
 		await screen.findByText("Hello");
@@ -53,7 +51,7 @@ describe("ToastContext", () => {
 			<ToastProvider>
 				<TestConsumer />
 			</ToastProvider>,
-			{ wrapper }
+			{ wrapper },
 		);
 		fireEvent.click(screen.getByText("Show Error"));
 		await screen.findByText("Error message");

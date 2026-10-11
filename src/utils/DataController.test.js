@@ -92,16 +92,7 @@ describe("setUser", () => {
 	it("writes correct doc structure to Firestore", async () => {
 		setDoc.mockResolvedValue(undefined);
 
-		await setUser(
-			"uid-1",
-			"user@test.com",
-			"John",
-			"Doe",
-			"Pebble Beach",
-			"Pebble Beach",
-			"California",
-			"USA",
-		);
+		await setUser("uid-1", "user@test.com", "John", "Doe", "Pebble Beach", "Pebble Beach", "California", "USA");
 
 		expect(setDoc).toHaveBeenCalledWith(
 			expect.anything(),
@@ -125,7 +116,12 @@ describe("setUser", () => {
 describe("getRounds", () => {
 	it("returns cached rounds when available and not force refresh", async () => {
 		const cachedRounds = [
-			{ id: "1", course: "Course A", score: 72, date: { _isTimestamp: true, _seconds: 1000000, _nanoseconds: 0 } },
+			{
+				id: "1",
+				course: "Course A",
+				score: 72,
+				date: { _isTimestamp: true, _seconds: 1000000, _nanoseconds: 0 },
+			},
 		];
 		AsyncStorage.getItem.mockResolvedValue(JSON.stringify(cachedRounds));
 
@@ -236,21 +232,7 @@ describe("addRound", () => {
 		const { getDownloadURL } = require("firebase/storage");
 		getDownloadURL.mockResolvedValue("https://example.com/uploaded.jpg");
 
-		await addRound(
-			"Course",
-			new Date(),
-			72,
-			20,
-			0,
-			10,
-			0,
-			"",
-			["file:///photo.jpg"],
-			"",
-			0,
-			0,
-			"18 holes",
-		);
+		await addRound("Course", new Date(), 72, 20, 0, 10, 0, "", ["file:///photo.jpg"], "", 0, 0, "18 holes");
 
 		expect(updateDoc).toHaveBeenCalledWith(
 			expect.anything(),
@@ -348,9 +330,9 @@ describe("getUnits", () => {
 
 	it("returns cached units on error when cache valid", async () => {
 		getDoc.mockRejectedValue(new Error("Network error"));
-		AsyncStorage.getItem.mockResolvedValueOnce(null).mockResolvedValueOnce(
-			JSON.stringify(["fahrenheit", "miles", "inches"]),
-		);
+		AsyncStorage.getItem
+			.mockResolvedValueOnce(null)
+			.mockResolvedValueOnce(JSON.stringify(["fahrenheit", "miles", "inches"]));
 
 		const result = await getUnits();
 		expect(result).toEqual(["fahrenheit", "miles", "inches"]);
@@ -363,12 +345,7 @@ describe("clearCache", () => {
 
 		await clearCache();
 
-		expect(AsyncStorage.multiRemove).toHaveBeenCalledWith([
-			"cached_user",
-			"cached_rounds",
-			"cached_units",
-			"user",
-		]);
+		expect(AsyncStorage.multiRemove).toHaveBeenCalledWith(["cached_user", "cached_rounds", "cached_units", "user"]);
 	});
 });
 

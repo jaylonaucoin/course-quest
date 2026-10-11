@@ -1,9 +1,6 @@
 import { GOOGLE_PLACES_API_KEY } from "react-native-dotenv";
 
-const OPEN_METEO_ALLOWED_ORIGINS = [
-	"https://api.open-meteo.com/",
-	"https://archive-api.open-meteo.com/",
-];
+const OPEN_METEO_ALLOWED_ORIGINS = ["https://api.open-meteo.com/", "https://archive-api.open-meteo.com/"];
 
 const DEFAULT_WEATHER = { temperature: 0, rain: 0, wind: 0, weatherCode: 0 };
 
@@ -14,10 +11,7 @@ function isValidCoordinate(value, min, max) {
 function buildOpenMeteoRequestUrl(hostname, pathname, params) {
 	const url = new URL(pathname, `https://${hostname}`);
 
-	if (
-		url.protocol !== "https:" ||
-		!OPEN_METEO_ALLOWED_ORIGINS.some((origin) => url.href.startsWith(origin))
-	) {
+	if (url.protocol !== "https:" || !OPEN_METEO_ALLOWED_ORIGINS.some((origin) => url.href.startsWith(origin))) {
 		throw new Error("Disallowed weather API host");
 	}
 

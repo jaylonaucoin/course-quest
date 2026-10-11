@@ -8,15 +8,8 @@ const sharedConfig = {
 		"@expo/vector-icons/MaterialIcons": "<rootDir>/__mocks__/@expo/vector-icons.js",
 		"@expo/vector-icons/Ionicons": "<rootDir>/__mocks__/@expo/vector-icons.js",
 	},
-	testMatch: [
-		"**/__tests__/**/*.[jt]s?(x)",
-		"**/?(*.)+(spec|test).[jt]s?(x)",
-	],
-	collectCoverageFrom: [
-		"src/**/*.{js,jsx}",
-		"!src/**/*.test.{js,jsx}",
-		"!**/node_modules/**",
-	],
+	testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
+	collectCoverageFrom: ["src/**/*.{js,jsx}", "!src/**/*.test.{js,jsx}", "!**/node_modules/**"],
 };
 
 module.exports = {
@@ -25,14 +18,8 @@ module.exports = {
 			...sharedConfig,
 			displayName: "node",
 			preset: "jest-expo/node",
-			testMatch: [
-				"<rootDir>/src/utils/**/*.test.[jt]s?(x)",
-			],
-			testPathIgnorePatterns: [
-				"ThemeProvider.test",
-				"NetworkProvider.test",
-				"ToastContext.test",
-			],
+			testMatch: ["<rootDir>/src/utils/**/*.test.[jt]s?(x)"],
+			testPathIgnorePatterns: ["ThemeProvider.test", "NetworkProvider.test", "ToastContext.test"],
 			testEnvironment: "node",
 		},
 		{

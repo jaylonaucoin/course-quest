@@ -13,6 +13,8 @@ describe("Map E2E", () => {
 
 	it("should show round markers when rounds exist", async () => {
 		await element(by.id("map-tab")).tap();
-		await waitFor(element(by.id("map-marker"))).toBeVisible().withTimeout(5000);
+		await waitFor(element(by.id("map-marker")))
+			.toBeVisible()
+			.withTimeout(5000);
 	});
 });

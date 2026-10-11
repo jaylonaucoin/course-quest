@@ -27,7 +27,7 @@ describe("NetworkProvider", () => {
 		render(
 			<NetworkProvider>
 				<TestConsumer />
-			</NetworkProvider>
+			</NetworkProvider>,
 		);
 		await screen.findByTestId("is-online");
 		expect(screen.getByTestId("is-online").textContent).toBe("true");
@@ -42,7 +42,7 @@ describe("NetworkProvider", () => {
 		render(
 			<NetworkProvider>
 				<TestConsumer />
-			</NetworkProvider>
+			</NetworkProvider>,
 		);
 		await screen.findByTestId("show-banner");
 		expect(screen.getByTestId("show-banner").textContent).toBe("true");

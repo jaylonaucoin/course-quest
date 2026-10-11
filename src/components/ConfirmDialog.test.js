@@ -45,13 +45,7 @@ describe("ConfirmDialog", () => {
 	it("calls onDismiss when Cancel button pressed", () => {
 		const onDismiss = jest.fn();
 		const { getByText } = render(
-			<ConfirmDialog
-				visible
-				onDismiss={onDismiss}
-				onConfirm={jest.fn()}
-				title="Delete"
-				message="Sure?"
-			/>,
+			<ConfirmDialog visible onDismiss={onDismiss} onConfirm={jest.fn()} title="Delete" message="Sure?" />,
 			{ wrapper },
 		);
 		fireEvent.click(getByText("Cancel"));

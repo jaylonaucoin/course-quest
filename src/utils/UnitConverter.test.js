@@ -1,9 +1,4 @@
-import {
-	convertTemperature,
-	convertWindSpeed,
-	convertPrecipitation,
-	formatValueWithPrecision,
-} from "./UnitConverter";
+import { convertTemperature, convertWindSpeed, convertPrecipitation, formatValueWithPrecision } from "./UnitConverter";
 
 describe("convertTemperature", () => {
 	it("returns same value when units are equal", () => {

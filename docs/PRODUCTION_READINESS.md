@@ -21,6 +21,7 @@
 ## Current Feature Set
 
 ### Authentication & User Management
+
 - [x] Email/password authentication with Firebase
 - [x] Apple Sign-In integration (implemented, hidden until Apple Developer account ready)
 - [x] Password reset via email
@@ -30,6 +31,7 @@
 - [x] Profile management (name, bio, profile picture, home course)
 
 ### Core Functionality
+
 - [x] Golf round logging (course, date, score, tees, holes, notes, images)
 - [x] Google Places API integration for course search
 - [x] Automatic weather data capture (Open-Meteo API)
@@ -41,6 +43,7 @@
 - [x] Pull-to-refresh on lists
 
 ### Data Storage
+
 - [x] Firebase Firestore for data persistence
 - [x] Firebase Storage for images
 - [x] AsyncStorage for local caching and preferences
@@ -56,6 +59,7 @@
 **Status:** RESOLVED (Feature hidden until Apple Developer account is set up)
 
 **Fixes Applied:**
+
 - Imported `OAuthProvider` and `signInWithCredential` correctly from firebase/auth
 - Added Firestore user document creation for Apple Sign-In users using existing `setUser()` function
 - Added name prompt modal for cases where Apple doesn't provide displayName (subsequent logins)
@@ -70,19 +74,21 @@
 **Status:** RESOLVED
 
 **Fixes Applied:**
+
 - Enabled Firestore offline persistence in `firebaseConfig.js` using `enableIndexedDbPersistence()`
 - Created `NetworkProvider` context (`src/utils/NetworkProvider.js`) for network state management using `@react-native-community/netinfo`
 - Created `OfflineBanner` component (`src/components/OfflineBanner.js`) - animated banner that shows when offline
 - Updated `DataController.js` with cache-first reading strategy:
-  - `getUser()`, `getRounds()`, `getUnits()` now return cached data immediately and sync in background
-  - Added `getCachedRounds()` for offline-only access
-  - Added `clearCache()` for logout cleanup
-  - Background sync functions automatically update cache when online
+    - `getUser()`, `getRounds()`, `getUnits()` now return cached data immediately and sync in background
+    - Added `getCachedRounds()` for offline-only access
+    - Added `clearCache()` for logout cleanup
+    - Background sync functions automatically update cache when online
 - Added offline indicator to TabNavigator
 - Added offline warnings to AddRoundScreen and EditRoundScreen (these require network for Google Places and Weather APIs)
 - Firestore automatically queues write operations when offline and syncs when connectivity returns
 
 **Files Changed:**
+
 - `firebaseConfig.js` - Enable Firestore persistence
 - `src/utils/NetworkProvider.js` - NEW: Network context provider
 - `src/components/OfflineBanner.js` - NEW: Offline indicator banner
@@ -101,12 +107,14 @@
 **Problem:** Rounds are deleted immediately without confirmation dialog.
 
 **Fix Required:**
+
 ```javascript
 // Add confirmation dialog before calling deleteRound()
 // Use React Native Paper's Dialog component
 ```
 
 **Affected Files:**
+
 - `src/screens/HomeScreen.js`
 - `src/screens/RoundScreen.js`
 
@@ -117,6 +125,7 @@
 **Problem:** `alert()` is used throughout the app, which looks inconsistent across platforms.
 
 **Files Affected:**
+
 - `src/screens/AuthScreen.js`
 - `src/screens/AddRoundScreen.js`
 - `src/screens/EditRoundScreen.js`
@@ -141,6 +150,7 @@
 **Problem:** Some errors are only logged to console, not shown to users.
 
 **Example (HomeScreen.js lines 48-51):**
+
 ```javascript
 } catch (error) {
     console.error("Error fetching rounds:", error);
@@ -155,35 +165,35 @@
 
 ### High Priority (MVP Requirements)
 
-| Feature | Description | Complexity |
-|---------|-------------|------------|
-| **Statistics Dashboard** | Average score, total rounds, best/worst scores, rounds per month chart | Medium |
-| **Handicap Tracking** | Calculate and display handicap index based on recent rounds | Medium |
-| **Course Par Information** | Store par for each course to show over/under par | Low |
-| **Search/Filter Rounds** | Search by course name, filter by date range | Low |
-| **Data Export** | Export rounds to CSV/JSON for backup | Low |
-| **Delete Confirmation** | Confirmation dialog before deleting rounds | Low |
+| Feature                    | Description                                                            | Complexity |
+| -------------------------- | ---------------------------------------------------------------------- | ---------- |
+| **Statistics Dashboard**   | Average score, total rounds, best/worst scores, rounds per month chart | Medium     |
+| **Handicap Tracking**      | Calculate and display handicap index based on recent rounds            | Medium     |
+| **Course Par Information** | Store par for each course to show over/under par                       | Low        |
+| **Search/Filter Rounds**   | Search by course name, filter by date range                            | Low        |
+| **Data Export**            | Export rounds to CSV/JSON for backup                                   | Low        |
+| **Delete Confirmation**    | Confirmation dialog before deleting rounds                             | Low        |
 
 ### Medium Priority (Post-MVP)
 
-| Feature | Description | Complexity |
-|---------|-------------|------------|
-| **Hole-by-Hole Scoring** | Track score for each individual hole | High |
-| **Putts/GIR/Fairways** | Track common golf statistics per round | Medium |
-| **Playing Partners** | Log who you played with | Low |
-| **Course Favorites** | Quick access to frequently played courses | Low |
-| **Round Comparison** | Compare performance on same course over time | Medium |
-| **Goals/Achievements** | Gamification (badges, streaks, goals) | Medium |
+| Feature                  | Description                                  | Complexity |
+| ------------------------ | -------------------------------------------- | ---------- |
+| **Hole-by-Hole Scoring** | Track score for each individual hole         | High       |
+| **Putts/GIR/Fairways**   | Track common golf statistics per round       | Medium     |
+| **Playing Partners**     | Log who you played with                      | Low        |
+| **Course Favorites**     | Quick access to frequently played courses    | Low        |
+| **Round Comparison**     | Compare performance on same course over time | Medium     |
+| **Goals/Achievements**   | Gamification (badges, streaks, goals)        | Medium     |
 
 ### Lower Priority (Nice to Have)
 
-| Feature | Description | Complexity |
-|---------|-------------|------------|
-| **Social Features** | Share rounds, follow friends | High |
-| **Practice Sessions** | Log practice time at range/putting green | Medium |
-| **Equipment Tracking** | Track clubs used, ball type | Low |
-| **Push Notifications** | Reminders, achievements | Medium |
-| **Tee Time Integration** | Book tee times from app | High |
+| Feature                  | Description                              | Complexity |
+| ------------------------ | ---------------------------------------- | ---------- |
+| **Social Features**      | Share rounds, follow friends             | High       |
+| **Practice Sessions**    | Log practice time at range/putting green | Medium     |
+| **Equipment Tracking**   | Track clubs used, ball type              | Low        |
+| **Push Notifications**   | Reminders, achievements                  | Medium     |
+| **Tee Time Integration** | Book tee times from app                  | High       |
 
 ---
 
@@ -194,6 +204,7 @@
 **Problem:** New users land directly on empty screens with no guidance.
 
 **Solution:** Create a 3-4 screen onboarding flow explaining:
+
 - What the app does
 - How to add your first round
 - Key features (map, weather tracking)
@@ -213,11 +224,13 @@
 ### 3. Input Validation
 
 **Problems:**
+
 - Score field accepts any number (should validate 18-200 range)
 - Tees field is free text (should be dropdown or suggestions)
 - No character limits on notes/bio fields
 
 **Files to Update:**
+
 - `src/screens/AddRoundScreen.js`
 - `src/screens/EditRoundScreen.js`
 - `src/screens/EditAccountScreen.js`
@@ -238,6 +251,7 @@
 **Problem:** Limited accessibility support.
 
 **Solution:**
+
 - Add proper `accessibilityLabel` props
 - Ensure adequate color contrast
 - Support screen readers
@@ -255,22 +269,22 @@
 ```javascript
 // src/components/ErrorBoundary.js
 class ErrorBoundary extends React.Component {
-  state = { hasError: false };
-  
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-  
-  componentDidCatch(error, errorInfo) {
-    // Log to error reporting service
-  }
-  
-  render() {
-    if (this.state.hasError) {
-      return <FallbackScreen onRetry={() => this.setState({ hasError: false })} />;
-    }
-    return this.props.children;
-  }
+	state = { hasError: false };
+
+	static getDerivedStateFromError(error) {
+		return { hasError: true };
+	}
+
+	componentDidCatch(error, errorInfo) {
+		// Log to error reporting service
+	}
+
+	render() {
+		if (this.state.hasError) {
+			return <FallbackScreen onRetry={() => this.setState({ hasError: false })} />;
+		}
+		return this.props.children;
+	}
 }
 ```
 
@@ -291,6 +305,7 @@ class ErrorBoundary extends React.Component {
 **Problem:** Similar code exists in multiple screens (e.g., round card rendering in HomeScreen, RoundScreen, AccountScreen)
 
 **Solution:** Extract shared components:
+
 - `RoundCard` component
 - `ConfirmDialog` component
 - Custom hooks for data fetching
@@ -304,9 +319,9 @@ class ErrorBoundary extends React.Component {
 ```javascript
 // src/utils/errorHandler.js
 export function handleError(error, userMessage = "Something went wrong") {
-  console.error(error);
-  // Show snackbar/toast with userMessage
-  // Optionally report to error tracking service
+	console.error(error);
+	// Show snackbar/toast with userMessage
+	// Optionally report to error tracking service
 }
 ```
 
@@ -325,19 +340,21 @@ export function handleError(error, userMessage = "Something went wrong") {
 ### 1. Firestore Security Rules
 
 Ensure rules enforce:
+
 - Users can only read/write their own data
 - Data structure validation on writes
 - Size limits on uploads
 - Rate limiting considerations
 
 **Example Rules:**
+
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      
+
       match /rounds/{roundId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
@@ -351,6 +368,7 @@ service cloud.firestore {
 ### 2. API Key Protection
 
 **Google Places API Key:**
+
 - Add HTTP referrer restrictions in Google Cloud Console
 - Add API restrictions (only Places API)
 - Consider using a backend proxy for API calls
@@ -360,6 +378,7 @@ service cloud.firestore {
 ### 3. Storage Security Rules
 
 Ensure Firebase Storage rules:
+
 - Users can only access their own images
 - File type validation (images only)
 - File size limits
@@ -371,6 +390,7 @@ Ensure Firebase Storage rules:
 **Current:** Using react-native-dotenv
 
 **Verify:**
+
 - `.env` is in `.gitignore`
 - No secrets committed to repository
 - Production keys are different from development
@@ -417,35 +437,38 @@ Ensure Firebase Storage rules:
 ## File Reference
 
 ### Screens
-| File | Purpose |
-|------|---------|
-| `src/screens/AuthScreen.js` | Login/Register |
-| `src/screens/HomeScreen.js` | Main feed with recent rounds |
-| `src/screens/RoundScreen.js` | All rounds list |
-| `src/screens/AddRoundScreen.js` | Add new round form |
-| `src/screens/EditRoundScreen.js` | Edit existing round |
-| `src/screens/MapScreen.js` | Map view of all rounds |
-| `src/screens/AccountScreen.js` | User profile view |
-| `src/screens/EditAccountScreen.js` | Edit profile |
-| `src/screens/SettingsScreen.js` | App settings |
+
+| File                               | Purpose                      |
+| ---------------------------------- | ---------------------------- |
+| `src/screens/AuthScreen.js`        | Login/Register               |
+| `src/screens/HomeScreen.js`        | Main feed with recent rounds |
+| `src/screens/RoundScreen.js`       | All rounds list              |
+| `src/screens/AddRoundScreen.js`    | Add new round form           |
+| `src/screens/EditRoundScreen.js`   | Edit existing round          |
+| `src/screens/MapScreen.js`         | Map view of all rounds       |
+| `src/screens/AccountScreen.js`     | User profile view            |
+| `src/screens/EditAccountScreen.js` | Edit profile                 |
+| `src/screens/SettingsScreen.js`    | App settings                 |
 
 ### Utilities
-| File | Purpose |
-|------|---------|
-| `src/utils/DataController.js` | Firebase CRUD operations |
-| `src/utils/APIController.js` | External API calls (Google, Weather) |
-| `src/utils/ThemeProvider.js` | Theme context and styling |
-| `src/utils/UnitConverter.js` | Unit conversion utilities |
-| `src/utils/TabNavigator.js` | Navigation structure |
+
+| File                          | Purpose                              |
+| ----------------------------- | ------------------------------------ |
+| `src/utils/DataController.js` | Firebase CRUD operations             |
+| `src/utils/APIController.js`  | External API calls (Google, Weather) |
+| `src/utils/ThemeProvider.js`  | Theme context and styling            |
+| `src/utils/UnitConverter.js`  | Unit conversion utilities            |
+| `src/utils/TabNavigator.js`   | Navigation structure                 |
 
 ### Components
-| File | Purpose |
-|------|---------|
-| `src/components/Input.js` | Reusable form input |
-| `src/components/Modal.js` | Reusable modal |
-| `src/components/Header.js` | App header |
-| `src/components/WeatherIcon.js` | Weather display component |
-| `src/components/ImageGallery.js` | Image gallery component |
+
+| File                             | Purpose                   |
+| -------------------------------- | ------------------------- |
+| `src/components/Input.js`        | Reusable form input       |
+| `src/components/Modal.js`        | Reusable modal            |
+| `src/components/Header.js`       | App header                |
+| `src/components/WeatherIcon.js`  | Weather display component |
+| `src/components/ImageGallery.js` | Image gallery component   |
 
 ---
 
@@ -466,6 +489,7 @@ When working on this codebase:
 ### Phase 1 Implementation (March 2026)
 
 New files added:
+
 - `src/components/ErrorBoundary.js` - React error boundary with fallback UI
 - `src/components/ConfirmDialog.js` - Reusable confirmation dialog
 - `src/utils/ToastContext.js` - Snackbar-based toast notifications
@@ -473,4 +497,4 @@ New files added:
 
 ---
 
-*Last Updated: March 15, 2026*
+_Last Updated: March 15, 2026_

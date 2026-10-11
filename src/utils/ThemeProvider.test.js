@@ -29,11 +29,7 @@ function TestConsumer() {
 }
 
 function wrapper({ children }) {
-	return (
-		<ThemeProvider>
-			{children}
-		</ThemeProvider>
-	);
+	return <ThemeProvider>{children}</ThemeProvider>;
 }
 
 describe("ThemeProvider", () => {
@@ -41,7 +37,7 @@ describe("ThemeProvider", () => {
 		render(
 			<ThemeProvider>
 				<TestConsumer />
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 		await screen.findByTestId("theme-mode");
 		expect(screen.getByTestId("theme-mode").textContent).toMatch(/light|dark/);
@@ -51,7 +47,7 @@ describe("ThemeProvider", () => {
 		render(
 			<ThemeProvider>
 				<TestConsumer />
-			</ThemeProvider>
+			</ThemeProvider>,
 		);
 		expect(screen.getByText("Toggle Dark")).toBeInTheDocument();
 		expect(screen.getByText("Toggle Light")).toBeInTheDocument();

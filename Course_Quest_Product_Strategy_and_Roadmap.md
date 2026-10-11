@@ -39,14 +39,14 @@ It records the vision without treating every idea as a committed requirement. A 
 
 ### Status vocabulary
 
-| Label | Meaning |
-|---|---|
-| **Current** | Observed in the GitHub source reviewed on September 30, 2026; runtime behavior may still require verification. |
-| **Proposed** | An improvement Jaylon explicitly raised. |
-| **Recommended** | A suggested product or engineering approach; not yet a final decision. |
-| **Open** | A question requiring a choice, research, or user validation. |
-| **Validated** | Supported by recorded user behavior, production results, or completed testing. Do not use this label without evidence. |
-| **Deferred** | Deliberately excluded from the current milestone; may be reconsidered. |
+| Label           | Meaning                                                                                                                |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Current**     | Observed in the GitHub source reviewed on September 30, 2026; runtime behavior may still require verification.         |
+| **Proposed**    | An improvement Jaylon explicitly raised.                                                                               |
+| **Recommended** | A suggested product or engineering approach; not yet a final decision.                                                 |
+| **Open**        | A question requiring a choice, research, or user validation.                                                           |
+| **Validated**   | Supported by recorded user behavior, production results, or completed testing. Do not use this label without evidence. |
+| **Deferred**    | Deliberately excluded from the current milestone; may be reconsidered.                                                 |
 
 ### Evidence boundaries
 
@@ -89,12 +89,12 @@ This is a hypothesis, not evidence of willingness to pay.
 
 ## 3. Audience and jobs to be done
 
-| Audience | What they want | Relevant product capabilities |
-|---|---|---|
-| Course collectors and golf travelers | Remember where they played and plan where to go next | Passport, unique-course map, photos, wishlists, trip collections |
-| Recreational golfers interested in improvement | Understand distances, mistakes, and opportunities without complicated tools | Simple scoring, shots, club statistics, post-round insights |
-| Watch-owning golfers | Record useful information without repeatedly taking out their phone | Wrist scoring, manual shot marking, yardages where supported |
-| Regular golf groups | Share experiences and follow their usual playing partners | Friends, shared rounds, comments, group visibility |
+| Audience                                       | What they want                                                              | Relevant product capabilities                                    |
+| ---------------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Course collectors and golf travelers           | Remember where they played and plan where to go next                        | Passport, unique-course map, photos, wishlists, trip collections |
+| Recreational golfers interested in improvement | Understand distances, mistakes, and opportunities without complicated tools | Simple scoring, shots, club statistics, post-round insights      |
+| Watch-owning golfers                           | Record useful information without repeatedly taking out their phone         | Wrist scoring, manual shot marking, yardages where supported     |
+| Regular golf groups                            | Share experiences and follow their usual playing partners                   | Friends, shared rounds, comments, group visibility               |
 
 **Recommended initial audience:** golfers who play multiple courses and enjoy preserving their experiences. This is closest to the current app and offers a smaller initial scope.
 
@@ -112,20 +112,20 @@ Important user tasks:
 
 ## 4. Current product baseline
 
-| Area | Current source-level capability | Qualification |
-|---|---|---|
-| Mobile foundation | React Native with Expo, Firebase, and React Native Paper | React Native/Expo development foundation exists; release behavior needs device testing. |
-| Accounts | Email/password authentication and account-management screens | Production-readiness document also describes password reset, verification, reauthentication, and deletion. Verify end-to-end. |
-| Apple sign-in | Implementation described in the readiness document | Document says its UI is hidden pending Apple Developer setup; do not call it enabled or release-ready. |
-| Round journal | Course, date, score, tees, holes, notes, and photos | Adding a round requires score and tees, and selection of a searchable course. |
-| Feed | Personal rounds with photos, notes, score, and weather | Not a social feed. |
-| Map | Clustered markers generated from saved rounds | A marker represents a round, rather than an explicitly modeled unique course collection. |
-| Course lookup | Google Places search and course-location details | Not a hole-layout or golf-scorecard database. |
-| Weather | Open-Meteo forecast/archive requests | Weather enrichment is coupled to the add-round flow. Commercial service access needs review. |
-| Persistence | Firestore, Firebase Storage, and local caching code | Offline claims in the readiness document need native-device verification; adding rounds depends on network APIs. |
-| Preferences | Themes and measurement-unit support | Readiness document records hardcoded units in map callouts as an outstanding issue. |
-| Monetization | No purchase implementation identified in the reviewed files | No demonstrated payment, entitlement, or subscription flow. |
-| Advanced features | No implementation identified for the proposed social network, live shot tracking, watch companion, or AI caddie | These remain proposed scope. |
+| Area              | Current source-level capability                                                                                 | Qualification                                                                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Mobile foundation | React Native with Expo, Firebase, and React Native Paper                                                        | React Native/Expo development foundation exists; release behavior needs device testing.                                       |
+| Accounts          | Email/password authentication and account-management screens                                                    | Production-readiness document also describes password reset, verification, reauthentication, and deletion. Verify end-to-end. |
+| Apple sign-in     | Implementation described in the readiness document                                                              | Document says its UI is hidden pending Apple Developer setup; do not call it enabled or release-ready.                        |
+| Round journal     | Course, date, score, tees, holes, notes, and photos                                                             | Adding a round requires score and tees, and selection of a searchable course.                                                 |
+| Feed              | Personal rounds with photos, notes, score, and weather                                                          | Not a social feed.                                                                                                            |
+| Map               | Clustered markers generated from saved rounds                                                                   | A marker represents a round, rather than an explicitly modeled unique course collection.                                      |
+| Course lookup     | Google Places search and course-location details                                                                | Not a hole-layout or golf-scorecard database.                                                                                 |
+| Weather           | Open-Meteo forecast/archive requests                                                                            | Weather enrichment is coupled to the add-round flow. Commercial service access needs review.                                  |
+| Persistence       | Firestore, Firebase Storage, and local caching code                                                             | Offline claims in the readiness document need native-device verification; adding rounds depends on network APIs.              |
+| Preferences       | Themes and measurement-unit support                                                                             | Readiness document records hardcoded units in map callouts as an outstanding issue.                                           |
+| Monetization      | No purchase implementation identified in the reviewed files                                                     | No demonstrated payment, entitlement, or subscription flow.                                                                   |
+| Advanced features | No implementation identified for the proposed social network, live shot tracking, watch companion, or AI caddie | These remain proposed scope.                                                                                                  |
 
 ### Highest-impact product gap
 
@@ -141,14 +141,14 @@ Use that document as an input to a fresh release audit, not as proof that older 
 
 ## 5. Competitive context and differentiation
 
-| Product | Relevant overlap | Implication for Course Quest |
-|---|---|---|
-| Birdied | Free played-course tracking, rounds, wishlists, world map, country stamps, and exports | Basic passport tracking faces a free substitute. [S1] |
-| Course Vaults | Course passports, reviews, maps, friends, and discovery | Course collecting and social discovery already have direct competitors. [S2] |
+| Product              | Relevant overlap                                                                                                               | Implication for Course Quest                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Birdied              | Free played-course tracking, rounds, wishlists, world map, country stamps, and exports                                         | Basic passport tracking faces a free substitute. [S1]                                                              |
+| Course Vaults        | Course passports, reviews, maps, friends, and discovery                                                                        | Course collecting and social discovery already have direct competitors. [S2]                                       |
 | Golf Course Passport | Photos, course maps, achievements, and trip planning; Canadian listing includes annual purchase options at C$19.99 and C$24.99 | Supports comparison with paid passport products, but listed products do not establish sales or profitability. [S3] |
-| 18Birdies | Community features, watch swing detection, and personalized club recommendations using distances and conditions | Combining social, tracking, and caddie functionality is not itself a unique proposition. [S4–S6] |
-| Golfshot | Automatic Apple Watch shot tracking and related on-course functionality | Watch automation competes with established products. [S7] |
-| Golf Canada | GPS course maps, score/stat tracking, and official Handicap Index access | Official handicap services and local course utility are already represented. [S8] |
+| 18Birdies            | Community features, watch swing detection, and personalized club recommendations using distances and conditions                | Combining social, tracking, and caddie functionality is not itself a unique proposition. [S4–S6]                   |
+| Golfshot             | Automatic Apple Watch shot tracking and related on-course functionality                                                        | Watch automation competes with established products. [S7]                                                          |
+| Golf Canada          | GPS course maps, score/stat tracking, and official Handicap Index access                                                       | Official handicap services and local course utility are already represented. [S8]                                  |
 
 ### Recommended differentiation hypotheses
 
@@ -237,13 +237,13 @@ Moderation, notifications, abuse prevention, feed costs, and privacy are ongoing
 
 ### Recommended progression
 
-| Stage | Capability | Purpose |
-|---|---|---|
-| 1 | Hole-by-hole scores, putts, and penalties | Establish a dependable live-round workflow. |
-| 2 | Manual shot marking with location, club, and optional lie/outcome | Gather understandable, correctable shot data. |
-| 3 | Club-distance summaries and shot history | Deliver value before automatic tracking or AI. |
-| 4 | Watch-assisted entry | Reduce phone interaction. |
-| 5 | Automatic swing detection with review and corrections | Reduce entry further without treating detections as perfect truth. |
+| Stage | Capability                                                        | Purpose                                                            |
+| ----- | ----------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 1     | Hole-by-hole scores, putts, and penalties                         | Establish a dependable live-round workflow.                        |
+| 2     | Manual shot marking with location, club, and optional lie/outcome | Gather understandable, correctable shot data.                      |
+| 3     | Club-distance summaries and shot history                          | Deliver value before automatic tracking or AI.                     |
+| 4     | Watch-assisted entry                                              | Reduce phone interaction.                                          |
+| 5     | Automatic swing detection with review and corrections             | Reduce entry further without treating detections as perfect truth. |
 
 ### Important distinctions
 
@@ -335,13 +335,13 @@ Give advice grounded in the golfer’s own history and current situation, rather
 
 Potential context:
 
-| Context | Examples | Reliability requirement |
-|---|---|---|
-| Player | Clubs, typical distances, dispersion, recurring misses, preferences | Record sample size and distinguish supplied estimates from measured data. |
-| Round | Hole, tee, score, penalties, recent shots | Use current, reconciled round state. |
-| Position and target | GPS position, selected target, green/hazard geometry | Account for accuracy and whether exact pin position is known. |
-| Conditions | Wind, temperature, elevation, course conditions | Record freshness and source; local conditions may differ. |
-| Situation | Lie, obstacles, recovery needs, intended risk level | Ask the user where it cannot be observed reliably. |
+| Context             | Examples                                                            | Reliability requirement                                                   |
+| ------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Player              | Clubs, typical distances, dispersion, recurring misses, preferences | Record sample size and distinguish supplied estimates from measured data. |
+| Round               | Hole, tee, score, penalties, recent shots                           | Use current, reconciled round state.                                      |
+| Position and target | GPS position, selected target, green/hazard geometry                | Account for accuracy and whether exact pin position is known.             |
+| Conditions          | Wind, temperature, elevation, course conditions                     | Record freshness and source; local conditions may differ.                 |
+| Situation           | Lie, obstacles, recovery needs, intended risk level                 | Ask the user where it cannot be observed reliably.                        |
 
 ### Example intended outcome
 
@@ -361,13 +361,13 @@ Do not delegate basic score arithmetic, geospatial measurements, or authoritativ
 
 ### Recommended progression
 
-| Stage | Experience | Why start here |
-|---|---|---|
-| A | Post-round summary based on scores and recorded statistics | Easier to inspect and less dependent on live course geometry. |
-| B | Personal distance and tendency explanations based on shots | Builds useful individualized context. |
-| C | Before-round preparation and course-specific suggestions | Requires suitable course information and history. |
-| D | Situational recommendations during play | Requires dependable live state, geometry, latency, and data quality. |
-| E | Watch-based caddie interaction | Adds constrained UI, connectivity, and potentially voice requirements. |
+| Stage | Experience                                                 | Why start here                                                         |
+| ----- | ---------------------------------------------------------- | ---------------------------------------------------------------------- |
+| A     | Post-round summary based on scores and recorded statistics | Easier to inspect and less dependent on live course geometry.          |
+| B     | Personal distance and tendency explanations based on shots | Builds useful individualized context.                                  |
+| C     | Before-round preparation and course-specific suggestions   | Requires suitable course information and history.                      |
+| D     | Situational recommendations during play                    | Requires dependable live state, geometry, latency, and data quality.   |
+| E     | Watch-based caddie interaction                             | Adds constrained UI, connectivity, and potentially voice requirements. |
 
 A score-only summary must not claim to know whether putting, driving, or approach play caused the result. Advice specificity must match data specificity.
 
@@ -414,12 +414,12 @@ Evaluate data providers by coverage, accuracy, commercial rights, offline rights
 
 ### Candidate approaches
 
-| Approach | Benefit | Tradeoff |
-|---|---|---|
-| Licensed specialist data | Potentially faster coverage | Price, contract limitations, and dependence on provider quality |
-| Open geospatial sources | Potentially useful foundation | Uneven completeness and license/attribution obligations |
-| Own mapping for a limited launch region | Direct quality control | Significant maintenance and limited initial coverage |
-| User contributions | Can fill gaps | Verification, moderation, rights, and correction responsibilities |
+| Approach                                | Benefit                       | Tradeoff                                                          |
+| --------------------------------------- | ----------------------------- | ----------------------------------------------------------------- |
+| Licensed specialist data                | Potentially faster coverage   | Price, contract limitations, and dependence on provider quality   |
+| Open geospatial sources                 | Potentially useful foundation | Uneven completeness and license/attribution obligations           |
+| Own mapping for a limited launch region | Direct quality control        | Significant maintenance and limited initial coverage              |
+| User contributions                      | Can fill gaps                 | Verification, moderation, rights, and correction responsibilities |
 
 No supplier has been selected. Do not build a global-coverage promise before validating actual coverage.
 
@@ -444,33 +444,33 @@ Golf Canada states that use of its administered World Handicap System and Course
 
 ### Architecture boundaries
 
-| Component | Responsibility |
-|---|---|
-| Phone app | Journal, map, round UI, editing, settings, social interactions |
-| Native watch app | Wrist interaction, location/sensor events, pending local data |
-| Backend | Authentication enforcement, authorized data access, social operations, provider mediation, entitlements |
-| Data integrations | Course data, weather, and any later authorized handicap integration |
-| Statistics/strategy layer | Deterministic measurements, aggregates, quality checks, and recommendation inputs |
-| AI layer | Grounded explanations and summaries with controlled usage |
+| Component                 | Responsibility                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Phone app                 | Journal, map, round UI, editing, settings, social interactions                                          |
+| Native watch app          | Wrist interaction, location/sensor events, pending local data                                           |
+| Backend                   | Authentication enforcement, authorized data access, social operations, provider mediation, entitlements |
+| Data integrations         | Course data, weather, and any later authorized handicap integration                                     |
+| Statistics/strategy layer | Deterministic measurements, aggregates, quality checks, and recommendation inputs                       |
+| AI layer                  | Grounded explanations and summaries with controlled usage                                               |
 
 Retaining Firebase is a reasonable starting option, not a final architectural constraint. Evaluate new requirements before either expanding the current backend or migrating it. Protect billable/provider secrets and enforce access on trusted server-side paths where needed.
 
 ### Conceptual entities
 
-| Entity | Purpose |
-|---|---|
-| User/profile | Identity, preferences, privacy settings, golf bag references |
-| Course/facility | Stable identity, provider references, provenance, permitted geometry |
-| Played-course entry | Course collection independent of a scored round; supports uncertain historical dates |
-| Round/hole result | Active/completed state, tees, scores, putts, penalties, conditions |
-| Shot | Confirmed shot, club, position, type, outcome, measurement quality |
-| Sensor event | Raw watch detection distinct from a confirmed shot |
-| Club | User bag, supplied distances, observed statistics, sample counts |
-| Collection/wishlist | User-organized courses and trip plans |
-| Social post | Deliberately shared projection of journal/round content |
-| Connection/comment/reaction/report | Social relationships, interactions, and moderation |
-| Caddie result | Input references, model/logic version, supported output, uncertainty |
-| Entitlement | Verified paid capabilities and subscription state |
+| Entity                             | Purpose                                                                              |
+| ---------------------------------- | ------------------------------------------------------------------------------------ |
+| User/profile                       | Identity, preferences, privacy settings, golf bag references                         |
+| Course/facility                    | Stable identity, provider references, provenance, permitted geometry                 |
+| Played-course entry                | Course collection independent of a scored round; supports uncertain historical dates |
+| Round/hole result                  | Active/completed state, tees, scores, putts, penalties, conditions                   |
+| Shot                               | Confirmed shot, club, position, type, outcome, measurement quality                   |
+| Sensor event                       | Raw watch detection distinct from a confirmed shot                                   |
+| Club                               | User bag, supplied distances, observed statistics, sample counts                     |
+| Collection/wishlist                | User-organized courses and trip plans                                                |
+| Social post                        | Deliberately shared projection of journal/round content                              |
+| Connection/comment/reaction/report | Social relationships, interactions, and moderation                                   |
+| Caddie result                      | Input references, model/logic version, supported output, uncertainty                 |
+| Entitlement                        | Verified paid capabilities and subscription state                                    |
 
 ### Design principles
 
@@ -492,11 +492,11 @@ The expanded vision could justify higher willingness to pay through repeated on-
 
 ### Recommended model to test
 
-| Layer | Potential scope | Decision status |
-|---|---|---|
-| Free | Useful basic passport, journal, and selected sharing/tracking features | Exact limits open; preserve enough value to establish a habit. |
-| Passport premium | Richer photo/trip experiences, collections, recaps, presentation options | C$19.99/year is an initial pricing hypothesis, not a selected launch price. |
-| Game/caddie premium | Advanced statistics, personalized analysis, eventual on-course caddie/automation | Packaging and price open; validate after these features are useful. |
+| Layer               | Potential scope                                                                  | Decision status                                                             |
+| ------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Free                | Useful basic passport, journal, and selected sharing/tracking features           | Exact limits open; preserve enough value to establish a habit.              |
+| Passport premium    | Richer photo/trip experiences, collections, recaps, presentation options         | C$19.99/year is an initial pricing hypothesis, not a selected launch price. |
+| Game/caddie premium | Advanced statistics, personalized analysis, eventual on-course caddie/automation | Packaging and price open; validate after these features are useful.         |
 
 Do not promise unlimited lifetime cloud storage or AI usage without modeling ongoing costs. A paid download or one-time upgrade remains an alternative for a smaller product, but recurring service expenses still need funding.
 
@@ -507,10 +507,10 @@ For App Store digital feature unlocks, design purchases and entitlements accordi
 These are arithmetic scenarios, not forecasts, market benchmarks, or a promise of achievable subscriber counts. The C$49.99 column illustrates sensitivity to price for a more capable product; it is not an approved price or demonstrated willingness to pay.
 
 | Paying annual subscribers | Gross at C$19.99/year | After 15% commission | Gross at C$49.99/year | After 15% commission |
-|---:|---:|---:|---:|---:|
-| 100 | C$1,999 | ≈ C$1,699 | C$4,999 | ≈ C$4,249 |
-| 500 | C$9,995 | ≈ C$8,496 | C$24,995 | ≈ C$21,246 |
-| 1,000 | C$19,990 | ≈ C$16,992 | C$49,990 | ≈ C$42,492 |
+| ------------------------: | --------------------: | -------------------: | --------------------: | -------------------: |
+|                       100 |               C$1,999 |            ≈ C$1,699 |               C$4,999 |            ≈ C$4,249 |
+|                       500 |               C$9,995 |            ≈ C$8,496 |              C$24,995 |           ≈ C$21,246 |
+|                     1,000 |              C$19,990 |           ≈ C$16,992 |              C$49,990 |           ≈ C$42,492 |
 
 The 15% commission assumes eligibility and approved enrollment in Apple’s Small Business Program. It is not automatic merely because revenue is small. [S11]
 
@@ -542,15 +542,15 @@ Advertising and partnerships are possible later options, not assumed launch inco
 
 This sequence is a recommendation. Dates, engineering estimates, release commitments, and budgets have not been selected.
 
-| Milestone | Scope | Exit evidence |
-|---|---|---|
-| M0 — Validate positioning | Interview golfers, compare alternatives, select first audience, research course data/costs | Clear problem statement and documented reasons users might choose Course Quest |
-| M1 — Useful passport release | Historical entry, unique courses, grouped visits, search, privacy, export, onboarding, essential release fixes | Real users can build their passport and return after another round |
-| M2 — Dependable live tracking | Hole scoring, manual shots, club bag, correction workflow, basic statistics | Complete rounds produce understandable and correctable data |
-| M3 — Personalized analysis | Grounded post-round summaries and distance/tendency explanations | Users find outputs useful; correctness and inference cost are measured |
-| M4 — Watch companion | Scoring and manual shots, sync recovery, battery testing | Full-round use on real watches with documented reliability |
-| M5 — Advanced tracking/caddie | Automatic detection, validated geometry, situational recommendations | Accuracy, correction burden, latency, and usefulness justify a paid offering |
-| M6 — Broader community/integrations | Larger social scope, additional watch platforms, potential official handicap integration | Adoption and authorized dependencies support expansion |
+| Milestone                           | Scope                                                                                                          | Exit evidence                                                                  |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| M0 — Validate positioning           | Interview golfers, compare alternatives, select first audience, research course data/costs                     | Clear problem statement and documented reasons users might choose Course Quest |
+| M1 — Useful passport release        | Historical entry, unique courses, grouped visits, search, privacy, export, onboarding, essential release fixes | Real users can build their passport and return after another round             |
+| M2 — Dependable live tracking       | Hole scoring, manual shots, club bag, correction workflow, basic statistics                                    | Complete rounds produce understandable and correctable data                    |
+| M3 — Personalized analysis          | Grounded post-round summaries and distance/tendency explanations                                               | Users find outputs useful; correctness and inference cost are measured         |
+| M4 — Watch companion                | Scoring and manual shots, sync recovery, battery testing                                                       | Full-round use on real watches with documented reliability                     |
+| M5 — Advanced tracking/caddie       | Automatic detection, validated geometry, situational recommendations                                           | Accuracy, correction burden, latency, and usefulness justify a paid offering   |
+| M6 — Broader community/integrations | Larger social scope, additional watch platforms, potential official handicap integration                       | Adoption and authorized dependencies support expansion                         |
 
 Lightweight sharing/friend features may move earlier if interviews show they drive adoption. M6 means broader community functionality, not a requirement to postpone every social feature until all caddie work is complete.
 
@@ -583,18 +583,18 @@ Treat “I would pay” as weaker evidence than an actual purchase. Track limite
 
 ### Metrics register
 
-| Metric | Definition to establish | What it helps answer |
-|---|---|---|
-| Activation | For example, completing a passport entry or first round; choose one definition | Do new users reach value? |
-| Next-round retention | Return/use after the next real playing opportunity | Does it become a golf habit? |
-| Passport completion | Historical entry success and courses added | Is onboarding rewarding or tedious? |
-| Round completion | Started rounds that produce usable completed records | Is tracking dependable? |
-| Correction burden | Manual corrections/time required for shots | Does automation save effort? |
-| Caddie quality | Groundedness, user usefulness, and inappropriate recommendations | Is advice trustworthy? |
-| Watch reliability | Sync failures, missing events, and measured battery consumption | Is wrist use practical? |
-| Paid conversion/renewal | Actual purchases and renewals with cohort definitions | Does value sustain payment? |
-| Service cost | Cost per free, paying, and AI-active user | Are margins sustainable? |
-| Social adoption | Invitations leading to active connections and meaningful sharing | Does social improve adoption? |
+| Metric                  | Definition to establish                                                        | What it helps answer                |
+| ----------------------- | ------------------------------------------------------------------------------ | ----------------------------------- |
+| Activation              | For example, completing a passport entry or first round; choose one definition | Do new users reach value?           |
+| Next-round retention    | Return/use after the next real playing opportunity                             | Does it become a golf habit?        |
+| Passport completion     | Historical entry success and courses added                                     | Is onboarding rewarding or tedious? |
+| Round completion        | Started rounds that produce usable completed records                           | Is tracking dependable?             |
+| Correction burden       | Manual corrections/time required for shots                                     | Does automation save effort?        |
+| Caddie quality          | Groundedness, user usefulness, and inappropriate recommendations               | Is advice trustworthy?              |
+| Watch reliability       | Sync failures, missing events, and measured battery consumption                | Is wrist use practical?             |
+| Paid conversion/renewal | Actual purchases and renewals with cohort definitions                          | Does value sustain payment?         |
+| Service cost            | Cost per free, paying, and AI-active user                                      | Are margins sustainable?            |
+| Social adoption         | Invitations leading to active connections and meaningful sharing               | Does social improve adoption?       |
 
 Golf is seasonal and intermittent. Define retention around playing opportunities as well as calendar periods. Do not interpret winter inactivity as identical to abandonment.
 
@@ -629,32 +629,32 @@ The existing Expo foundation does not require an automatic rewrite. Architecture
 
 ## 17. Risks and mitigations
 
-| Risk | Why it matters | Recommended response |
-|---|---|---|
-| Undifferentiated feature set | Incumbents already offer many proposed capabilities | Validate a concrete reason to choose Course Quest. |
-| Scope expansion | Five major pillars can consume development without proving demand | Deliver small milestones with measurable outcomes. |
-| Empty social experience | Value depends on other users joining | Preserve individual value and start with existing golf groups. |
-| Poor course coverage | Live distances and strategy depend on accurate geometry | Validate a focused coverage area before global claims. |
-| Tracking errors | Bad shots produce bad statistics and advice | Make correction easy and preserve provenance/confidence. |
-| Persuasive but incorrect AI | Users may trust fluent explanations unsupported by data | Calculate facts separately and evaluate groundedness. |
-| Watch battery/sync problems | A full round is a demanding reliability test | Start manual, test on hardware, and persist pending events. |
-| Thin subscription margins | Photos, data, weather, and inference cost money | Model free-user load, heavy use, and fixed expenses. |
-| Partnership dependency | Access may be unavailable or slow | Keep the initial product useful without a Golf Canada agreement. |
-| Privacy/moderation burden | Social, location, and Health data broaden responsibilities | Build explicit visibility and required operational tooling. |
+| Risk                         | Why it matters                                                    | Recommended response                                             |
+| ---------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Undifferentiated feature set | Incumbents already offer many proposed capabilities               | Validate a concrete reason to choose Course Quest.               |
+| Scope expansion              | Five major pillars can consume development without proving demand | Deliver small milestones with measurable outcomes.               |
+| Empty social experience      | Value depends on other users joining                              | Preserve individual value and start with existing golf groups.   |
+| Poor course coverage         | Live distances and strategy depend on accurate geometry           | Validate a focused coverage area before global claims.           |
+| Tracking errors              | Bad shots produce bad statistics and advice                       | Make correction easy and preserve provenance/confidence.         |
+| Persuasive but incorrect AI  | Users may trust fluent explanations unsupported by data           | Calculate facts separately and evaluate groundedness.            |
+| Watch battery/sync problems  | A full round is a demanding reliability test                      | Start manual, test on hardware, and persist pending events.      |
+| Thin subscription margins    | Photos, data, weather, and inference cost money                   | Model free-user load, heavy use, and fixed expenses.             |
+| Partnership dependency       | Access may be unavailable or slow                                 | Keep the initial product useful without a Golf Canada agreement. |
+| Privacy/moderation burden    | Social, location, and Health data broaden responsibilities        | Build explicit visibility and required operational tooling.      |
 
 ## 18. Decision register and open questions
 
 ### Recorded direction
 
-| ID | Statement | Status |
-|---|---|---|
-| D01 | Keep Course Quest’s golf-course journal/passport foundation visible in planning. | Current foundation; recommended continuity |
-| D02 | Explore a full social aspect beyond the personal feed. | Proposed by Jaylon |
-| D03 | Explore live rounds and smartwatch-assisted shot tracking. | Proposed by Jaylon |
-| D04 | Explore a contextual AI-assisted caddie using personal and situational data. | Proposed by Jaylon |
-| D05 | Explore a smartwatch companion and optional Apple Health integration. | Proposed by Jaylon |
-| D06 | Explore a later handicap system and potential Golf Canada relationship. | Proposed by Jaylon; external access unconfirmed |
-| D07 | Use this Markdown document as an editable planning source. | Requested by Jaylon |
+| ID  | Statement                                                                        | Status                                          |
+| --- | -------------------------------------------------------------------------------- | ----------------------------------------------- |
+| D01 | Keep Course Quest’s golf-course journal/passport foundation visible in planning. | Current foundation; recommended continuity      |
+| D02 | Explore a full social aspect beyond the personal feed.                           | Proposed by Jaylon                              |
+| D03 | Explore live rounds and smartwatch-assisted shot tracking.                       | Proposed by Jaylon                              |
+| D04 | Explore a contextual AI-assisted caddie using personal and situational data.     | Proposed by Jaylon                              |
+| D05 | Explore a smartwatch companion and optional Apple Health integration.            | Proposed by Jaylon                              |
+| D06 | Explore a later handicap system and potential Golf Canada relationship.          | Proposed by Jaylon; external access unconfirmed |
+| D07 | Use this Markdown document as an editable planning source.                       | Requested by Jaylon                             |
 
 ### Questions to resolve
 
@@ -679,9 +679,9 @@ The existing Expo foundation does not require an automatic rewrite. Architecture
 
 When a decision is made, append a row with its date, rationale, and evidence. Keep rejected alternatives only when they explain a meaningful tradeoff.
 
-| ID | Date | Decision | Rationale / evidence | Revisit trigger |
-|---|---|---|---|---|
-| D08 | TBD | TBD | TBD | TBD |
+| ID  | Date | Decision | Rationale / evidence | Revisit trigger |
+| --- | ---- | -------- | -------------------- | --------------- |
+| D08 | TBD  | TBD      | TBD                  | TBD             |
 
 ## 19. Current execution checklist
 
@@ -729,14 +729,14 @@ After each meaningful change:
 ### Validation-results template
 
 | Date / cohort | What was tested | Observed result | Interpretation / limits | Next change |
-|---|---|---|---|---|
-| TBD | TBD | TBD | TBD | TBD |
+| ------------- | --------------- | --------------- | ----------------------- | ----------- |
+| TBD           | TBD             | TBD             | TBD                     | TBD         |
 
 ### Changelog
 
-| Version | Date | Change |
-|---|---|---|
-| 0.1 | 2026-09-30 | Consolidated current-source observations, Jaylon’s proposed product pillars, commercial scenarios, recommended sequence, dependencies, and open decisions. No new feature implementation or user validation claimed. |
+| Version | Date       | Change                                                                                                                                                                                                               |
+| ------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.1     | 2026-09-30 | Consolidated current-source observations, Jaylon’s proposed product pillars, commercial scenarios, recommended sequence, dependencies, and open decisions. No new feature implementation or user validation claimed. |
 
 ## 22. Source register
 
@@ -755,20 +755,20 @@ Research snapshot: September 30, 2026. Links describe the sources used, not endo
 
 ### External primary sources
 
-| ID | Source | Used for |
-|---|---|---|
-| S1 | [Birdied press kit](https://birdied.app/press) | Free passport/tracking functionality |
-| S2 | [Course Vaults](https://www.coursevaults.com/) | Course passport, reviews, maps, and social overlap |
-| S3 | [Golf Course Passport — Canadian App Store](https://apps.apple.com/ca/app/golf-course-passport/id6757707994) | Passport features and listed purchase prices; not sales estimates |
-| S4 | [18Birdies Community Feed and Activity Sharing](https://help.18birdies.com/article/564-community-feed-and-activity-sharing) | Social feed overlap |
-| S5 | [18Birdies Club Recommendations and True Distance](https://help.18birdies.com/article/791-club-recommendations-and-true-distance) | Contextual club recommendations |
-| S6 | [18Birdies Apple Watch Auto Swing Detection](https://help.18birdies.com/article/722-how-shot-detection-works-in-18birdies) | Automatic detection, limitations, and corrections |
-| S7 | [Golfshot automatic shot tracking](https://golfshot.com/blog/the-app-that-tracks-all-of-your-shots) | Existing watch-tracking competitor |
-| S8 | [Golf Canada App](https://www.golfcanada.ca/golf-canada-app/) | Official app capabilities |
-| S9 | [Apple Watch Connectivity](https://developer.apple.com/documentation/WatchConnectivity) | Companion data exchange |
-| S10 | [Golf Canada Handicapping](https://www.golfcanada.ca/handicapping/) | Official system authorization considerations |
-| S11 | [Apple App Store Small Business Program](https://developer.apple.com/app-store/small-business-program/) | Conditional 15% commission and enrollment |
-| S12 | [Apple App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/) | Public user-generated content, purchases, and release requirements |
-| S13 | [Apple HealthKit: Protecting user privacy](https://developer.apple.com/documentation/HealthKit/protecting-user-privacy) | Health-data handling restrictions |
-| S14 | [Google Places API policies](https://developers.google.com/maps/documentation/places/web-service/policies) | Storage, caching, attribution, and map-display considerations |
-| S15 | [Open-Meteo pricing](https://open-meteo.com/en/pricing) | Commercial hosted access and historical-weather plan requirements |
+| ID  | Source                                                                                                                            | Used for                                                           |
+| --- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| S1  | [Birdied press kit](https://birdied.app/press)                                                                                    | Free passport/tracking functionality                               |
+| S2  | [Course Vaults](https://www.coursevaults.com/)                                                                                    | Course passport, reviews, maps, and social overlap                 |
+| S3  | [Golf Course Passport — Canadian App Store](https://apps.apple.com/ca/app/golf-course-passport/id6757707994)                      | Passport features and listed purchase prices; not sales estimates  |
+| S4  | [18Birdies Community Feed and Activity Sharing](https://help.18birdies.com/article/564-community-feed-and-activity-sharing)       | Social feed overlap                                                |
+| S5  | [18Birdies Club Recommendations and True Distance](https://help.18birdies.com/article/791-club-recommendations-and-true-distance) | Contextual club recommendations                                    |
+| S6  | [18Birdies Apple Watch Auto Swing Detection](https://help.18birdies.com/article/722-how-shot-detection-works-in-18birdies)        | Automatic detection, limitations, and corrections                  |
+| S7  | [Golfshot automatic shot tracking](https://golfshot.com/blog/the-app-that-tracks-all-of-your-shots)                               | Existing watch-tracking competitor                                 |
+| S8  | [Golf Canada App](https://www.golfcanada.ca/golf-canada-app/)                                                                     | Official app capabilities                                          |
+| S9  | [Apple Watch Connectivity](https://developer.apple.com/documentation/WatchConnectivity)                                           | Companion data exchange                                            |
+| S10 | [Golf Canada Handicapping](https://www.golfcanada.ca/handicapping/)                                                               | Official system authorization considerations                       |
+| S11 | [Apple App Store Small Business Program](https://developer.apple.com/app-store/small-business-program/)                           | Conditional 15% commission and enrollment                          |
+| S12 | [Apple App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/)                                           | Public user-generated content, purchases, and release requirements |
+| S13 | [Apple HealthKit: Protecting user privacy](https://developer.apple.com/documentation/HealthKit/protecting-user-privacy)           | Health-data handling restrictions                                  |
+| S14 | [Google Places API policies](https://developers.google.com/maps/documentation/places/web-service/policies)                        | Storage, caching, attribution, and map-display considerations      |
+| S15 | [Open-Meteo pricing](https://open-meteo.com/en/pricing)                                                                           | Commercial hosted access and historical-weather plan requirements  |
