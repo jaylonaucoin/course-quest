@@ -3,7 +3,7 @@ import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Image, Pr
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
 import { deleteRound, getRounds, getUnits } from "../utils/DataController";
 import { useScrollToTop, useFocusEffect } from "@react-navigation/native";
-import ImageView from "react-native-image-viewing";
+import ImageView from "../components/image-view";
 import WeatherIcon from "../components/WeatherIcon";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useToast } from "../utils/ToastContext";
