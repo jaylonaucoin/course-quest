@@ -31,7 +31,7 @@ jest.mock("@react-navigation/native", () => {
 			React.useEffect(() => {
 				const cleanup = typeof callback === "function" ? callback() : undefined;
 				return typeof cleanup === "function" ? cleanup : undefined;
-			}, []);
+			}, [callback]);
 		},
 		useScrollToTop: () => {},
 	};

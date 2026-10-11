@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, RefreshControl, View, Dimensions, TouchableOpacity, Image, Pressable } from "react-native";
 import { Card, Text, Avatar, IconButton, useTheme, Menu, Divider, Icon, Button } from "react-native-paper";
 import { deleteRound, getRounds, getUnits } from "../utils/DataController";
@@ -43,7 +43,7 @@ export default function HomeScreen({ navigation }) {
 	};
 
 	// Function to fetch rounds from the database
-	const fetchRounds = async () => {
+	const fetchRounds = useCallback(async () => {
 		setRefreshing(true);
 		try {
 			const data = await getRounds();
@@ -57,7 +57,7 @@ export default function HomeScreen({ navigation }) {
 		} finally {
 			setRefreshing(false);
 		}
-	};
+	}, [showError]);
 
 	const goToEditRoundScreen = (round) => {
 		toggleMenu(round.id);
@@ -74,16 +74,16 @@ export default function HomeScreen({ navigation }) {
 	// Refresh data on initial mount
 	useEffect(() => {
 		fetchRounds();
-	}, []);
+	}, [fetchRounds]);
 
 	// Add useFocusEffect to refresh data when the screen comes into focus
 	useFocusEffect(
-		React.useCallback(() => {
+		useCallback(() => {
 			fetchRounds();
 			return () => {
 				// Cleanup if needed
 			};
-		}, []),
+		}, [fetchRounds]),
 	);
 
 	return (
